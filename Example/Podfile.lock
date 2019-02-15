@@ -1,0 +1,69 @@
+PODS:
+  - DACircularProgress (2.3.1)
+  - FBSnapshotTestCase (2.1.4):
+    - FBSnapshotTestCase/SwiftSupport (= 2.1.4)
+  - FBSnapshotTestCase/Core (2.1.4)
+  - FBSnapshotTestCase/SwiftSupport (2.1.4):
+    - FBSnapshotTestCase/Core
+  - libwebp (1.0.2):
+    - libwebp/core (= 1.0.2)
+    - libwebp/dec (= 1.0.2)
+    - libwebp/demux (= 1.0.2)
+    - libwebp/dsp (= 1.0.2)
+    - libwebp/enc (= 1.0.2)
+    - libwebp/mux (= 1.0.2)
+    - libwebp/utils (= 1.0.2)
+    - libwebp/webp (= 1.0.2)
+  - libwebp/core (1.0.2):
+    - libwebp/webp
+  - libwebp/dec (1.0.2):
+    - libwebp/core
+  - libwebp/demux (1.0.2):
+    - libwebp/core
+  - libwebp/dsp (1.0.2):
+    - libwebp/core
+  - libwebp/enc (1.0.2):
+    - libwebp/core
+  - libwebp/mux (1.0.2):
+    - libwebp/core
+  - libwebp/utils (1.0.2):
+    - libwebp/core
+  - libwebp/webp (1.0.2)
+  - RLImageBrowser (1.0.0):
+    - DACircularProgress
+    - SDWebImage (~> 5.0.0-beta4)
+    - SDWebImageWebPCoder (~> 0.1.1)
+  - SDWebImage (5.0.0-beta5):
+    - SDWebImage/Core (= 5.0.0-beta5)
+  - SDWebImage/Core (5.0.0-beta5)
+  - SDWebImageWebPCoder (0.1.3):
+    - libwebp (~> 1.0)
+    - SDWebImage/Core (>= 5.0.0-beta4)
+
+DEPENDENCIES:
+  - FBSnapshotTestCase
+  - RLImageBrowser (from `../`)
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - DACircularProgress
+    - FBSnapshotTestCase
+    - libwebp
+    - SDWebImage
+    - SDWebImageWebPCoder
+
+EXTERNAL SOURCES:
+  RLImageBrowser:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  DACircularProgress: 4dd437c0fc3da5161cb289e07ac449493d41db71
+  FBSnapshotTestCase: 094f9f314decbabe373b87cc339bea235a63e07a
+  libwebp: 10b2bf3c62bfa28046ff701771c9a75a7683d49b
+  RLImageBrowser: 31f8e3ccb626e9f8695c1f79a031688c3620facc
+  SDWebImage: fd609df53c0f55fdcd4705bd14c01c9d5c348d0c
+  SDWebImageWebPCoder: a0aba868d75fb474d67a5417d8536142ad9e383b
+
+PODFILE CHECKSUM: cf1bd369bd4478241f183b5fec55087707292f2a
+
+COCOAPODS: 1.5.3
