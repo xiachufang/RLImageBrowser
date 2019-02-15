@@ -9,7 +9,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import "RLPhotoBrowser.h"
 #import "RLZoomingScrollView.h"
-#import "RLHelper.h"
+#import "RLRectHelper.h"
 
 #ifndef RLPhotoBrowserLocalizedStrings
 #define RLPhotoBrowserLocalizedStrings(key) \
@@ -1028,7 +1028,7 @@ CGFloat const kPageViewPadding = 10.0f;
 }
 
 - (CGRect)adjustForSafeArea:(CGRect)rect adjustForStatusBar:(BOOL)adjust forInsets:(UIEdgeInsets) insets {
-    return [RLHelper adjustRect:rect forSafeAreaInsets:insets forBounds:self.view.bounds adjustForStatusBar:adjust statusBarHeight:kLessThaniOS11StatusBarHeight];
+    return [RLRectHelper adjustRect:rect forSafeAreaInsets:insets forBounds:self.view.bounds adjustForStatusBar:adjust statusBarHeight:kLessThaniOS11StatusBarHeight];
 }
 
 #pragma mark - UIScrollView Delegate

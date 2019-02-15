@@ -1,14 +1,14 @@
 //
-//  RLHelper.m
+//  RLRectHelper.m
 //  RLImageBrowser
 //
 //  Created by kinarobin on 2019/1/31.
 //  Copyright © 2019 kinarobin@outlook.com. All rights reserved.
 //
 
-#import "RLHelper.h"
+#import "RLRectHelper.h"
 
-@implementation RLHelper
+@implementation RLRectHelper
 
 + (CGRect)adjustRect:(CGRect)rect
    forSafeAreaInsets:(UIEdgeInsets)insets

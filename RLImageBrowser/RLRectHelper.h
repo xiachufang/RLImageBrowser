@@ -1,5 +1,5 @@
 //
-//  RLHelper.h
+//  RLRectHelper.h
 //  RLImageBrowser
 //
 //  Created by kinarobin on 2019/1/31.
@@ -11,7 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface RLHelper : NSObject
+@interface RLRectHelper : NSObject
 
 + (CGRect)adjustRect:(CGRect)rect
    forSafeAreaInsets:(UIEdgeInsets)insets
