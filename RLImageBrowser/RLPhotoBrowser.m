@@ -57,11 +57,14 @@ CGFloat const kPageViewPadding = 10.0f;
 
     CGRect _senderViewOriginalFrame;
     UIWindow *_applicationWindow;
+    BOOL _isGestureInteraction;
 }
 
 // Private Properties
 @property (nonatomic, strong) UIActivityViewController *activityViewController;
 @property (nonatomic, assign) CGPoint gestureInteractionStartPoint;
+@property (nonatomic, assign) CGPoint zoomingScrollViewCenter;
+
 @property (nonatomic, strong) UIPanGestureRecognizer *panGesture;
 
 // Layout
@@ -241,78 +244,88 @@ CGFloat const kPageViewPadding = 10.0f;
 - (void)panGestureRecognized:(UIPanGestureRecognizer *)sender {
     // Initial Setup
     RLZoomingScrollView *scrollView = [self pageDisplayedAtIndex:_currentPageIndex];
-    static float firstX, firstY;
-
-    float viewHeight = scrollView.frame.size.height;
-    float viewHalfHeight = viewHeight / 2;
-
-    CGPoint translatedPoint = [sender translationInView:self.view];
     CGPoint currentPoint = [sender locationInView:self.view];
     // Gesture Began
     if ([sender state] == UIGestureRecognizerStateBegan) {
         self.gestureInteractionStartPoint = currentPoint;
+        self.zoomingScrollViewCenter = scrollView.center;
         [self setControlsHidden:YES animated:YES permanent:YES];
-        firstX = [scrollView center].x;
-        firstY = [scrollView center].y;
         _senderViewForAnimation.hidden = (_currentPageIndex == _initalPageIndex);
         _isDraggingPhoto = YES;
         [self setNeedsStatusBarAppearanceUpdate];
-    }
-
-    if (sender.state == UIGestureRecognizerStateChanged) {
-        scrollView.center = CGPointMake(firstX, firstY + translatedPoint.y);
-        CGFloat scale = 1 - ABS(currentPoint.y - self.gestureInteractionStartPoint.y) / (self.view.bounds.size.height * 0.8);
-        if (scale > 1) scale = 1;
-        if (scale < 0.35) scale = 0.35;
-        scrollView.transform = CGAffineTransformMakeScale(scale, scale);
-        
-        self.view.opaque = YES;
-        CGFloat alpha = 1 - ABS(currentPoint.y - self.gestureInteractionStartPoint.y) / (self.view.bounds.size.height * 1.1);
-        if (alpha > 1) alpha = 1;
-        if (alpha < 0) alpha = 0;
-        self.view.backgroundColor = [UIColor colorWithWhite:(_useWhiteBackgroundColor ? 1 : 0) alpha:alpha];
-    }
-    
-    // Gesture Ended
-    if ([sender state] == UIGestureRecognizerStateEnded) {
-        if (scrollView.center.y > viewHalfHeight + 40 || scrollView.center.y < viewHalfHeight - 40) { // Automatic Dismiss View
+    } else if (sender.state == UIGestureRecognizerStateCancelled || sender.state == UIGestureRecognizerStateEnded || sender.state == UIGestureRecognizerStateRecognized || sender.state == UIGestureRecognizerStateFailed) {
+        CGPoint velocity = [sender velocityInView:self.view];
+        BOOL velocityArrive = ABS(velocity.y) > 800;
+        BOOL distanceArrive = ABS(currentPoint.y - self.gestureInteractionStartPoint.y) > [UIScreen mainScreen].bounds.size.height * 0.22;
+        BOOL shouldDismiss = distanceArrive || velocityArrive;
+        if (shouldDismiss) { // Automatic Dismiss View
             if (_senderViewForAnimation && _currentPageIndex == _initalPageIndex) {
                 [self performCloseAnimationWithScrollView:scrollView];
                 return;
             }
             CGFloat animationDuration = 0.25;
-
+            
             [UIView beginAnimations:nil context:NULL];
             [UIView setAnimationDuration:animationDuration];
             [UIView setAnimationCurve:UIViewAnimationCurveEaseIn];
             [UIView setAnimationDelegate:self];
-            [scrollView setCenter:CGPointMake(firstX, firstY)];
+            [scrollView setCenter: self.zoomingScrollViewCenter];
             scrollView.transform = CGAffineTransformMakeScale(0.001f, 0.001f);
             scrollView.alpha = 0;
             self.view.backgroundColor = [UIColor colorWithWhite:0 alpha:0];
             [UIView commitAnimations];
-
+            
             [self performSelector:@selector(doneButtonPressed:) withObject:self afterDelay:animationDuration];
         } else {
             // Continue Showing View
             _isDraggingPhoto = NO;
             [self setNeedsStatusBarAppearanceUpdate];
-
+            
             self.view.backgroundColor = [UIColor colorWithWhite:(_useWhiteBackgroundColor ? 1 : 0) alpha:1];
-
-            CGFloat velocityY = (0.35 * [(UIPanGestureRecognizer*)sender velocityInView:self.view].y);
-
-            CGFloat finalX = firstX;
-            CGFloat finalY = viewHalfHeight;
-
-            CGFloat animationDuration = (ABS(velocityY) * 0.0002f) + 0.2f;
-
-            [UIView beginAnimations:nil context:NULL];
-            [UIView setAnimationDuration:animationDuration];
-            [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
-            [UIView setAnimationDelegate:self];
-            [scrollView setCenter:CGPointMake(finalX, finalY)];
-            [UIView commitAnimations];
+            [UIView animateWithDuration:0.15 animations:^{
+                scrollView.center = self.zoomingScrollViewCenter;
+                scrollView.layer.anchorPoint = CGPointMake(0.5, 0.5);
+                scrollView.transform = CGAffineTransformIdentity;
+            } completion:^(BOOL finished) {
+                self.gestureInteractionStartPoint = CGPointZero;
+                self->_isGestureInteraction = NO;
+                scrollView.userInteractionEnabled = YES;
+                scrollView.scrollEnabled = YES;
+            }];
+        }
+    } else if (sender.state == UIGestureRecognizerStateChanged) {
+        
+        BOOL startPointValid = !CGPointEqualToPoint(self.gestureInteractionStartPoint, CGPointZero);
+        BOOL upArrive = currentPoint.y - self.gestureInteractionStartPoint.y > 3 && scrollView.contentOffset.y <= 1,
+        downArrive = currentPoint.y - self.gestureInteractionStartPoint.y < - 3 && scrollView.contentOffset.y + scrollView.bounds.size.height >= MAX(scrollView.contentSize.height, scrollView.bounds.size.height) - 1;
+        
+        BOOL shouldStart = startPointValid && !self->_isGestureInteraction && (upArrive || downArrive);
+        // START
+        if (shouldStart) {
+            self.gestureInteractionStartPoint = currentPoint;
+            
+            CGRect startFrame = scrollView.frame;
+            CGFloat anchorX = currentPoint.x / startFrame.size.width,
+            anchorY = currentPoint.y / startFrame.size.height;
+            scrollView.layer.anchorPoint = CGPointMake(anchorX, anchorY);
+            scrollView.userInteractionEnabled = NO;
+            scrollView.scrollEnabled = NO;
+            self->_isGestureInteraction = YES;
+        }
+        
+        // CHNAGE
+        if (self->_isGestureInteraction) {
+            NSInteger index = _pagingScrollView.contentOffset.x / (self.view.frame.size.width + 2 * kPageViewPadding);
+            scrollView.center = CGPointMake(index * (self.view.frame.size.width + 2 * kPageViewPadding) + currentPoint.x + kPageViewPadding, currentPoint.y);;
+            CGFloat scale = 1 - ABS(currentPoint.y - self.gestureInteractionStartPoint.y) / ([UIScreen mainScreen].bounds.size.height);
+            if (scale > 1) scale = 1;
+            if (scale < 0.35) scale = 0.35;
+            scrollView.transform = CGAffineTransformMakeScale(scale, scale);
+            
+            CGFloat alpha = 1 - ABS(currentPoint.y - self.gestureInteractionStartPoint.y) / ([UIScreen mainScreen].bounds.size.height);
+            if (alpha > 1) alpha = 1;
+            if (alpha < 0) alpha = 0;
+            self.view.backgroundColor = [UIColor colorWithWhite:(_useWhiteBackgroundColor ? 1 : 0) alpha:alpha];
         }
     }
 }
