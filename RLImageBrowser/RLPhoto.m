@@ -137,20 +137,20 @@
                 [self loadImageFromFileAsync];
             });
         } else if (_photoURL) {
-            // Load async from web (using SDWebImageManager)
+            __weak typeof(self) wself = self;
 			[[SDWebImageManager sharedManager] loadImageWithURL:_photoURL options:SDWebImageRetryFailed progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     CGFloat progress = ((CGFloat)receivedSize)/((CGFloat)expectedSize);
-                    if (self.progressUpdateBlock) {
-                        self.progressUpdateBlock(progress);
+                    if (wself.progressUpdateBlock) {
+                        wself.progressUpdateBlock(progress);
                     }
                 });
 			} completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     if (image) {
-                        self.underlyingImage = image;
+                        wself.underlyingImage = image;
                     }
-                    [self imageLoadingComplete];
+                    [wself imageLoadingComplete];
                 });
 			}];
         } else {

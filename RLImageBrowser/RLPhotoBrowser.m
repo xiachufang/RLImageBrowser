@@ -60,46 +60,6 @@ CGFloat const kPageViewPadding = 10.0f;
 @property (nonatomic, strong) UIPanGestureRecognizer *panGesture;
 @property (nonatomic, strong) UIButton *closeButton;
 
-// Layout
-- (void)performLayout;
-
-// Paging
-- (void)tilePages;
-- (BOOL)isDisplayingPageForIndex:(NSUInteger)index;
-- (RLZoomingScrollView *)pageDisplayedAtIndex:(NSUInteger)index;
-- (RLZoomingScrollView *)pageDisplayingPhoto:(id<RLPhoto>)photo;
-- (RLZoomingScrollView *)dequeueRecycledPage;
-- (void)configurePage:(RLZoomingScrollView *)page forIndex:(NSUInteger)index;
-- (void)didStartViewingPageAtIndex:(NSUInteger)index;
-
-// Frames
-- (CGRect)frameForPagingScrollView;
-- (CGRect)frameForPageAtIndex:(NSUInteger)index;
-- (CGSize)contentSizeForPagingScrollView;
-- (CGPoint)contentOffsetForPageAtIndex:(NSUInteger)index;
-- (CGRect)frameForToolbarAtOrientation:(UIInterfaceOrientation)orientation;
-- (CGRect)frameForDoneButtonAtOrientation:(UIInterfaceOrientation)orientation;
-- (CGRect)frameForCaptionView:(RLCaptionView *)captionView atIndex:(NSUInteger)index;
-
-// Navigation
-- (void)jumpToPageAtIndex:(NSUInteger)index;
-
-// Controls
-- (void)cancelControlHiding;
-- (void)hideControlsAfterDelay;
-- (void)setControlsHidden:(BOOL)hidden animated:(BOOL)animated permanent:(BOOL)permanent;
-- (BOOL)areControlsHidden;
-
-// Interactions
-- (void)handleSingleTap;
-
-// Data
-- (NSUInteger)numberOfPhotos;
-- (id<RLPhoto>)photoAtIndex:(NSUInteger)index;
-- (UIImage *)imageForPhoto:(id<RLPhoto>)photo;
-- (void)loadAdjacentPhotosIfNecessary:(id<RLPhoto>)photo;
-- (void)releaseAllUnderlyingPhotos;
-
 @end
 
 // RLPhotoBrowser
@@ -206,7 +166,7 @@ CGFloat const kPageViewPadding = 10.0f;
         if (p != [NSNull null]) {
             [p unloadUnderlyingImage];
         }
-    } // Release photos
+    }
 }
 
 - (void)didReceiveMemoryWarning {
