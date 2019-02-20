@@ -258,24 +258,20 @@ CGFloat const kPageViewPadding = 10.0f;
         BOOL velocityArrive = ABS(velocity.y) > 800;
         BOOL distanceArrive = ABS(currentPoint.y - self.gestureInteractionStartPoint.y) > [UIScreen mainScreen].bounds.size.height * 0.22;
         BOOL shouldDismiss = distanceArrive || velocityArrive;
-        if (shouldDismiss) { // Automatic Dismiss View
+        if (shouldDismiss) {
+            // perform Close Animation
             if (_senderViewForAnimation && _currentPageIndex == _initalPageIndex) {
                 [self performCloseAnimationWithScrollView:scrollView];
                 return;
             }
-            CGFloat animationDuration = 0.25;
-            
-            [UIView beginAnimations:nil context:NULL];
-            [UIView setAnimationDuration:animationDuration];
-            [UIView setAnimationCurve:UIViewAnimationCurveEaseIn];
-            [UIView setAnimationDelegate:self];
-            [scrollView setCenter: self.zoomingScrollViewCenter];
-            scrollView.transform = CGAffineTransformMakeScale(0.001f, 0.001f);
-            scrollView.alpha = 0;
-            self.view.backgroundColor = [UIColor colorWithWhite:0 alpha:0];
-            [UIView commitAnimations];
-            
-            [self performSelector:@selector(doneButtonPressed:) withObject:self afterDelay:animationDuration];
+            [UIView animateWithDuration:0.25 animations:^{
+                [scrollView setCenter: self.zoomingScrollViewCenter];
+                scrollView.transform = CGAffineTransformMakeScale(0.001f, 0.001f);
+                scrollView.alpha = 0;
+                self.view.backgroundColor = [UIColor colorWithWhite:0 alpha:0];
+            } completion:^(BOOL finished) {
+                [self doneButtonPressed:nil];
+            }];
         } else {
             // Continue Showing View
             _isDraggingPhoto = NO;
@@ -294,13 +290,12 @@ CGFloat const kPageViewPadding = 10.0f;
             }];
         }
     } else if (sender.state == UIGestureRecognizerStateChanged) {
-        
+        CGPoint velocity = [sender velocityInView:self.view];
         BOOL startPointValid = !CGPointEqualToPoint(self.gestureInteractionStartPoint, CGPointZero);
+        BOOL distanceArrive = ABS(currentPoint.x - self.gestureInteractionStartPoint.x) < 3 && ABS(velocity.x) < 500;
         BOOL upArrive = currentPoint.y - self.gestureInteractionStartPoint.y > 3 && scrollView.contentOffset.y <= 1,
         downArrive = currentPoint.y - self.gestureInteractionStartPoint.y < - 3 && scrollView.contentOffset.y + scrollView.bounds.size.height >= MAX(scrollView.contentSize.height, scrollView.bounds.size.height) - 1;
-        
-        BOOL shouldStart = startPointValid && !self->_isGestureInteraction && (upArrive || downArrive);
-        // START
+        BOOL shouldStart = startPointValid && !self->_isGestureInteraction && distanceArrive && (upArrive || downArrive);
         if (shouldStart) {
             self.gestureInteractionStartPoint = currentPoint;
             
@@ -313,7 +308,6 @@ CGFloat const kPageViewPadding = 10.0f;
             self->_isGestureInteraction = YES;
         }
         
-        // CHNAGE
         if (self->_isGestureInteraction) {
             NSInteger index = _pagingScrollView.contentOffset.x / (self.view.frame.size.width + 2 * kPageViewPadding);
             scrollView.center = CGPointMake(index * (self.view.frame.size.width + 2 * kPageViewPadding) + currentPoint.x + kPageViewPadding, currentPoint.y);;
