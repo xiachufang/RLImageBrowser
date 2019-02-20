@@ -23,8 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak) RLPhotoBrowser *photoBrowser;
 @property (nonatomic, strong) RLDetectingImageView *photoImageView;
 @property (nonatomic, strong) RLDetectingView *tapView;
-@property (nonatomic, strong) RLCaptionView *captionView;
-@property (nonatomic, strong) id<RLPhoto> photo;
+@property (nonatomic, strong, nullable) RLCaptionView *captionView;
+@property (nonatomic, strong, nullable) id<RLPhoto> photo;
 @property (nonatomic) CGFloat maximumDoubleTapZoomScale;
 
 - (instancetype)initWithPhotoBrowser:(RLPhotoBrowser *)browser;
