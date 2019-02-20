@@ -33,11 +33,8 @@
 // Toolbar customization
 @property (nonatomic, assign) BOOL displayToolbar;
 @property (nonatomic, assign) BOOL displayCounterLabel;
-@property (nonatomic, assign) BOOL displayArrowButton;
 @property (nonatomic, assign) BOOL displayActionButton;
 
-@property (nonatomic, weak) UIImage *leftArrowImage, *leftArrowSelectedImage;
-@property (nonatomic, weak) UIImage *rightArrowImage, *rightArrowSelectedImage;
 @property (nonatomic, weak) UIImage *actionButtonImage, *actionButtonSelectedImage;
 
 // View customization

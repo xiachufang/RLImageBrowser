@@ -25,14 +25,11 @@ CGFloat const kPageViewPadding = 10.0f;
     NSMutableSet *_visiblePages, *_recycledPages;
     NSUInteger _pageIndexBeforeRotation;
     NSUInteger _currentPageIndex;
-
-    // Buttons
-    UIButton *_doneButton;
-
+    
 	// Toolbar
 	UIToolbar *_toolbar;
-	UIBarButtonItem *_previousButton, *_nextButton, *_actionButton;
-    UIBarButtonItem *_counterButton;
+	UIBarButtonItem *_actionButtonItem;
+    UIBarButtonItem *_counterButtonItem;
     UILabel *_counterLabel;
     // Control
     NSTimer *_controlVisibilityTimer;
@@ -61,6 +58,7 @@ CGFloat const kPageViewPadding = 10.0f;
 @property (nonatomic, assign) CGPoint zoomingScrollViewCenter;
 
 @property (nonatomic, strong) UIPanGestureRecognizer *panGesture;
+@property (nonatomic, strong) UIButton *closeButton;
 
 // Layout
 - (void)performLayout;
@@ -83,13 +81,8 @@ CGFloat const kPageViewPadding = 10.0f;
 - (CGRect)frameForDoneButtonAtOrientation:(UIInterfaceOrientation)orientation;
 - (CGRect)frameForCaptionView:(RLCaptionView *)captionView atIndex:(NSUInteger)index;
 
-// Toolbar
-- (void)updateToolbar;
-
 // Navigation
 - (void)jumpToPageAtIndex:(NSUInteger)index;
-- (void)gotoPreviousPage;
-- (void)gotoNextPage;
 
 // Controls
 - (void)cancelControlHiding;
@@ -129,12 +122,11 @@ CGFloat const kPageViewPadding = 10.0f;
 
         _initalPageIndex = 0;
         _autoHide = YES;
-        _autoHideInterface = YES;
+        _autoHideInterface = NO;
 
         _displayCloseButton = YES;
         _displayToolbar = YES;
         _displayActionButton = YES;
-        _displayArrowButton = YES;
         _displayCounterLabel = NO;
 
         _forceHideStatusBar = NO;
@@ -143,8 +135,6 @@ CGFloat const kPageViewPadding = 10.0f;
 		_dismissOnTouch = NO;
 
         _useWhiteBackgroundColor = NO;
-        _leftArrowImage = _rightArrowImage = _leftArrowSelectedImage = _rightArrowSelectedImage = nil;
-
         _arrowButtonsChangePhotosAnimated = YES;
 
         _backgroundScaleFactor = 1.0;
@@ -541,38 +531,14 @@ CGFloat const kPageViewPadding = 10.0f;
     [_toolbar setBackgroundImage:[UIImage new] forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsDefault];
 
     // Close Button
-    _doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [_doneButton setFrame:[self frameForDoneButtonAtOrientation:currentOrientation]];
-    [_doneButton setAlpha:1.0f];
-    [_doneButton addTarget:self action:@selector(doneButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    [_doneButton setImage:[UIImage imageWithContentsOfFile:[[NSBundle bundleForClass:[self class]] pathForResource:@"browser_close@2x" ofType:@"png"]] forState:UIControlStateNormal];
+    _closeButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [_closeButton setFrame:[self frameForDoneButtonAtOrientation:currentOrientation]];
+    [_closeButton setAlpha:1.0f];
+    [_closeButton addTarget:self action:@selector(doneButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [_closeButton setImage:[UIImage imageWithContentsOfFile:[[NSBundle bundleForClass:[self class]] pathForResource:@"browser_close@2x" ofType:@"png"]] forState:UIControlStateNormal];
 
-    UIImage *leftButtonImage = (_leftArrowImage == nil) ?
-    [UIImage imageNamed:@"RLPhotoBrowser.bundle/images/RLPhotoBrowser_arrowLeft.png"]          : _leftArrowImage;
-
-    UIImage *rightButtonImage = (_rightArrowImage == nil) ?
-    [UIImage imageNamed:@"RLPhotoBrowser.bundle/images/RLPhotoBrowser_arrowRight.png"]         : _rightArrowImage;
-
-    UIImage *leftButtonSelectedImage = (_leftArrowSelectedImage == nil) ?
-    [UIImage imageNamed:@"RLPhotoBrowser.bundle/images/RLPhotoBrowser_arrowLeftSelected.png"]  : _leftArrowSelectedImage;
-
-    UIImage *rightButtonSelectedImage = (_rightArrowSelectedImage == nil) ?
-    [UIImage imageNamed:@"RLPhotoBrowser.bundle/images/RLPhotoBrowser_arrowRightSelected.png"] : _rightArrowSelectedImage;
-
-    // Arrows
-    _previousButton = [[UIBarButtonItem alloc] initWithCustomView:[self customToolbarButtonImage:leftButtonImage
-                                                                                   imageSelected:leftButtonSelectedImage
-                                                                                          action:@selector(gotoPreviousPage)]];
-
-    _nextButton = [[UIBarButtonItem alloc] initWithCustomView:[self customToolbarButtonImage:rightButtonImage
-                                                                               imageSelected:rightButtonSelectedImage
-                                                                                      action:@selector(gotoNextPage)]];
-
-    // Counter Label
     _counterLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 95, 40)];
-    _counterLabel.textAlignment = NSTextAlignmentCenter;
     _counterLabel.backgroundColor = [UIColor clearColor];
-    _counterLabel.font = [UIFont fontWithName:@"Helvetica" size:17];
 
     if (_useWhiteBackgroundColor == NO) {
         _counterLabel.textColor = [UIColor whiteColor];
@@ -583,15 +549,15 @@ CGFloat const kPageViewPadding = 10.0f;
     }
 
     // Counter Button
-    _counterButton = [[UIBarButtonItem alloc] initWithCustomView:_counterLabel];
+    _counterButtonItem = [[UIBarButtonItem alloc] initWithCustomView:_counterLabel];
 
     // Action Button
     if(_actionButtonImage != nil && _actionButtonSelectedImage != nil) {
-        _actionButton = [[UIBarButtonItem alloc] initWithCustomView:[self customToolbarButtonImage:_actionButtonImage
+        _actionButtonItem = [[UIBarButtonItem alloc] initWithCustomView:[self customToolbarButtonImage:_actionButtonImage
                                                                                    imageSelected:_actionButtonSelectedImage
                                                                                           action:@selector(actionButtonPressed:)]];
     } else {
-        _actionButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction
+        _actionButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction
                                                                   target:self
                                                                   action:@selector(actionButtonPressed:)];
     }
@@ -599,9 +565,6 @@ CGFloat const kPageViewPadding = 10.0f;
     _panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGestureRecognized:)];
     [_panGesture setMinimumNumberOfTouches:1];
     [_panGesture setMaximumNumberOfTouches:1];
-
-    // Update
-    //[self reloadData];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -659,9 +622,7 @@ CGFloat const kPageViewPadding = 10.0f;
     // Toolbar
     _toolbar.frame = [self frameForToolbarAtOrientation:currentOrientation];
 
-    // Done button
-    _doneButton.frame = [self frameForDoneButtonAtOrientation:currentOrientation];
-
+    _closeButton.frame = [self frameForDoneButtonAtOrientation:currentOrientation];
 
     // Remember index
 	NSUInteger indexPriorToLayout = _currentPageIndex;
@@ -711,12 +672,12 @@ CGFloat const kPageViewPadding = 10.0f;
 
     // Close button
     if (_displayCloseButton && !self.navigationController.navigationBar) {
-        [self.view addSubview:_doneButton];
+        [self.view addSubview:_closeButton];
     }
     
     [self configToolBar];
    
-	[self updateToolbar];
+	[self updateToolbarCounterLabel];
 
     // Content offset
 	_pagingScrollView.contentOffset = [self contentOffsetForPageAtIndex:_currentPageIndex];
@@ -1036,7 +997,7 @@ CGFloat const kPageViewPadding = 10.0f;
         [self didStartViewingPageAtIndex:index];
 
         if (_arrowButtonsChangePhotosAnimated) {
-            [self updateToolbar];
+            [self updateToolbarCounterLabel];
         }
     }
 }
@@ -1050,56 +1011,36 @@ CGFloat const kPageViewPadding = 10.0f;
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
 	// Update toolbar when page changes
-	if(! _arrowButtonsChangePhotosAnimated) [self updateToolbar];
+    if(! _arrowButtonsChangePhotosAnimated) {
+        [self updateToolbarCounterLabel];
+    }
 }
 
 #pragma mark - Toolbar
 - (void)configToolBar {
-    NSUInteger numberOfPhotos = [self numberOfPhotos];
-    // Toolbar items & navigation
-    UIBarButtonItem *fixedLeftSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace
-                                                                                    target:self action:nil];
-    fixedLeftSpace.width = 32; // To balance action button
     UIBarButtonItem *flexSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
                                                                                target:self action:nil];
     NSMutableArray *items = [NSMutableArray new];
-    
-    if (_displayActionButton) {
-        [items addObject:fixedLeftSpace];
-    }
-    [items addObject:flexSpace];
-    
-    if (numberOfPhotos > 1 && _displayArrowButton) {
-        [items addObject:_previousButton];
-    }
-    
     if (_displayCounterLabel) {
-        [items addObject:flexSpace];
-        [items addObject:_counterButton];
+        [items addObject:_counterButtonItem];
     }
     [items addObject:flexSpace];
-    
-    if (numberOfPhotos > 1 && _displayArrowButton) {
-        [items addObject:_nextButton];
-    }
     [items addObject:flexSpace];
     
     if (_displayActionButton) {
-        [items addObject:_actionButton];
+        [items addObject:flexSpace];
+        [items addObject:_actionButtonItem];
     }
     [_toolbar setItems:items];
 }
 
-- (void)updateToolbar {
+- (void)updateToolbarCounterLabel {
     // Counter
 	if ([self numberOfPhotos] > 1) {
 		_counterLabel.text = [NSString stringWithFormat:@"%lu / %lu", (unsigned long)(_currentPageIndex + 1), (unsigned long)[self numberOfPhotos]];
 	} else {
 		_counterLabel.text = nil;
 	}
-	// Buttons
-	_previousButton.enabled = (_currentPageIndex > 0);
-	_nextButton.enabled = (_currentPageIndex < [self numberOfPhotos]-1);
 }
 
 - (void)jumpToPageAtIndex:(NSUInteger)index {
@@ -1111,19 +1052,12 @@ CGFloat const kPageViewPadding = 10.0f;
             [_pagingScrollView setContentOffset:CGPointMake(pageFrame.origin.x - kPageViewPadding, 0) animated:YES];
         } else {
             _pagingScrollView.contentOffset = CGPointMake(pageFrame.origin.x - kPageViewPadding, 0);
-            [self updateToolbar];
+            [self updateToolbarCounterLabel];
         }
 	}
 
 	// Update timer to give more time
 	[self hideControlsAfterDelay];
-}
-
-- (void)gotoPreviousPage {
-    [self jumpToPageAtIndex:_currentPageIndex - 1];
-}
-- (void)gotoNextPage {
-    [self jumpToPageAtIndex:_currentPageIndex + 1];
 }
 
 #pragma mark - Control Hiding / Showing
@@ -1146,7 +1080,7 @@ CGFloat const kPageViewPadding = 10.0f;
         CGFloat alpha = hidden ? 0 : 1;
         [self.navigationController.navigationBar setAlpha:alpha];
         [self->_toolbar setAlpha:alpha];
-        [self->_doneButton setAlpha:alpha];
+        [self.closeButton setAlpha:alpha];
         for (UIView *v in captionViews) {
             v.alpha = alpha;
         }
