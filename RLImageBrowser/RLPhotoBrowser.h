@@ -43,10 +43,7 @@
 // View customization
 @property (nonatomic, assign) BOOL displayCloseButton;
 @property (nonatomic, assign) BOOL useWhiteBackgroundColor;
-@property (nonatomic, weak) UIImage *doneButtonImage;
 @property (nonatomic, weak) UIColor *trackTintColor, *progressTintColor;
-@property (nonatomic, assign) CGFloat doneButtonRightInset, doneButtonTopInset;
-@property (nonatomic, assign) CGSize doneButtonSize;
 
 @property (nonatomic, weak) UIImage *scaleImage;
 

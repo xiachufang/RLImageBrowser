@@ -11,11 +11,6 @@
 #import "RLZoomingScrollView.h"
 #import "RLRectHelper.h"
 
-#ifndef RLPhotoBrowserLocalizedStrings
-#define RLPhotoBrowserLocalizedStrings(key) \
-NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBundle bundleForClass: [RLPhotoBrowser class]] pathForResource:@"RLLocalizations" ofType:@"bundle"]], nil)
-#endif
-
 CGFloat const kLessThaniOS11StatusBarHeight = 20.0f;
 CGFloat const kPageViewPadding = 10.0f;
 
@@ -137,8 +132,6 @@ CGFloat const kPageViewPadding = 10.0f;
         _autoHideInterface = YES;
 
         _displayCloseButton = YES;
-        _doneButtonImage = nil;
-
         _displayToolbar = YES;
         _displayActionButton = YES;
         _displayArrowButton = YES;
@@ -160,12 +153,6 @@ CGFloat const kPageViewPadding = 10.0f;
         _scaleImage = nil;
 
         _isDraggingPhoto = NO;
-        _doneButtonRightInset = 20.f;
-        // relative to status bar and safeAreaInsets
-        _doneButtonTopInset = 10.f;
-
-        _doneButtonSize = CGSizeMake(55.f, 26.f);
-
 		if ([self respondsToSelector:@selector(automaticallyAdjustsScrollViewInsets)]) {
             self.automaticallyAdjustsScrollViewInsets = NO;
 		}
@@ -558,20 +545,7 @@ CGFloat const kPageViewPadding = 10.0f;
     [_doneButton setFrame:[self frameForDoneButtonAtOrientation:currentOrientation]];
     [_doneButton setAlpha:1.0f];
     [_doneButton addTarget:self action:@selector(doneButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-
-    if (!_doneButtonImage) {
-        [_doneButton setTitleColor:[UIColor colorWithWhite:0.9 alpha:0.9] forState:UIControlStateNormal|UIControlStateHighlighted];
-        [_doneButton setTitle:RLPhotoBrowserLocalizedStrings(@"Done") forState:UIControlStateNormal];
-        [_doneButton.titleLabel setFont:[UIFont boldSystemFontOfSize:11.0f]];
-        [_doneButton setBackgroundColor:[UIColor colorWithWhite:0.1 alpha:0.5]];
-        _doneButton.layer.cornerRadius = 3.0f;
-        _doneButton.layer.borderColor = [UIColor colorWithWhite:0.9 alpha:0.9].CGColor;
-        _doneButton.layer.borderWidth = 1.0f;
-        _doneButtonSize = _doneButton.frame.size;
-    } else {
-        [_doneButton setImage:_doneButtonImage forState:UIControlStateNormal];
-        _doneButton.contentMode = UIViewContentModeScaleAspectFit;
-    }
+    [_doneButton setImage:[UIImage imageWithContentsOfFile:[[NSBundle bundleForClass:[self class]] pathForResource:@"browser_close@2x" ofType:@"png"]] forState:UIControlStateNormal];
 
     UIImage *leftButtonImage = (_leftArrowImage == nil) ?
     [UIImage imageNamed:@"RLPhotoBrowser.bundle/images/RLPhotoBrowser_arrowLeft.png"]          : _leftArrowImage;
@@ -1014,7 +988,7 @@ CGFloat const kPageViewPadding = 10.0f;
 }
 
 - (CGRect)frameForDoneButtonAtOrientation:(UIInterfaceOrientation)orientation {
-    CGRect rtn = CGRectMake(self.doneButtonRightInset, self.doneButtonTopInset, self.doneButtonSize.width, self.doneButtonSize.height);
+    CGRect rtn = CGRectMake(0, 10, 55.f, 26.f);
     rtn = [self adjustForSafeArea:rtn adjustForStatusBar:true];
     return rtn;
 }
@@ -1119,7 +1093,7 @@ CGFloat const kPageViewPadding = 10.0f;
 - (void)updateToolbar {
     // Counter
 	if ([self numberOfPhotos] > 1) {
-		_counterLabel.text = [NSString stringWithFormat:@"%lu %@ %lu", (unsigned long)(_currentPageIndex + 1), RLPhotoBrowserLocalizedStrings(@"of"), (unsigned long)[self numberOfPhotos]];
+		_counterLabel.text = [NSString stringWithFormat:@"%lu / %lu", (unsigned long)(_currentPageIndex + 1), (unsigned long)[self numberOfPhotos]];
 	} else {
 		_counterLabel.text = nil;
 	}
