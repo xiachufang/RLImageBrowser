@@ -318,7 +318,6 @@
 	[_photoBrowser hideControlsAfterDelay];
 }
 
-
 #pragma mark - RLTapDetectingViewDelegate
 
 - (void)detectingView:(UIImageView *)imageView singleTapDetected:(UITouch *)touch {

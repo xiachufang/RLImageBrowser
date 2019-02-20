@@ -27,17 +27,14 @@
 
 @interface RLPhotoBrowser : UIViewController <UIScrollViewDelegate>
 
-// Properties
 @property (nonatomic, strong) id <RLPhotoBrowserDelegate> delegate;
 
-// Toolbar customization
 @property (nonatomic, assign) BOOL displayToolbar;
 @property (nonatomic, assign) BOOL displayCounterLabel;
 @property (nonatomic, assign) BOOL displayActionButton;
 
 @property (nonatomic, weak) UIImage *actionButtonImage, *actionButtonSelectedImage;
 
-// View customization
 @property (nonatomic, assign) BOOL displayCloseButton;
 @property (nonatomic, assign) BOOL useWhiteBackgroundColor;
 @property (nonatomic, weak) UIColor *trackTintColor, *progressTintColor;
@@ -50,35 +47,69 @@
 @property (nonatomic, assign) BOOL disableVerticalSwipe;
 @property (nonatomic, assign) BOOL dismissOnTouch;
 
-// Default value: true
-// Set to false to tell the photo viewer not to hide the interface when scrolling
+/**
+ * Set to false to tell the photo viewer not to hide the interface when scrolling
+ * Default to NO.
+ */
 @property (nonatomic, assign) BOOL autoHideInterface;
 
-// Defines zooming of the background (default 1.0)
-@property (nonatomic, assign) float backgroundScaleFactor;
+/**
+ * Animation duration
+ * Default to 0.25.
+ */
+@property (nonatomic, assign) CGFloat animationDuration;
 
-// Animation time (default .28)
-@property (nonatomic, assign) float animationDuration;
+/**
+ * Creates an instance of a browser.
+ *
+ * @param  photosArray the photo array
+ * @return new instance of browser class.
+ */
+- (instancetype)initWithPhotos:(NSArray<RLPhoto *> *)photosArray;
 
-// Init
-- (instancetype)initWithPhotos:(NSArray *)photosArray;
+/**
+ * Creates an instance of a browser.
+ *
+ * @param  photosArray the photo array
+ * @param  view animatedView for present or dismiss
+ * @return new instance of browser class.
+ */
+- (instancetype)initWithPhotos:(NSArray<RLPhoto *> *)photosArray animatedFromView:(UIView *)view;
 
-// Init (animated from view)
-- (instancetype)initWithPhotos:(NSArray *)photosArray animatedFromView:(UIView*)view;
+/**
+ * Creates an instance of a browser.
+ *
+ * @param  photoURLsArray the photo url array
+ * @return new instance of browser class.
+ */
+- (instancetype)initWithPhotoURLs:(NSArray<NSURL *> *)photoURLsArray;
 
-// Init with NSURL objects
-- (instancetype)initWithPhotoURLs:(NSArray *)photoURLsArray;
+/**
+ * Creates an instance of a browser.
+ *
+ * @param  photoURLsArray the photo url array
+ * @param  view animatedView for present or dismiss
+ * @return new instance of browser class.
+ */
+- (instancetype)initWithPhotoURLs:(NSArray *)photoURLsArray animatedFromView:(UIView *)view;
 
-// Init with NSURL objects (animated from view)
-- (instancetype)initWithPhotoURLs:(NSArray *)photoURLsArray animatedFromView:(UIView*)view;
-
-// Reloads the photo browser and refetches data
+/**
+ * Reloads the photo browser and refetches data
+ */
 - (void)reloadData;
 
-// Set page that photo browser starts on
+/**
+ * Set page that photo browser starts on
+ * @param index start index
+ */
 - (void)setInitialPageIndex:(NSUInteger)index;
 
-// Get RLPhoto at index
+/**
+ * Get RLPhoto at index
+ *
+ * @param index photo index
+ * @return instance conform `RLPhoto`.
+ */
 - (id<RLPhoto>)photoAtIndex:(NSUInteger)index;
 
 @end

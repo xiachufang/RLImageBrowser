@@ -9,8 +9,6 @@
 
 #import "RLPhoto.h"
 #import "RLPhotoBrowser.h"
-#import "SDImageCodersManager.h"
-#import "SDImageWebPCoder.h"
 #import "UIImage+MultiFormat.h"
 
 // Private
@@ -37,13 +35,6 @@
 @implementation RLPhoto
 
 #pragma mark Class Methods
-
-+ (void)initialize {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        [[SDImageCodersManager sharedManager] addCoder:[SDImageWebPCoder sharedCoder]];
-    });
-}
 
 + (RLPhoto *)photoWithImage:(UIImage *)image {
 	return [[RLPhoto alloc] initWithImage:image];

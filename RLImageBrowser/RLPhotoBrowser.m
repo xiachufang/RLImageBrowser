@@ -10,6 +10,8 @@
 #import "RLPhotoBrowser.h"
 #import "RLZoomingScrollView.h"
 #import "RLRectHelper.h"
+#import "SDImageCodersManager.h"
+#import "SDImageWebPCoder.h"
 
 CGFloat const kLessThaniOS11StatusBarHeight = 20.0f;
 CGFloat const kPageViewPadding = 10.0f;
@@ -31,9 +33,7 @@ CGFloat const kPageViewPadding = 10.0f;
 	UIBarButtonItem *_actionButtonItem;
     UIBarButtonItem *_counterButtonItem;
     UILabel *_counterLabel;
-    // Control
-    NSTimer *_controlVisibilityTimer;
-
+    
 	BOOL _statusBarOriginallyHidden;
 
     // Present
@@ -49,7 +49,6 @@ CGFloat const kPageViewPadding = 10.0f;
 
     CGRect _senderViewOriginalFrame;
     UIWindow *_applicationWindow;
-    BOOL _isGestureInteraction;
 }
 
 // Private Properties
@@ -62,8 +61,10 @@ CGFloat const kPageViewPadding = 10.0f;
 
 @end
 
-// RLPhotoBrowser
-@implementation RLPhotoBrowser
+@implementation RLPhotoBrowser {
+    NSTimer *_controlVisibilityTimer;
+    BOOL _isGestureInteraction;
+}
 
 #pragma mark - NSObject
 
@@ -97,7 +98,6 @@ CGFloat const kPageViewPadding = 10.0f;
         _useWhiteBackgroundColor = NO;
         _arrowButtonsChangePhotosAnimated = YES;
 
-        _backgroundScaleFactor = 1.0;
         _animationDuration = 0.25;
         _senderViewForAnimation = nil;
         _scaleImage = nil;
@@ -118,6 +118,9 @@ CGFloat const kPageViewPadding = 10.0f;
                                                  selector:@selector(handleRLPhotoLoadingDidEndNotification:)
                                                      name:RLPhoto_LOADING_DID_END_NOTIFICATION
                                                    object:nil];
+        if (![[SDImageCodersManager sharedManager].coders containsObject:[SDImageWebPCoder sharedCoder]]) {
+            [[SDImageCodersManager sharedManager] addCoder:[SDImageWebPCoder sharedCoder]];
+        }
     }
 	
     return self;
@@ -232,7 +235,7 @@ CGFloat const kPageViewPadding = 10.0f;
         BOOL distanceArrive = ABS(currentPoint.x - self.gestureInteractionStartPoint.x) < 3 && ABS(velocity.x) < 500;
         BOOL upArrive = currentPoint.y - self.gestureInteractionStartPoint.y > 3 && scrollView.contentOffset.y <= 1,
         downArrive = currentPoint.y - self.gestureInteractionStartPoint.y < - 3 && scrollView.contentOffset.y + scrollView.bounds.size.height >= MAX(scrollView.contentSize.height, scrollView.bounds.size.height) - 1;
-        BOOL shouldStart = startPointValid && !self->_isGestureInteraction && distanceArrive && (upArrive || downArrive);
+        BOOL shouldStart = startPointValid && !_isGestureInteraction && distanceArrive && (upArrive || downArrive);
         if (shouldStart) {
             self.gestureInteractionStartPoint = currentPoint;
             
@@ -242,10 +245,10 @@ CGFloat const kPageViewPadding = 10.0f;
             scrollView.layer.anchorPoint = CGPointMake(anchorX, anchorY);
             scrollView.userInteractionEnabled = NO;
             scrollView.scrollEnabled = NO;
-            self->_isGestureInteraction = YES;
+            _isGestureInteraction = YES;
         }
         
-        if (self->_isGestureInteraction) {
+        if (_isGestureInteraction) {
             NSInteger index = _pagingScrollView.contentOffset.x / (self.view.frame.size.width + 2 * kPageViewPadding);
             scrollView.center = CGPointMake(index * (self.view.frame.size.width + 2 * kPageViewPadding) + currentPoint.x + kPageViewPadding, currentPoint.y);;
             CGFloat scale = 1 - ABS(currentPoint.y - self.gestureInteractionStartPoint.y) / ([UIScreen mainScreen].bounds.size.height);
