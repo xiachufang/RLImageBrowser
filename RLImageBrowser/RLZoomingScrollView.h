@@ -8,27 +8,21 @@
 
 #import <Foundation/Foundation.h>
 #import "RLPhotoProtocol.h"
-#import "RLTapDetectingImageView.h"
-#import "RLTapDetectingView.h"
+#import "RLDetectingView.h"
 
 #import <DACircularProgress/DACircularProgressView.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class RLPhotoBrowser, RLPhoto, RLCaptionView;
 
-@interface RLZoomingScrollView : UIScrollView <UIScrollViewDelegate, RLTapDetectingImageViewDelegate, RLTapDetectingViewDelegate, UIDragInteractionDelegate> {
-	
-	RLPhotoBrowser *__weak _photoBrowser;
-    id<RLPhoto> _photo;
-	
-    // This view references the related caption view for simplified handling in photo browser
-    RLCaptionView *_captionView;
-    
-	RLTapDetectingView *_tapView; // for background taps
-    
+@interface RLZoomingScrollView : UIScrollView <UIScrollViewDelegate, RLDetectingViewDelegate, UIDragInteractionDelegate> {
     DACircularProgressView *_progressView;
 }
 
-@property (nonatomic, strong) RLTapDetectingImageView *photoImageView;
+@property (nonatomic, weak) RLPhotoBrowser *photoBrowser;
+@property (nonatomic, strong) RLDetectingImageView *photoImageView;
+@property (nonatomic, strong) RLDetectingView *tapView;
 @property (nonatomic, strong) RLCaptionView *captionView;
 @property (nonatomic, strong) id<RLPhoto> photo;
 @property (nonatomic) CGFloat maximumDoubleTapZoomScale;
@@ -41,3 +35,5 @@
 - (void)prepareForReuse;
 
 @end
+
+NS_ASSUME_NONNULL_END

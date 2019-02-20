@@ -10,7 +10,7 @@
 #import "RLPhoto.h"
 #import "RLPhotoProtocol.h"
 #import "RLCaptionView.h"
-#import "RLTapDetectingImageView.h"
+#import "RLDetectingView.h"
 
 // Delgate
 @class RLPhotoBrowser;
@@ -22,7 +22,7 @@
 - (void)photoBrowser:(RLPhotoBrowser *)photoBrowser didDismissAtPageIndex:(NSUInteger)index;
 - (void)photoBrowser:(RLPhotoBrowser *)photoBrowser willDismissAtPageIndex:(NSUInteger)index;
 - (RLCaptionView *)photoBrowser:(RLPhotoBrowser *)photoBrowser captionViewForPhotoAtIndex:(NSUInteger)index;
-- (void)photoBrowser:(RLPhotoBrowser *)photoBrowser imageFailed:(NSUInteger)index imageView:(RLTapDetectingImageView *)imageView;
+- (void)photoBrowser:(RLPhotoBrowser *)photoBrowser imageFailed:(NSUInteger)index imageView:(RLDetectingImageView *)imageView;
 @end
 
 @interface RLPhotoBrowser : UIViewController <UIScrollViewDelegate>

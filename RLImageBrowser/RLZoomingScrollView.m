@@ -10,38 +10,33 @@
 #import "RLPhotoBrowser.h"
 #import "RLPhoto.h"
 
-// Declare private methods of browser
+#pragma mark - Private methods of image browser
+
 @interface RLPhotoBrowser ()
+
 - (UIImage *)imageForPhoto:(id<RLPhoto>)photo;
 - (void)cancelControlHiding;
 - (void)hideControlsAfterDelay;
 - (void)handleSingleTap;
-@end
 
-// Private methods and properties
-@interface RLZoomingScrollView ()
-@property (nonatomic, weak) RLPhotoBrowser *photoBrowser;
-- (void)handleSingleTap:(CGPoint)touchPoint;
-- (void)handleDoubleTap:(CGPoint)touchPoint;
 @end
 
 @implementation RLZoomingScrollView
 
 - (instancetype)initWithPhotoBrowser:(RLPhotoBrowser *)browser {
     if ((self = [super init])) {
-        // Delegate
         self.photoBrowser = browser;
         
 		// Tap view for background
-		_tapView = [[RLTapDetectingView alloc] initWithFrame:self.bounds];
-		_tapView.tapDelegate = self;
+		_tapView = [[RLDetectingView alloc] initWithFrame:self.bounds];
+		_tapView.detectingDelegate = self;
 		_tapView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 		_tapView.backgroundColor = [UIColor clearColor];
 		[self addSubview:_tapView];
         
 		// Image view
-		_photoImageView = [[RLTapDetectingImageView alloc] initWithFrame:CGRectZero];
-		_photoImageView.tapDelegate = self;
+		_photoImageView = [[RLDetectingImageView alloc] initWithFrame:CGRectZero];
+		_photoImageView.detectingDelegate = self;
 		_photoImageView.backgroundColor = [UIColor clearColor];
         _photoImageView.contentMode = UIViewContentModeScaleAspectFill;
         if (@available(iOS 11.0, *)) {
@@ -85,7 +80,7 @@
 }
 
 - (void)setPhoto:(id<RLPhoto>)photo {
-    _photoImageView.image = nil; // Release image
+    _photoImageView.image = nil;
     if (_photo != photo) {
         _photo = photo;
     }
@@ -106,7 +101,6 @@
 
 #pragma mark - Image
 
-// Get and display image
 - (void)displayImage {
     if (!_photo) {
         return;
@@ -150,7 +144,7 @@
 }
 
 - (void)setProgress:(CGFloat)progress forPhoto:(RLPhoto*)photo {
-    RLPhoto *p = (RLPhoto*)self.photo;
+    RLPhoto *p = (RLPhoto *)self.photo;
     if ([photo.photoURL.absoluteString isEqualToString:p.photoURL.absoluteString]) {
         if (_progressView.progress < progress) {
             [_progressView setProgress:progress animated:YES];
@@ -304,7 +298,6 @@
 #pragma mark - Tap Detection
 
 - (void)handleSingleTap:(CGPoint)touchPoint {
-//	[_photoBrowser performSelector:@selector(toggleControls) withObject:nil afterDelay:0.2];
 	[_photoBrowser performSelector:@selector(handleSingleTap) withObject:nil afterDelay:0.2];
 }
 
@@ -325,20 +318,14 @@
 	[_photoBrowser hideControlsAfterDelay];
 }
 
-// Image View
-- (void)imageView:(UIImageView *)imageView singleTapDetected:(UITouch *)touch { 
+
+#pragma mark - RLTapDetectingViewDelegate
+
+- (void)detectingView:(UIImageView *)imageView singleTapDetected:(UITouch *)touch {
     [self handleSingleTap:[touch locationInView:imageView]];
 }
-- (void)imageView:(UIImageView *)imageView doubleTapDetected:(UITouch *)touch {
+- (void)detectingView:(UIImageView *)imageView doubleTapDetected:(UITouch *)touch {
     [self handleDoubleTap:[touch locationInView:imageView]];
-}
-
-// Background View
-- (void)view:(UIView *)view singleTapDetected:(UITouch *)touch {
-    [self handleSingleTap:[touch locationInView:view]];
-}
-- (void)view:(UIView *)view doubleTapDetected:(UITouch *)touch {
-    [self handleDoubleTap:[touch locationInView:view]];
 }
 
 @end
