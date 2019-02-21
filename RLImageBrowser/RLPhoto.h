@@ -11,16 +11,22 @@
 #import "RLPhotoProtocol.h"
 #import <SDWebImage/SDWebImageManager.h>
 
-// This class models a photo/image and it's caption
-// If you want to handle photos, caching, decompression
-// yourself then you can simply ensure your custom data model
-// conforms to RLPhotoProtocol
+/**
+ * This class models a photo/image and it's caption
+ * If you want to handle photos, caching, decompression
+ * yourself then you can simply ensure your custom data model
+ * conforms to RLPhotoProtocol
+ */
+
 @interface RLPhoto : NSObject <RLPhoto>
 
-// Progress download block, used to update the circularView
+/**
+ * Used to update the circularView
+ * @param progress download progress.
+ */
 typedef void (^RLProgressUpdateBlock)(CGFloat progress);
 
-// Properties
+
 @property (nonatomic, strong) NSString *caption;
 @property (nonatomic, strong) NSURL *photoURL;
 @property (nonatomic, strong) RLProgressUpdateBlock progressUpdateBlock;

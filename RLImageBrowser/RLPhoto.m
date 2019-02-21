@@ -11,28 +11,14 @@
 #import "RLPhotoBrowser.h"
 #import "UIImage+MultiFormat.h"
 
-// Private
-@interface RLPhoto () {
-    // Image Sources
-    NSString *_photoPath;
-
-    // Image
-    UIImage *_underlyingImage;
-
-    // Other
-    NSString *_caption;
-    BOOL _loadingInProgress;
-}
-
-// Properties
+@interface RLPhoto ()
 @property (nonatomic, strong) UIImage *underlyingImage;
-
-// Methods
-- (void)imageLoadingComplete;
-
 @end
 
-@implementation RLPhoto
+@implementation RLPhoto {
+    NSString *_photoPath;
+    BOOL _loadingInProgress;
+}
 
 #pragma mark Class Methods
 
@@ -120,7 +106,6 @@
     NSAssert([[NSThread currentThread] isMainThread], @"This method must be called on the main thread.");
     _loadingInProgress = YES;
     if (self.underlyingImage) {
-        // Image already loaded
         [self imageLoadingComplete];
     } else {
         if (_photoPath) {
@@ -145,14 +130,14 @@
                 });
 			}];
         } else {
-            // Failed - no source
             self.underlyingImage = nil;
             [self imageLoadingComplete];
         }
     }
 }
 
-// Release if we can get it again from path or url
+#pragma mark - release underlyingImage
+
 - (void)unloadUnderlyingImage {
     _loadingInProgress = NO;
 
@@ -162,8 +147,7 @@
 }
 
 #pragma mark - Async Loading
-// Called in background
-// Load image in background from local file
+
 - (void)loadImageFromFileAsync {
     @autoreleasepool {
         @try {
@@ -182,10 +166,9 @@
     }
 }
 
-// Called on main
 - (void)imageLoadingComplete {
     NSAssert([[NSThread currentThread] isMainThread], @"This method must be called on the main thread.");
-    // Complete so notify
+    
     _loadingInProgress = NO;
     [[NSNotificationCenter defaultCenter] postNotificationName:RLPhoto_LOADING_DID_END_NOTIFICATION
                                                         object:self];
