@@ -270,7 +270,7 @@ CGFloat const kPageViewPadding = 10.0f;
     self.view.alpha = 0.0f;
     _pagingScrollView.alpha = 0.0f;
 
-    UIImage *imageFromView = _scaleImage ? _scaleImage : [self getImageFromView:_senderViewForAnimation];
+    UIImage *imageFromView = _scaleImage ?: [self getImageFromView:_senderViewForAnimation];
 
     _senderViewOriginalFrame = [_senderViewForAnimation.superview convertRect:_senderViewForAnimation.frame toView:nil];
 
@@ -425,7 +425,7 @@ CGFloat const kPageViewPadding = 10.0f;
     }];
 }
 
-- (UIButton*)customToolbarButtonImage:(UIImage*)image imageSelected:(UIImage*)selectedImage action:(SEL)action {
+- (UIButton*)customToolbarButtonImage:(UIImage *)image imageSelected:(UIImage *)selectedImage action:(SEL)action {
     UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
     [button setImage:image forState:UIControlStateNormal];
     [button setImage:selectedImage forState:UIControlStateDisabled];
@@ -440,7 +440,7 @@ CGFloat const kPageViewPadding = 10.0f;
     float const defaultButtonSize = isRetinaHd ? 66.0f : 44.0f;
     CGFloat buttonWidth = (image.size.width > defaultButtonSize) ? image.size.width : defaultButtonSize;
     CGFloat buttonHeight = (image.size.height > defaultButtonSize) ? image.size.width : defaultButtonSize;
-    return CGRectMake(0,0, buttonWidth, buttonHeight);
+    return CGRectMake(0, 0, buttonWidth, buttonHeight);
 }
 
 - (UIImage*)getImageFromView:(UIView *)view {

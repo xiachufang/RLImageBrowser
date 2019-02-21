@@ -9,8 +9,9 @@
 #import "ViewController.h"
 #import "RLPhotoBrowser.h"
 #import "RLPhoto.h"
+#import "CollectionViewCell.h"
 
-@interface ViewController () <RLPhotoBrowserDelegate>
+@interface ViewController () <RLPhotoBrowserDelegate, UICollectionViewDelegate, UICollectionViewDataSource>
 
 @end
 
@@ -18,6 +19,9 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.view.backgroundColor = [UIColor whiteColor];
+    
+    [self setupTableViewHeaderView];
     
     [self setupTableViewFooterView];
 }
@@ -26,13 +30,29 @@
     return  UIStatusBarStyleDefault;
 }
 
+- (void)setupTableViewHeaderView {
+    UIView *headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.width)];
+    UICollectionViewFlowLayout *flowLayout = [UICollectionViewFlowLayout new];
+    flowLayout.minimumLineSpacing = 2;
+    flowLayout.minimumInteritemSpacing = 2;
+    flowLayout.itemSize = CGSizeMake(([UIScreen mainScreen].bounds.size.width - 4) * 0.3333, ([UIScreen mainScreen].bounds.size.width - 4) * 0.3333);
+    
+    UICollectionView *colectionView = [[UICollectionView alloc] initWithFrame:headerView.bounds collectionViewLayout:flowLayout];
+    [colectionView registerNib:[UINib nibWithNibName:@"CollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"CollectionViewCell"];
+    colectionView.delegate = self;
+    colectionView.dataSource = self;
+    colectionView.backgroundColor = [UIColor whiteColor];
+    [headerView addSubview:colectionView];
+    
+    self.tableView.tableHeaderView = headerView;
+}
 
 - (void)setupTableViewFooterView {
     UIView *tableViewFooter = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 426 * 0.9 + 40)];
     UIButton *buttonWithImageOnScreen1 = [[UIButton alloc] initWithFrame:CGRectMake(15, 0, 640/3 * 0.9, 426/2 * 0.9)];
     buttonWithImageOnScreen1.tag = 101;
     buttonWithImageOnScreen1.adjustsImageWhenHighlighted = false;
-    [buttonWithImageOnScreen1 setImage:[UIImage imageNamed:@"photo1m.jpg"] forState:UIControlStateNormal];
+    [buttonWithImageOnScreen1 setImage:[UIImage imageNamed:@"photo1.jpg"] forState:UIControlStateNormal];
     buttonWithImageOnScreen1.imageView.contentMode = UIViewContentModeScaleAspectFill;
     buttonWithImageOnScreen1.backgroundColor = [UIColor blackColor];
     [buttonWithImageOnScreen1 addTarget:self action:@selector(buttonWithImageOnScreenPressed:) forControlEvents:UIControlEventTouchUpInside];
@@ -41,7 +61,7 @@
     UIButton *buttonWithImageOnScreen2 = [[UIButton alloc] initWithFrame:CGRectMake(15, 426/2 * 0.9 + 20, 640/3 * 0.9, 426/2 * 0.9)];
     buttonWithImageOnScreen2.tag = 102;
     buttonWithImageOnScreen2.adjustsImageWhenHighlighted = false;
-    [buttonWithImageOnScreen2 setImage:[UIImage imageNamed:@"photo3m.jpg"] forState:UIControlStateNormal];
+    [buttonWithImageOnScreen2 setImage:[UIImage imageNamed:@"photo3.jpg"] forState:UIControlStateNormal];
     buttonWithImageOnScreen2.imageView.contentMode = UIViewContentModeScaleAspectFill;
     buttonWithImageOnScreen2.backgroundColor = [UIColor blackColor];
     [buttonWithImageOnScreen2 addTarget:self action:@selector(buttonWithImageOnScreenPressed:) forControlEvents:UIControlEventTouchUpInside];
@@ -54,30 +74,29 @@
     NSMutableArray *array = [NSMutableArray array];
     RLPhoto *photo;
     if (button.tag == 101) {
-        NSString *path_photo1l = [[NSBundle mainBundle] pathForResource:@"photo1l" ofType:@"jpg"];
+        NSString *path_photo1l = [[NSBundle mainBundle] pathForResource:@"photo1" ofType:@"jpg"];
         photo = [RLPhoto photoWithFilePath:path_photo1l];
         photo.caption = @"Grotto of the Madonna";
         [array addObject:photo];
     }
     
-    NSString *path_photo3l = [[NSBundle mainBundle] pathForResource:@"photo3l" ofType:@"jpg"];
+    NSString *path_photo3l = [[NSBundle mainBundle] pathForResource:@"photo3" ofType:@"jpg"];
     photo = [RLPhoto photoWithFilePath:path_photo3l];
     photo.caption = @"York Floods";
     [array addObject:photo];
     
-    NSString *path_photo2l = [[NSBundle mainBundle] pathForResource:@"photo2l" ofType:@"jpg"];
+    NSString *path_photo2l = [[NSBundle mainBundle] pathForResource:@"photo2" ofType:@"jpg"];
     photo = [RLPhoto photoWithFilePath:path_photo2l];
     photo.caption = @"The London Eye is a giant Ferris wheel situated on the banks of the River Thames, in London, England.";
     [array addObject:photo];
     
-    NSString *path_photo4l = [[NSBundle mainBundle] pathForResource:@"photo4l" ofType:@"jpg"];
+    NSString *path_photo4l = [[NSBundle mainBundle] pathForResource:@"photo4" ofType:@"jpg"];
     photo = [RLPhoto photoWithFilePath:path_photo4l];
     photo.caption = @"Campervan";
     [array addObject:photo];
     
-    
     if (button.tag == 102) {
-        NSString *path_photo1l = [[NSBundle mainBundle] pathForResource:@"photo1l" ofType:@"jpg"];
+        NSString *path_photo1l = [[NSBundle mainBundle] pathForResource:@"photo1" ofType:@"jpg"];
         photo = [RLPhoto photoWithFilePath:path_photo1l];
         photo.caption = @"Grotto of the Madonna";
         [array addObject:photo];
@@ -146,30 +165,30 @@
     RLPhoto *photo;
     
     if (indexPath.section == 0) {
-        NSString *path_photo2l = [[NSBundle mainBundle] pathForResource:@"photo2l" ofType:@"jpg"];
+        NSString *path_photo2l = [[NSBundle mainBundle] pathForResource:@"photo2" ofType:@"jpg"];
         photo = [RLPhoto photoWithFilePath:path_photo2l];
         photo.caption = @"The London Eye is a giant Ferris wheel situated on the banks of the River Thames, in London, England.";
         [photos addObject:photo];
     } else if (indexPath.section == 1) {
         if (indexPath.row == 0) {
-            NSString *path_photo1l = [[NSBundle mainBundle] pathForResource:@"photo1l" ofType:@"jpg"];
+            NSString *path_photo1l = [[NSBundle mainBundle] pathForResource:@"photo1" ofType:@"jpg"];
             photo = [RLPhoto photoWithFilePath:path_photo1l];
             photo.caption = @"Grotto of the Madonna";
             [photos addObject:photo];
             
             
-            NSString *path_photo2l = [[NSBundle mainBundle] pathForResource:@"photo2l" ofType:@"jpg"];
+            NSString *path_photo2l = [[NSBundle mainBundle] pathForResource:@"photo2" ofType:@"jpg"];
             photo = [RLPhoto photoWithFilePath:path_photo2l];
             photo.caption = @"The London Eye is a giant Ferris wheel situated on the banks of the River Thames, in London, England";
             [photos addObject:photo];
             
             
-            NSString *path_photo3l = [[NSBundle mainBundle] pathForResource:@"photo4l" ofType:@"jpg"];
+            NSString *path_photo3l = [[NSBundle mainBundle] pathForResource:@"photo4" ofType:@"jpg"];
             photo = [RLPhoto photoWithFilePath:path_photo3l];
             photo.caption = @"York Floods";
             [photos addObject:photo];
             
-            NSString *path_photo4l = [[NSBundle mainBundle] pathForResource:@"photo4l" ofType:@"jpg"];
+            NSString *path_photo4l = [[NSBundle mainBundle] pathForResource:@"photo4" ofType:@"jpg"];
             photo = [RLPhoto photoWithFilePath:path_photo4l];
             photo.caption = @"Campervan";
             [photos addObject:photo];
@@ -197,6 +216,39 @@
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return 9;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    CollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"CollectionViewCell" forIndexPath:indexPath];
+    cell.backgroundColor = [UIColor whiteColor];
+    NSString *path = [[NSBundle mainBundle] pathForResource:[NSString stringWithFormat:@"photo%zd", indexPath.item + 1] ofType:@"jpg"];
+    cell.imageView.image = [UIImage imageWithContentsOfFile:path];
+    return cell;
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    NSMutableArray *photos = [NSMutableArray arrayWithCapacity:9];
+    for (int i = 0; i < 9; i ++) {
+        NSString *path_photo = [[NSBundle mainBundle] pathForResource:[NSString stringWithFormat:@"photo%d", i + 1] ofType:@"jpg"];
+        RLPhoto *photo = [RLPhoto photoWithFilePath:path_photo];
+        [photos addObject:photo];
+    }
+    CollectionViewCell *cell = (CollectionViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
+    
+    RLPhotoBrowser *browser = [[RLPhotoBrowser alloc] initWithPhotos:photos animatedFromView:cell];
+    browser.delegate = self;
+    browser.displayCounterLabel = YES;
+    browser.displayActionButton = YES;
+    [browser setInitialPageIndex:indexPath.item];
+    browser.scaleImage = cell.imageView.image;
+    [self presentViewController:browser animated:YES completion:nil];
+    
+    [collectionView deselectItemAtIndexPath:indexPath animated:YES];
+}
+
 
 - (void)photoBrowser:(RLPhotoBrowser *)photoBrowser didShowPhotoAtIndex:(NSUInteger)index {
     RLPhoto *photo = [photoBrowser photoAtIndex:index];
