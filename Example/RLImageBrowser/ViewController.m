@@ -86,7 +86,6 @@
     RLPhotoBrowser *browser = [[RLPhotoBrowser alloc] initWithPhotos:array animatedFromView:button];
     browser.delegate = self;
     browser.displayActionButton = YES;
-    browser.displayArrowButton = YES;
     browser.displayCounterLabel = YES;
     browser.scaleImage = button.currentImage;
     browser.dismissOnTouch = YES;
@@ -175,8 +174,7 @@
             photo.caption = @"Campervan";
             [photos addObject:photo];
         } else if ( indexPath.row == 1 || indexPath.row == 2 ) {
-            NSArray *array = @[[NSURL URLWithString:@"http://assets.sbnation.com/assets/2512203/dogflops.gif"], [NSURL URLWithString:@"https://raw.githubusercontent.com/liyong03/YLGIFImage/master/YLGIFImageDemo/YLGIFImageDemo/joy.gif"],[NSURL URLWithString:@"http://www.ioncannon.net/wp-content/uploads/2011/06/test9.webp"], [NSURL URLWithString:@"http://littlesvr.ca/apng/images/SteamEngine.webp"], [NSURL URLWithString:@"https://apng.onevcat.com/assets/elephant.png"]];
-            //             NSArray *array = @[ [NSURL URLWithString:@"http://littlesvr.ca/apng/images/SteamEngine.webp"]];
+            NSArray *array = @[[NSURL URLWithString:@"http://i2.chuimg.com/c11b178206344c76932ac28dbb81836f_2448w_1836h.jpg?imageView2/2/w/300/interlace/1/q/90"], [NSURL URLWithString:@"http://i2.chuimg.com/db8ebb9ed7ad4ae88e46d072338c6089_4032w_3024h.jpg?imageView2/2/w/300/interlace/1/q/90"], [NSURL URLWithString:@"http://www.ioncannon.net/wp-content/uploads/2011/06/test9.webp"], [NSURL URLWithString:@"http://littlesvr.ca/apng/images/SteamEngine.webp"], [NSURL URLWithString:@"https://apng.onevcat.com/assets/elephant.png"]];
             photos = [NSMutableArray arrayWithArray:[RLPhoto photosWithURLs:array]];
         }
     }
@@ -189,11 +187,6 @@
             browser.displayActionButton = YES;
         } else if (indexPath.row == 2) {
             browser.useWhiteBackgroundColor = YES;
-            browser.leftArrowImage = [UIImage imageNamed:@"RLPhotoBrowser_customArrowLeft.png"];
-            browser.rightArrowImage = [UIImage imageNamed:@"RLPhotoBrowser_customArrowRight.png"];
-            browser.leftArrowSelectedImage = [UIImage imageNamed:@"RLPhotoBrowser_customArrowLeftSelected.png"];
-            browser.rightArrowSelectedImage = [UIImage imageNamed:@"RLPhotoBrowser_customArrowRightSelected.png"];
-            browser.doneButtonImage = [UIImage imageNamed:@"RLPhotoBrowser_customDoneButton.png"];
             browser.view.tintColor = [UIColor orangeColor];
             browser.progressTintColor = [UIColor orangeColor];
             browser.trackTintColor = [UIColor colorWithWhite:0.8 alpha:1];
