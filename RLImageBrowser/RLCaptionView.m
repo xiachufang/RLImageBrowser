@@ -10,9 +10,8 @@
 #import "RLPhoto.h"
 #import <QuartzCore/QuartzCore.h>
 
-static const CGFloat labelPadding = 10;
+const CGFloat kCaptionLabelPadding = 10;
 
-// Private
 @interface RLCaptionView ()
 
 @property (nonatomic, strong, readwrite) id<RLPhoto> photo;
@@ -24,62 +23,53 @@ static const CGFloat labelPadding = 10;
 - (instancetype)initWithPhoto:(id<RLPhoto>)photo {
     CGRect screenBound = [[UIScreen mainScreen] bounds];
     CGFloat screenWidth = screenBound.size.width;
-    
     if ([[UIDevice currentDevice] orientation] == UIDeviceOrientationLandscapeLeft ||
         [[UIDevice currentDevice] orientation] == UIDeviceOrientationLandscapeRight) {
         screenWidth = screenBound.size.height;
     }
-    
     self = [super initWithFrame:CGRectMake(0, 0, screenWidth, 44)]; // Random initial frame
     if (self) {
         _photo = photo;
         self.opaque = NO;
-        
         [self setBackground];
-        
         [self setupCaption];
     }
-    
     return self;
 }
 
 - (CGSize)sizeThatFits:(CGSize)size {
-    if (_label.text.length == 0) return CGSizeZero;
+    if (_titleLabel.text.length == 0) return CGSizeZero;
     
-    CGFloat maxHeight = 9999;
-    if (_label.numberOfLines > 0) maxHeight = _label.font.leading*_label.numberOfLines;
-    
-    /*CGSize textSizeOLD = [_label.text sizeWithFont:_label.font
-                              constrainedToSize:CGSizeMake(size.width - labelPadding*2, maxHeight)
-                                  lineBreakMode:_label.lineBreakMode];*/
-
-    CGFloat width = size.width - labelPadding*2;
-    
-    CGFloat height = [_label sizeThatFits:CGSizeMake(width, CGFLOAT_MAX)].height;
-    return CGSizeMake(size.width, height + labelPadding * 2);
+    CGFloat maxHeight = CGFLOAT_MAX;
+    if (_titleLabel.numberOfLines > 0) {
+        maxHeight = _titleLabel.font.leading * _titleLabel.numberOfLines;
+    }
+    CGFloat width = size.width - kCaptionLabelPadding * 2;
+    CGFloat height = [_titleLabel sizeThatFits:CGSizeMake(width, CGFLOAT_MAX)].height;
+    return CGSizeMake(size.width, height + kCaptionLabelPadding * 2);
 }
 
 - (void)setupCaption {
-    _label = [[UILabel alloc] initWithFrame:CGRectMake(labelPadding, 0, self.bounds.size.width - labelPadding * 2, self.bounds.size.height)];
-    _label.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-    _label.opaque = NO;
-    _label.backgroundColor = [UIColor clearColor];
-    _label.textAlignment = NSTextAlignmentCenter;
-    _label.lineBreakMode = NSLineBreakByWordWrapping;
-    _label.numberOfLines = 3;
-    _label.textColor = [UIColor whiteColor];
-    _label.shadowColor = [UIColor colorWithWhite:0 alpha:0.5];
-    _label.shadowOffset = CGSizeMake(0, 1);
-    _label.font = [UIFont systemFontOfSize:17];
-    if ([_photo respondsToSelector:@selector(caption)]) {
-        _label.text = [_photo caption] ? [_photo caption] : @" ";
-    }
+    _titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(kCaptionLabelPadding, 0, self.bounds.size.width - kCaptionLabelPadding * 2, self.bounds.size.height)];
+    _titleLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+    _titleLabel.opaque = NO;
+    _titleLabel.backgroundColor = [UIColor clearColor];
+    _titleLabel.textAlignment = NSTextAlignmentCenter;
+    _titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
+    _titleLabel.numberOfLines = 3;
+    _titleLabel.textColor = [UIColor whiteColor];
+    _titleLabel.shadowColor = [UIColor colorWithWhite:0 alpha:0.5];
+    _titleLabel.shadowOffset = CGSizeMake(0, 1);
     
-    [self addSubview:_label];
+    if ([_photo respondsToSelector:@selector(caption)]) {
+        _titleLabel.text = [_photo caption] ?: @" ";
+    }
+    [self addSubview:_titleLabel];
 }
 
 - (void)setBackground {
-    UIView *fadeView = [[UIView alloc] initWithFrame:CGRectMake(0, -100, 10000, 130+100)]; // Static width, autoresizingMask is not working
+    // Static width, autoresizingMask is not working
+    UIView *fadeView = [[UIView alloc] initWithFrame:CGRectMake(0, -100, 10000, 130 + 100)];
     CAGradientLayer *gradient = [CAGradientLayer layer];
     gradient.frame = fadeView.bounds;
     gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithWhite:0 alpha:0.0] CGColor], (id)[[UIColor colorWithWhite:0 alpha:0.8] CGColor], nil];
