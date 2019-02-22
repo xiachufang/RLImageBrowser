@@ -13,6 +13,8 @@
 
 @interface ViewController () <RLPhotoBrowserDelegate, UICollectionViewDelegate, UICollectionViewDataSource>
 
+@property (nonatomic, strong) UICollectionView *colectionView;
+
 @end
 
 @implementation ViewController
@@ -43,6 +45,7 @@
     colectionView.dataSource = self;
     colectionView.backgroundColor = [UIColor whiteColor];
     [headerView addSubview:colectionView];
+    self.colectionView = colectionView;
     
     self.tableView.tableHeaderView = headerView;
 }
@@ -102,11 +105,11 @@
         [array addObject:photo];
     }
     button.contentMode = UIViewContentModeScaleAspectFill;
-    RLPhotoBrowser *browser = [[RLPhotoBrowser alloc] initWithPhotos:array animatedFromView:button];
+    RLPhotoBrowser *browser = [[RLPhotoBrowser alloc] initWithPhotos:array];
     browser.delegate = self;
+    browser.useAnimationForPresentOrDismiss = YES;
     browser.displayActionButton = YES;
     browser.displayCounterLabel = YES;
-    browser.scaleImage = button.currentImage;
     browser.dismissOnTouch = YES;
     
     [self presentViewController:browser animated:YES completion:nil];
@@ -200,6 +203,7 @@
     
     RLPhotoBrowser *browser = [[RLPhotoBrowser alloc] initWithPhotos:photos];
     browser.delegate = self;
+    browser.useAnimationForPresentOrDismiss = YES;
     browser.displayCounterLabel = YES;
     if (indexPath.section == 1) {
         if (indexPath.row == 1) {
@@ -236,14 +240,13 @@
         RLPhoto *photo = [RLPhoto photoWithFilePath:path_photo];
         [photos addObject:photo];
     }
-    CollectionViewCell *cell = (CollectionViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
-    
-    RLPhotoBrowser *browser = [[RLPhotoBrowser alloc] initWithPhotos:photos animatedFromView:cell];
+
+    RLPhotoBrowser *browser = [[RLPhotoBrowser alloc] initWithPhotos:photos];
     browser.delegate = self;
+    browser.useAnimationForPresentOrDismiss = YES;
     browser.displayCounterLabel = YES;
     browser.displayActionButton = YES;
     [browser setInitialPageIndex:indexPath.item];
-    browser.scaleImage = cell.imageView.image;
     [self presentViewController:browser animated:YES completion:nil];
     
     [collectionView deselectItemAtIndexPath:indexPath animated:YES];
@@ -265,6 +268,10 @@
     NSLog(@"Did dismiss photoBrowser with photo index: %zd, photo caption: %@", index, photo.caption);
 }
 
+- (UIView <RLTransitionProtocol> *)photoBrowser:(RLPhotoBrowser *)photoBrowser transitionViewForPhotoAtIndex:(NSUInteger)index {
+    CollectionViewCell <RLTransitionProtocol> *cell = (CollectionViewCell *)[self.colectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:index inSection:0]];
+    return cell;
+}
 
 @end
 

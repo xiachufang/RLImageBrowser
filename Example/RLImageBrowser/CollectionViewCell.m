@@ -8,12 +8,24 @@
 
 #import "CollectionViewCell.h"
 
+@interface CollectionViewCell() 
+
+@end
+
 @implementation CollectionViewCell
 
 - (void)awakeFromNib {
     [super awakeFromNib];
     
     self.contentMode = UIViewContentModeScaleAspectFill;
+}
+
+- (UIImage *)transitionImage {
+    return self.imageView.image;
+}
+
+- (UIViewContentMode)transitionViewContentMode {
+    return UIViewContentModeScaleAspectFill;
 }
 
 @end

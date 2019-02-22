@@ -6,10 +6,16 @@
 //  Copyright © 2019 kinarobin@outlook.com. All rights reserved.
 //
 
-#import "RLDetectingViewDelegate.h"
 #import <SDWebImage/SDWebImage.h>
 
 NS_ASSUME_NONNULL_BEGIN
+
+@protocol RLDetectingViewDelegate <NSObject>
+
+- (void)detectingView:(UIView *)view singleTapDetected:(UITouch *)touch;
+- (void)detectingView:(UIView *)view doubleTapDetected:(UITouch *)touch;
+
+@end
 
 @interface RLDetectingView : UIView
 @property (nonatomic, weak) id <RLDetectingViewDelegate> detectingDelegate;

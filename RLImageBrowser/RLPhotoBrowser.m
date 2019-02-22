@@ -24,7 +24,6 @@ CGFloat const kPageViewPadding = 10.0f;
 	// Paging
     NSMutableSet *_visiblePages, *_recycledPages;
     NSUInteger _pageIndexBeforeRotation;
-    NSUInteger _currentPageIndex;
     
 	// Toolbar
 	UIToolbar *_toolbar;
@@ -49,7 +48,7 @@ CGFloat const kPageViewPadding = 10.0f;
 @property (nonatomic, strong) UIActivityViewController *activityViewController;
 @property (nonatomic, assign) CGPoint gestureInteractionStartPoint;
 @property (nonatomic, assign) CGPoint zoomingScrollViewCenter;
-
+@property (nonatomic, assign) NSUInteger currentPageIndex;
 @property (nonatomic, strong) UIPanGestureRecognizer *panGesture;
 @property (nonatomic, strong) UIButton *closeButton;
 @property (nonatomic, strong) RLTransitionManager *transitionManager;
@@ -59,6 +58,7 @@ CGFloat const kPageViewPadding = 10.0f;
 @implementation RLPhotoBrowser {
     NSTimer *_controlVisibilityTimer;
     BOOL _isGestureInteraction;
+    UIView <RLTransitionProtocol> *_previousTransitionView;
 }
 
 #pragma mark - NSObject
@@ -94,8 +94,6 @@ CGFloat const kPageViewPadding = 10.0f;
         _arrowButtonsChangePhotosAnimated = YES;
 
         _animationDuration = 0.25;
-        _senderViewForAnimation = nil;
-        _scaleImage = nil;
 
         _isDraggingPhoto = NO;
 		if ([self respondsToSelector:@selector(automaticallyAdjustsScrollViewInsets)]) {
@@ -121,34 +119,22 @@ CGFloat const kPageViewPadding = 10.0f;
 
 - (instancetype)initWithPhotos:(NSArray *)photosArray {
     if ((self = [self init])) {
-		_photos = [[NSMutableArray alloc] initWithArray:photosArray];
+        _photos = [[NSMutableArray alloc] initWithArray:photosArray];
 	}
 	return self;
 }
 
-- (instancetype)initWithPhotos:(NSArray *)photosArray animatedFromView:(UIView *)view {
-    if ((self = [self init])) {
-		_photos = [[NSMutableArray alloc] initWithArray:photosArray];
-        _senderViewForAnimation = view;
+- (void)setUseAnimationForPresentOrDismiss:(BOOL)useAnimationForPresentOrDismiss {
+    _useAnimationForPresentOrDismiss = useAnimationForPresentOrDismiss;
+    if (useAnimationForPresentOrDismiss) {
         self.transitioningDelegate = self;
-	}
-	return self;
+    }
 }
 
 - (instancetype)initWithPhotoURLs:(NSArray *)photoURLsArray {
     if ((self = [self init])) {
         NSArray *photosArray = [RLPhoto photosWithURLs:photoURLsArray];
-		_photos = [[NSMutableArray alloc] initWithArray:photosArray];
-	}
-	return self;
-}
-
-- (instancetype)initWithPhotoURLs:(NSArray *)photoURLsArray animatedFromView:(UIView *)view {
-    if ((self = [self init])) {
-        NSArray *photosArray = [RLPhoto photosWithURLs:photoURLsArray];
-		_photos = [[NSMutableArray alloc] initWithArray:photosArray];
-        _senderViewForAnimation = view;
-        self.transitioningDelegate = self;
+        _photos = [[NSMutableArray alloc] initWithArray:photosArray];
 	}
 	return self;
 }
@@ -185,7 +171,6 @@ CGFloat const kPageViewPadding = 10.0f;
         self.gestureInteractionStartPoint = currentPoint;
         self.zoomingScrollViewCenter = scrollView.center;
         [self setControlsHidden:YES animated:YES permanent:YES];
-        _senderViewForAnimation.hidden = (_currentPageIndex == _initalPageIndex);
         _isDraggingPhoto = YES;
         [self setNeedsStatusBarAppearanceUpdate];
     } else if (sender.state == UIGestureRecognizerStateCancelled || sender.state == UIGestureRecognizerStateEnded || sender.state == UIGestureRecognizerStateRecognized || sender.state == UIGestureRecognizerStateFailed) {
@@ -194,10 +179,13 @@ CGFloat const kPageViewPadding = 10.0f;
         BOOL distanceArrive = ABS(currentPoint.y - self.gestureInteractionStartPoint.y) > [UIScreen mainScreen].bounds.size.height * 0.22;
         BOOL shouldDismiss = distanceArrive || velocityArrive;
         if (shouldDismiss) {
-            if (_senderViewForAnimation) {
+//            if (_senderViewForAnimation) {
                 [self doneButtonPressed:nil];
                 return;
-            }
+//            }
+            
+#warning TODO
+            
             [UIView animateWithDuration:_animationDuration animations:^{
                 [scrollView setCenter: self.zoomingScrollViewCenter];
                 scrollView.transform = CGAffineTransformMakeScale(0.001f, 0.001f);
@@ -297,14 +285,6 @@ CGFloat const kPageViewPadding = 10.0f;
     return CGRectMake(0, 0, buttonWidth, buttonHeight);
 }
 
-- (UIImage*)getImageFromView:(UIView *)view {
-    UIGraphicsBeginImageContextWithOptions(view.bounds.size, YES, 2);
-    [view.layer renderInContext:UIGraphicsGetCurrentContext()];
-    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return image;
-}
-
 - (UIViewController *)topviewController {
     UIViewController *topviewController = [UIApplication sharedApplication].keyWindow.rootViewController;
 
@@ -318,7 +298,7 @@ CGFloat const kPageViewPadding = 10.0f;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // View
+
 	self.view.backgroundColor = [UIColor colorWithWhite:(_useWhiteBackgroundColor ? 1 : 0) alpha:1];
     self.view.clipsToBounds = YES;
 
@@ -712,11 +692,17 @@ CGFloat const kPageViewPadding = 10.0f;
     // loaded. Also called after photo has been loaded in background
     id <RLPhoto> currentPhoto = [self photoAtIndex:index];
     if ([currentPhoto underlyingImage]) {
-        // photo loaded so load ajacent now
         [self loadAdjacentPhotosIfNecessary:currentPhoto];
     }
     if ([_delegate respondsToSelector:@selector(photoBrowser:didShowPhotoAtIndex:)]) {
         [_delegate photoBrowser:self didShowPhotoAtIndex:index];
+        
+        if ([_delegate respondsToSelector:@selector(photoBrowser:transitionViewForPhotoAtIndex:)]) {
+             _previousTransitionView.hidden = NO;
+            UIView <RLTransitionProtocol> *currentTransitionView = [_delegate photoBrowser:self transitionViewForPhotoAtIndex:_currentPageIndex];
+            currentTransitionView.hidden = YES;
+            _previousTransitionView = currentTransitionView;
+        }
     }
 }
 
@@ -815,14 +801,14 @@ CGFloat const kPageViewPadding = 10.0f;
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
-	// Hide controls when dragging begins
+	
     if (_autoHideInterface) {
         [self setControlsHidden:YES animated:YES permanent:NO];
     }
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-	// Update toolbar when page changes
+	
     if(! _arrowButtonsChangePhotosAnimated) {
         [self updateToolbarCounterLabel];
     }
@@ -868,13 +854,11 @@ CGFloat const kPageViewPadding = 10.0f;
         }
 	}
 
-	// Update timer to give more time
 	[self hideControlsAfterDelay];
 }
 
 #pragma mark - Control Hiding / Showing
 
-// If permanent then we don't set timers to hide again
 - (void)setControlsHidden:(BOOL)hidden animated:(BOOL)animated permanent:(BOOL)permanent {
     // Cancel any timers
     [self cancelControlHiding];
@@ -896,8 +880,6 @@ CGFloat const kPageViewPadding = 10.0f;
         }
     } completion:nil];
 
-	// Control hiding timer
-	// Will cancel existing timer but only begin hiding if they are visible
 	if (!permanent) {
 		[self hideControlsAfterDelay];
 	}
@@ -906,7 +888,7 @@ CGFloat const kPageViewPadding = 10.0f;
 }
 
 - (void)cancelControlHiding {
-	// If a timer exists then cancel and release
+
 	if (_controlVisibilityTimer) {
 		[_controlVisibilityTimer invalidate];
 		_controlVisibilityTimer = nil;

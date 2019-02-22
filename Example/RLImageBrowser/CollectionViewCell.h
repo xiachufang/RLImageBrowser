@@ -7,10 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "RLTransitionProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface CollectionViewCell : UICollectionViewCell
+@interface CollectionViewCell : UICollectionViewCell <RLTransitionProtocol>
 @property (nonatomic, weak) IBOutlet UIImageView *imageView;
 @end
 

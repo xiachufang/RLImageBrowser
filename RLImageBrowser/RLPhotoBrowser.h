@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "RLPhoto.h"
 #import "RLPhotoProtocol.h"
+#import "RLTransitionProtocol.h"
 #import "RLCaptionView.h"
 #import "RLDetectingView.h"
 #import "RLZoomingScrollView.h"
@@ -25,6 +26,7 @@ extern CGFloat const kLessThaniOS11StatusBarHeight;
 - (void)photoBrowser:(RLPhotoBrowser *)photoBrowser didDismissAtPageIndex:(NSUInteger)index;
 - (void)photoBrowser:(RLPhotoBrowser *)photoBrowser willDismissAtPageIndex:(NSUInteger)index;
 - (RLCaptionView *)photoBrowser:(RLPhotoBrowser *)photoBrowser captionViewForPhotoAtIndex:(NSUInteger)index;
+- (UIView <RLTransitionProtocol> *)photoBrowser:(RLPhotoBrowser *)photoBrowser transitionViewForPhotoAtIndex:(NSUInteger)index;
 - (void)photoBrowser:(RLPhotoBrowser *)photoBrowser imageFailed:(NSUInteger)index imageView:(RLDetectingImageView *)imageView;
 @end
 
@@ -41,9 +43,6 @@ extern CGFloat const kLessThaniOS11StatusBarHeight;
 @property (nonatomic, assign) BOOL displayCloseButton;
 @property (nonatomic, assign) BOOL useWhiteBackgroundColor;
 @property (nonatomic, weak) UIColor *trackTintColor, *progressTintColor;
-
-@property (nonatomic, weak) UIImage *scaleImage;
-
 @property (nonatomic, assign) BOOL arrowButtonsChangePhotosAnimated;
 
 @property (nonatomic, assign) BOOL forceHideStatusBar;
@@ -52,7 +51,18 @@ extern CGFloat const kLessThaniOS11StatusBarHeight;
 
 @property (nonatomic, strong, readonly) UIScrollView *pagingScrollView;
 
-@property (nonatomic, strong) UIView *senderViewForAnimation;
+/**
+ * Current page index.
+ */
+@property (nonatomic, assign, readonly) NSUInteger currentPageIndex;
+
+/**
+ * Set to YES to tell the photo browser use animation when present or dismiss.
+ * Default to NO.
+ * @Note If you set YES, you have to implement `photoBrowser:transitionViewForPhotoAtIndex:`.
+ */
+@property (nonatomic, assign) BOOL useAnimationForPresentOrDismiss;
+
 /**
  * Set to false to tell the photo viewer not to hide the interface when scrolling
  * Default to NO.
@@ -76,28 +86,10 @@ extern CGFloat const kLessThaniOS11StatusBarHeight;
 /**
  * Creates an instance of a browser.
  *
- * @param  photosArray the photo array
- * @param  view animatedView for present or dismiss
- * @return new instance of browser class.
- */
-- (instancetype)initWithPhotos:(NSArray<RLPhoto *> *)photosArray animatedFromView:(UIView *)view;
-
-/**
- * Creates an instance of a browser.
- *
  * @param  photoURLsArray the photo url array
  * @return new instance of browser class.
  */
 - (instancetype)initWithPhotoURLs:(NSArray<NSURL *> *)photoURLsArray;
-
-/**
- * Creates an instance of a browser.
- *
- * @param  photoURLsArray the photo url array
- * @param  view animatedView for present or dismiss
- * @return new instance of browser class.
- */
-- (instancetype)initWithPhotoURLs:(NSArray *)photoURLsArray animatedFromView:(UIView *)view;
 
 /**
  * Reloads the photo browser and refetches data

@@ -25,7 +25,7 @@ UIWindow *RLNormalWindow(void) {
     UIWindow *window = [[UIApplication sharedApplication] keyWindow];
     if (window.windowLevel != UIWindowLevelNormal) {
         NSArray *windows = [[UIApplication sharedApplication] windows];
-        for(UIWindow *temp in windows) {
+        for (UIWindow *temp in windows) {
             if (temp.windowLevel == UIWindowLevelNormal) {
                 window = temp; break;
             }
@@ -52,6 +52,7 @@ UIWindow *RLNormalWindow(void) {
         if (@available(iOS 11.0, *)) {
             _animateImageView.accessibilityIgnoresInvertColors = YES;
         }
+        _animateImageView.clipsToBounds = YES;
     }
     return _animateImageView;
 }
@@ -94,7 +95,8 @@ UIWindow *RLNormalWindow(void) {
         self->_isEnter = NO;
         self.isTransitioning = YES;
         
-        if ([self configAnimateImageView]) {
+        UIView <RLTransitionProtocol> *transitionView = [self configAnimateImageView];
+        if (transitionView) {
             RLZoomingScrollView *scrollView = [self.photoBrowser currentPageZoomingScrollView];
             if ([self.photoBrowser.delegate respondsToSelector:@selector(willDisappearPhotoBrowser:)]) {
                 [self.photoBrowser.delegate willDisappearPhotoBrowser:self.photoBrowser];
@@ -106,22 +108,20 @@ UIWindow *RLNormalWindow(void) {
             fadeView.alpha = fadeAlpha;
             [RLNormalWindow() addSubview:fadeView];
             
-            CGRect imageViewFrame = [self animationFrameForImage:[self animateViewImage] presenting:NO scrollView:scrollView];
-            
+            CGRect imageViewFrame = [self animationFrameForImage:[transitionView transitionImage] presenting:NO scrollView:scrollView];
             self.animateImageView.frame = imageViewFrame;
             [RLNormalWindow() addSubview:self.animateImageView];
-            _photoBrowser.view.hidden = YES;
             
+            fromView.hidden = YES;
             void (^completion)(BOOL finished) = ^(BOOL finished) {
-                self->_photoBrowser.senderViewForAnimation.hidden = NO;
-                self->_photoBrowser.senderViewForAnimation = nil;
+                transitionView.hidden = NO;
                 
                 [fadeView removeFromSuperview];
                 [self.animateImageView removeFromSuperview];
                 [self completeTransition:transitionContext isEnter:NO];
             };
             
-            CGRect senderViewOriginalFrame = [_photoBrowser.senderViewForAnimation.superview convertRect:_photoBrowser.senderViewForAnimation.frame toView:nil];
+            CGRect senderViewOriginalFrame = [transitionView.superview convertRect:transitionView.frame toView:nil];
             [UIView animateWithDuration:[self transitionDuration:transitionContext] animations:^{
                 fadeView.alpha = 0;
                 fromView.backgroundColor = [UIColor clearColor];
@@ -137,39 +137,22 @@ UIWindow *RLNormalWindow(void) {
     [transitionContext completeTransition:!transitionContext.transitionWasCancelled];
     self.isTransitioning = NO;
     _photoBrowser.pagingScrollView.hidden = NO;
-    
 }
 
-- (BOOL)configAnimateImageView {
-    id sourceObj = _photoBrowser.senderViewForAnimation;
-    CALayer *sourceLayer = nil;
-    if ([sourceObj isKindOfClass:UIView.class]) {
-        UIView *view = (UIView *)sourceObj;
-        sourceLayer = view.layer;
-        self.animateImageView.contentMode = view.contentMode;
-        self.animateImageView.image = _photoBrowser.scaleImage;
-        view.hidden = YES;
-    } else if ([sourceObj isKindOfClass:CALayer.class]) {
-        sourceLayer = sourceObj;
-        self.animateImageView.layer.contents = sourceLayer.contents;
-    } else {
-        return NO;
+- (UIView <RLTransitionProtocol> *)configAnimateImageView {
+    if (![self.photoBrowser.delegate respondsToSelector:@selector(photoBrowser:transitionViewForPhotoAtIndex:)]) {
+        return nil;
     }
-    
-    self.animateImageView.layer.masksToBounds = sourceLayer.masksToBounds;
-    self.animateImageView.layer.cornerRadius = sourceLayer.cornerRadius;
-    self.animateImageView.layer.backgroundColor = sourceLayer.backgroundColor;
-    self.animateImageView.frame = [sourceObj convertRect:sourceLayer.bounds toView:RLNormalWindow()];
-    return YES;
-}
+    UIView <RLTransitionProtocol> *transitionView = [self.photoBrowser.delegate photoBrowser:self.photoBrowser transitionViewForPhotoAtIndex:self.photoBrowser.currentPageIndex];
+    if (!transitionView) {
+        return nil;
+    }
+    NSAssert([transitionView conformsToProtocol:@protocol(RLTransitionProtocol)], @"This view must conforms `RLTransitionProtocol`");
+    self.animateImageView.image = [transitionView transitionImage];
+    self.animateImageView.contentMode = [transitionView transitionViewContentMode];
 
-- (UIImage *)animateViewImage {
-    RLZoomingScrollView *scrollView = [self.photoBrowser currentPageZoomingScrollView];
-    UIImage *imageFromView = [scrollView.photo underlyingImage];
-    if (!imageFromView && [scrollView.photo respondsToSelector:@selector(placeholderImage)]) {
-        imageFromView = [scrollView.photo placeholderImage];
-    }
-    return imageFromView;
+    self.animateImageView.frame = [transitionView convertRect:transitionView.layer.bounds toView:RLNormalWindow()];
+    return transitionView;
 }
 
 - (CGRect)animationFrameForImage:(UIImage *)image presenting:(BOOL)presenting scrollView:(RLZoomingScrollView *)scrollView {
