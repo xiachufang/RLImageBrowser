@@ -268,6 +268,10 @@
     NSLog(@"Did dismiss photoBrowser with photo index: %zd, photo caption: %@", index, photo.caption);
 }
 
+- (void)willDisappearPhotoBrowser:(RLPhotoBrowser *)photoBrowser {
+     NSLog(@"willDisappearPhotoBrowser ");
+}
+
 - (UIView <RLTransitionProtocol> *)photoBrowser:(RLPhotoBrowser *)photoBrowser transitionViewForPhotoAtIndex:(NSUInteger)index {
     CollectionViewCell <RLTransitionProtocol> *cell = (CollectionViewCell *)[self.colectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:index inSection:0]];
     return cell;

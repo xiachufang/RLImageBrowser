@@ -98,9 +98,6 @@ UIWindow *RLNormalWindow(void) {
         UIView <RLTransitionProtocol> *transitionView = [self configAnimateImageView];
         if (transitionView) {
             RLZoomingScrollView *scrollView = [self.photoBrowser currentPageZoomingScrollView];
-            if ([self.photoBrowser.delegate respondsToSelector:@selector(willDisappearPhotoBrowser:)]) {
-                [self.photoBrowser.delegate willDisappearPhotoBrowser:self.photoBrowser];
-            }
             
             float fadeAlpha = 1 - fabs(scrollView.frame.origin.y) / scrollView.frame.size.height;
             UIView *fadeView = [[UIView alloc] initWithFrame:RLNormalWindow().bounds];
