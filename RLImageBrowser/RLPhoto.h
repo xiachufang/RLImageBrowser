@@ -18,6 +18,8 @@
  * conforms to RLPhotoProtocol
  */
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface RLPhoto : NSObject <RLPhoto>
 
 /**
@@ -46,3 +48,4 @@ typedef void (^RLProgressUpdateBlock)(CGFloat progress);
 
 @end
 
+NS_ASSUME_NONNULL_END

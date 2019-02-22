@@ -36,13 +36,10 @@ CGFloat const kPageViewPadding = 10.0f;
     // Misc
     BOOL _performingLayout;
 	BOOL _rotating;
-    BOOL _viewIsActive; // active as in it's in the view heirarchy
+    BOOL _viewIsActive;
     BOOL _autoHide;
     NSInteger _initalPageIndex;
     BOOL _isDraggingPhoto;
-
-    CGRect _senderViewOriginalFrame;
-    UIWindow *_applicationWindow;
 }
 @property (nonatomic, strong, readwrite) UIScrollView *pagingScrollView;
 @property (nonatomic, strong) UIActivityViewController *activityViewController;
@@ -99,7 +96,6 @@ CGFloat const kPageViewPadding = 10.0f;
 		if ([self respondsToSelector:@selector(automaticallyAdjustsScrollViewInsets)]) {
             self.automaticallyAdjustsScrollViewInsets = NO;
 		}
-        _applicationWindow = [[[UIApplication sharedApplication] delegate] window];
 		self.modalPresentationStyle = UIModalPresentationCustom;
 		self.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
 		self.modalPresentationCapturesStatusBarAppearance = YES;
@@ -179,21 +175,8 @@ CGFloat const kPageViewPadding = 10.0f;
         BOOL distanceArrive = ABS(currentPoint.y - self.gestureInteractionStartPoint.y) > [UIScreen mainScreen].bounds.size.height * 0.22;
         BOOL shouldDismiss = distanceArrive || velocityArrive;
         if (shouldDismiss) {
-//            if (_senderViewForAnimation) {
-                [self doneButtonPressed:nil];
-                return;
-//            }
-            
-#warning TODO
-            
-            [UIView animateWithDuration:_animationDuration animations:^{
-                [scrollView setCenter: self.zoomingScrollViewCenter];
-                scrollView.transform = CGAffineTransformMakeScale(0.001f, 0.001f);
-                scrollView.alpha = 0;
-                self.view.backgroundColor = [UIColor colorWithWhite:0 alpha:0];
-            } completion:^(BOOL finished) {
-                [self doneButtonPressed:nil];
-            }];
+            [self doneButtonPressed:nil];
+            return;
         } else {
             // Continue Showing View
             _isDraggingPhoto = NO;
@@ -249,8 +232,6 @@ CGFloat const kPageViewPadding = 10.0f;
 #pragma mark - Genaral
 
 - (void)prepareForClosePhotoBrowser {
-    // Gesture
-    [_applicationWindow removeGestureRecognizer:_panGesture];
     _autoHide = NO;
     // Cancel any pending toggles from taps
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
