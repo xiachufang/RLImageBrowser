@@ -8,7 +8,7 @@
 
 #import <QuartzCore/QuartzCore.h>
 #import "RLPhotoBrowser.h"
-#import "RLZoomingScrollView.h"
+#import "RLTransitionManager.h"
 #import "RLRectHelper.h"
 #import "SDImageCodersManager.h"
 #import "SDImageWebPCoder.h"
@@ -17,12 +17,10 @@ CGFloat const kLessThaniOS11StatusBarHeight = 20.0f;
 CGFloat const kPageViewPadding = 10.0f;
 
 // Private
-@interface RLPhotoBrowser () {
+@interface RLPhotoBrowser () <UIViewControllerTransitioningDelegate> {
 	// Data
     NSMutableArray *_photos;
 
-	// Views
-	UIScrollView *_pagingScrollView;
 	// Paging
     NSMutableSet *_visiblePages, *_recycledPages;
     NSUInteger _pageIndexBeforeRotation;
@@ -36,9 +34,6 @@ CGFloat const kPageViewPadding = 10.0f;
     
 	BOOL _statusBarOriginallyHidden;
 
-    // Present
-    UIView *_senderViewForAnimation;
-
     // Misc
     BOOL _performingLayout;
 	BOOL _rotating;
@@ -50,14 +45,14 @@ CGFloat const kPageViewPadding = 10.0f;
     CGRect _senderViewOriginalFrame;
     UIWindow *_applicationWindow;
 }
-
-// Private Properties
+@property (nonatomic, strong, readwrite) UIScrollView *pagingScrollView;
 @property (nonatomic, strong) UIActivityViewController *activityViewController;
 @property (nonatomic, assign) CGPoint gestureInteractionStartPoint;
 @property (nonatomic, assign) CGPoint zoomingScrollViewCenter;
 
 @property (nonatomic, strong) UIPanGestureRecognizer *panGesture;
 @property (nonatomic, strong) UIButton *closeButton;
+@property (nonatomic, strong) RLTransitionManager *transitionManager;
 
 @end
 
@@ -70,7 +65,7 @@ CGFloat const kPageViewPadding = 10.0f;
 
 - (instancetype)init {
     if ((self = [super init])) {
-        // Defaults
+        
         self.hidesBottomBarWhenPushed = YES;
 		
         _currentPageIndex = 0;
@@ -106,12 +101,10 @@ CGFloat const kPageViewPadding = 10.0f;
 		if ([self respondsToSelector:@selector(automaticallyAdjustsScrollViewInsets)]) {
             self.automaticallyAdjustsScrollViewInsets = NO;
 		}
-		
         _applicationWindow = [[[UIApplication sharedApplication] delegate] window];
 		self.modalPresentationStyle = UIModalPresentationCustom;
 		self.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
 		self.modalPresentationCapturesStatusBarAppearance = YES;
-		self.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
 
         // Listen for RLPhoto notifications
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -137,6 +130,7 @@ CGFloat const kPageViewPadding = 10.0f;
     if ((self = [self init])) {
 		_photos = [[NSMutableArray alloc] initWithArray:photosArray];
         _senderViewForAnimation = view;
+        self.transitioningDelegate = self;
 	}
 	return self;
 }
@@ -154,6 +148,7 @@ CGFloat const kPageViewPadding = 10.0f;
         NSArray *photosArray = [RLPhoto photosWithURLs:photoURLsArray];
 		_photos = [[NSMutableArray alloc] initWithArray:photosArray];
         _senderViewForAnimation = view;
+        self.transitioningDelegate = self;
 	}
 	return self;
 }
@@ -199,12 +194,11 @@ CGFloat const kPageViewPadding = 10.0f;
         BOOL distanceArrive = ABS(currentPoint.y - self.gestureInteractionStartPoint.y) > [UIScreen mainScreen].bounds.size.height * 0.22;
         BOOL shouldDismiss = distanceArrive || velocityArrive;
         if (shouldDismiss) {
-            // perform Close Animation
-            if (_senderViewForAnimation && _currentPageIndex == _initalPageIndex) {
-                [self performCloseAnimationWithScrollView:scrollView];
+            if (_senderViewForAnimation) {
+                [self doneButtonPressed:nil];
                 return;
             }
-            [UIView animateWithDuration:0.25 animations:^{
+            [UIView animateWithDuration:_animationDuration animations:^{
                 [scrollView setCenter: self.zoomingScrollViewCenter];
                 scrollView.transform = CGAffineTransformMakeScale(0.001f, 0.001f);
                 scrollView.alpha = 0;
@@ -264,144 +258,6 @@ CGFloat const kPageViewPadding = 10.0f;
     }
 }
 
-#pragma mark - Animation
-
-- (void)performPresentAnimation {
-    self.view.alpha = 0.0f;
-    _pagingScrollView.alpha = 0.0f;
-
-    UIImage *imageFromView = _scaleImage ?: [self getImageFromView:_senderViewForAnimation];
-
-    _senderViewOriginalFrame = [_senderViewForAnimation.superview convertRect:_senderViewForAnimation.frame toView:nil];
-
-    UIView *fadeView = [[UIView alloc] initWithFrame:_applicationWindow.bounds];
-    fadeView.backgroundColor = [UIColor clearColor];
-    [_applicationWindow addSubview:fadeView];
-
-    UIImageView *resizableImageView = [[UIImageView alloc] initWithImage:imageFromView];
-    resizableImageView.frame = _senderViewOriginalFrame;
-    resizableImageView.clipsToBounds = YES;
-    resizableImageView.contentMode = _senderViewForAnimation ? _senderViewForAnimation.contentMode : UIViewContentModeScaleAspectFill;
-    resizableImageView.backgroundColor = [UIColor clearColor];
-    if (@available(iOS 11.0, *)) {
-        resizableImageView.accessibilityIgnoresInvertColors = YES;
-    }
-    [_applicationWindow addSubview:resizableImageView];
-    _senderViewForAnimation.hidden = YES;
-
-    void (^completion)(BOOL finished) = ^(BOOL finished) {
-        self.view.alpha = 1.0f;
-        self->_pagingScrollView.alpha = 1.0f;
-        resizableImageView.backgroundColor = [UIColor colorWithWhite:(self->_useWhiteBackgroundColor) ? 1 : 0 alpha:1];
-        [fadeView removeFromSuperview];
-        [resizableImageView removeFromSuperview];
-    };
-
-    [UIView animateWithDuration:_animationDuration animations:^{
-        fadeView.backgroundColor = self.useWhiteBackgroundColor ? [UIColor whiteColor] : [UIColor blackColor];
-    } completion:nil];
-
-    CGRect finalImageViewFrame = [self animationFrameForImage:imageFromView presenting:YES scrollView:nil];
-
-    [UIView animateWithDuration:_animationDuration animations:^{
-        resizableImageView.layer.frame = finalImageViewFrame;
-    } completion:completion];
-}
-
-- (void)performCloseAnimationWithScrollView:(RLZoomingScrollView *)scrollView {
-    if ([_delegate respondsToSelector:@selector(willDisappearPhotoBrowser:)]) {
-        [_delegate willDisappearPhotoBrowser:self];
-    }
-
-    float fadeAlpha = 1 - fabs(scrollView.frame.origin.y)/scrollView.frame.size.height;
-
-    UIImage *imageFromView = [scrollView.photo underlyingImage];
-    if (!imageFromView && [scrollView.photo respondsToSelector:@selector(placeholderImage)]) {
-        imageFromView = [scrollView.photo placeholderImage];
-    }
-
-    UIView *fadeView = [[UIView alloc] initWithFrame:_applicationWindow.bounds];
-    fadeView.backgroundColor = self.useWhiteBackgroundColor ? [UIColor whiteColor] : [UIColor blackColor];
-    fadeView.alpha = fadeAlpha;
-    [_applicationWindow addSubview:fadeView];
-
-    CGRect imageViewFrame = [self animationFrameForImage:imageFromView presenting:NO scrollView:scrollView];
-
-    UIImageView *resizableImageView = [[UIImageView alloc] initWithImage:imageFromView];
-    resizableImageView.frame = imageViewFrame;
-    resizableImageView.contentMode = _senderViewForAnimation ? _senderViewForAnimation.contentMode : UIViewContentModeScaleAspectFill;
-    resizableImageView.backgroundColor = [UIColor clearColor];
-    resizableImageView.clipsToBounds = YES;
-    if (@available(iOS 11.0, *)) {
-        resizableImageView.accessibilityIgnoresInvertColors = YES;
-    }
-    [_applicationWindow addSubview:resizableImageView];
-    self.view.hidden = YES;
-
-    void (^completion)(BOOL finished) = ^(BOOL finished) {
-        self->_senderViewForAnimation.hidden = NO;
-        self->_senderViewForAnimation = nil;
-        self->_scaleImage = nil;
-
-        [fadeView removeFromSuperview];
-        [resizableImageView removeFromSuperview];
-
-        [self prepareForClosePhotoBrowser];
-        [self dismissPhotoBrowserAnimated:NO];
-    };
-
-    [UIView animateWithDuration:_animationDuration animations:^{
-        fadeView.alpha = 0;
-        self.view.backgroundColor = [UIColor clearColor];
-    } completion:nil];
-
-    CGRect senderViewOriginalFrame = _senderViewForAnimation.superview ? [_senderViewForAnimation.superview convertRect:_senderViewForAnimation.frame toView:nil] : _senderViewOriginalFrame;
-    [UIView animateWithDuration:_animationDuration animations:^{
-        resizableImageView.layer.frame = senderViewOriginalFrame;
-    } completion:completion];
-}
-
-- (CGRect)animationFrameForImage:(UIImage *)image presenting:(BOOL)presenting scrollView:(RLZoomingScrollView *)scrollView {
-    if (!image) {
-        return CGRectZero;
-    }
-    if (scrollView.photoImageView) {
-        return [_applicationWindow convertRect:scrollView.photoImageView.frame fromView:scrollView];
-    }
-    
-    CGSize imageSize = image.size;
-    CGRect bounds = _applicationWindow.bounds;
-    // adjust bounds as the photo browser does
-    if (@available(iOS 11.0, *)) {
-        // use the windows safe area inset
-        UIWindow *window = [UIApplication sharedApplication].keyWindow;
-        UIEdgeInsets insets = UIEdgeInsetsMake(kLessThaniOS11StatusBarHeight, 0, 0, 0);
-        if (window != NULL) {
-            insets = window.safeAreaInsets;
-        }
-        bounds = [self adjustForSafeArea:bounds adjustForStatusBar:NO forInsets:insets];
-    }
-    CGFloat maxWidth = CGRectGetWidth(bounds);
-    CGFloat maxHeight = CGRectGetHeight(bounds);
-
-    CGRect animationFrame = CGRectZero;
-
-    CGFloat aspect = imageSize.width / imageSize.height;
-    if (maxWidth / aspect <= maxHeight) {
-        animationFrame.size = CGSizeMake(maxWidth, maxWidth / aspect);
-    } else {
-        animationFrame.size = CGSizeMake(maxHeight * aspect, maxHeight);
-    }
-
-    animationFrame.origin.x = roundf((maxWidth - animationFrame.size.width) / 2.0f);
-    animationFrame.origin.y = roundf((maxHeight - animationFrame.size.height) / 2.0f);
-
-    if (!presenting) {
-        animationFrame.origin.y += scrollView.frame.origin.y;
-    }
-    return animationFrame;
-}
-
 #pragma mark - Genaral
 
 - (void)prepareForClosePhotoBrowser {
@@ -413,8 +269,6 @@ CGFloat const kPageViewPadding = 10.0f;
 }
 
 - (void)dismissPhotoBrowserAnimated:(BOOL)animated {
-    self.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
-
     if ([_delegate respondsToSelector:@selector(photoBrowser:willDismissAtPageIndex:)])
         [_delegate photoBrowser:self willDismissAtPageIndex:_currentPageIndex];
 
@@ -466,7 +320,6 @@ CGFloat const kPageViewPadding = 10.0f;
     [super viewDidLoad];
     // View
 	self.view.backgroundColor = [UIColor colorWithWhite:(_useWhiteBackgroundColor ? 1 : 0) alpha:1];
-
     self.view.clipsToBounds = YES;
 
 	// Setup paging scrolling view
@@ -480,9 +333,6 @@ CGFloat const kPageViewPadding = 10.0f;
 	_pagingScrollView.backgroundColor = [UIColor clearColor];
     _pagingScrollView.contentSize = [self contentSizeForPagingScrollView];
 	[self.view addSubview:_pagingScrollView];
-
-    // Transition animation
-    [self performPresentAnimation];
 
     UIInterfaceOrientation currentOrientation = [UIApplication sharedApplication].statusBarOrientation;
 
@@ -939,10 +789,9 @@ CGFloat const kPageViewPadding = 10.0f;
 #pragma mark - UIScrollView Delegate
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView  {
-    // Checks
+    
     if (!_viewIsActive || _performingLayout || _rotating) { return; }
 
-    // Tile pages
     [self tilePages];
 
     // Calculate current page
@@ -998,7 +847,7 @@ CGFloat const kPageViewPadding = 10.0f;
 }
 
 - (void)updateToolbarCounterLabel {
-    // Counter
+    
 	if ([self numberOfPhotos] > 1) {
 		_counterLabel.text = [NSString stringWithFormat:@"%lu / %lu", (unsigned long)(_currentPageIndex + 1), (unsigned long)[self numberOfPhotos]];
 	} else {
@@ -1007,7 +856,7 @@ CGFloat const kPageViewPadding = 10.0f;
 }
 
 - (void)jumpToPageAtIndex:(NSUInteger)index {
-    // Change page
+    
 	if (index < [self numberOfPhotos]) {
 		CGRect pageFrame = [self frameForPageAtIndex:index];
 
@@ -1030,7 +879,6 @@ CGFloat const kPageViewPadding = 10.0f;
     // Cancel any timers
     [self cancelControlHiding];
 
-    // Captions
     NSMutableSet *captionViews = [[NSMutableSet alloc] initWithCapacity:_visiblePages.count];
     for (RLZoomingScrollView *page in _visiblePages) {
         if (page.captionView) {
@@ -1038,7 +886,6 @@ CGFloat const kPageViewPadding = 10.0f;
         }
     }
 
-    // Hide/show bars
     [UIView animateWithDuration:(animated ? 0.1 : 0) animations:^(void) {
         CGFloat alpha = hidden ? 0 : 1;
         [self.navigationController.navigationBar setAlpha:alpha];
@@ -1066,7 +913,6 @@ CGFloat const kPageViewPadding = 10.0f;
 	}
 }
 
-// Enable/disable control visiblity timer
 - (void)hideControlsAfterDelay {
     if (![self autoHideInterface]) {
         return;
@@ -1098,16 +944,22 @@ CGFloat const kPageViewPadding = 10.0f;
 #pragma mark - Properties
 
 - (void)setInitialPageIndex:(NSUInteger)index {
-    // Validate
-    if (index >= [self numberOfPhotos]) index = [self numberOfPhotos] - 1;
+    
+    if (index >= [self numberOfPhotos]) {
+        index = [self numberOfPhotos] - 1;
+    }
     _initalPageIndex = index;
     _currentPageIndex = index;
 	if ([self isViewLoaded]) {
         [self jumpToPageAtIndex:index];
         if (!_viewIsActive) {
-           [self tilePages]; // Force tiling if view is not visible
+           [self tilePages];
         }
     }
+}
+
+- (RLZoomingScrollView *)currentPageZoomingScrollView {
+    return [self pageDisplayedAtIndex:_currentPageIndex];
 }
 
 #pragma mark - Buttons
@@ -1118,14 +970,8 @@ CGFloat const kPageViewPadding = 10.0f;
         [_delegate willDisappearPhotoBrowser:self];
     }
 
-    if (_senderViewForAnimation && _currentPageIndex == _initalPageIndex) {
-        RLZoomingScrollView *scrollView = [self pageDisplayedAtIndex:_currentPageIndex];
-        [self performCloseAnimationWithScrollView:scrollView];
-    } else {
-        _senderViewForAnimation.hidden = NO;
-        [self prepareForClosePhotoBrowser];
-        [self dismissPhotoBrowserAnimated:YES];
-    }
+    [self prepareForClosePhotoBrowser];
+    [self dismissPhotoBrowserAnimated:YES];
 }
 
 - (void)actionButtonPressed:(id)sender {
@@ -1154,6 +1000,23 @@ CGFloat const kPageViewPadding = 10.0f;
         // Keep controls hidden
         [self setControlsHidden:NO animated:YES permanent:YES];
     }
+}
+
+- (RLTransitionManager *)transitionManager {
+    if (!_transitionManager) {
+        _transitionManager = [[RLTransitionManager alloc] initWithPhotoBrowser:self];
+    }
+    return _transitionManager;
+}
+
+#pragma mark <UIViewControllerTransitioningDelegate>
+
+- (id<UIViewControllerAnimatedTransitioning>)animationControllerForPresentedController:(UIViewController *)presented presentingController:(UIViewController *)presenting sourceController:(UIViewController *)source {
+    return self.transitionManager;
+}
+
+- (id<UIViewControllerAnimatedTransitioning>)animationControllerForDismissedController:(UIViewController *)dismissed {
+    return self.transitionManager;
 }
 
 @end

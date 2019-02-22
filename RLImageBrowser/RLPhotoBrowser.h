@@ -11,9 +11,12 @@
 #import "RLPhotoProtocol.h"
 #import "RLCaptionView.h"
 #import "RLDetectingView.h"
+#import "RLZoomingScrollView.h"
 
-// Delgate
+extern CGFloat const kLessThaniOS11StatusBarHeight;
+
 @class RLPhotoBrowser;
+
 @protocol RLPhotoBrowserDelegate <NSObject>
 @optional
 - (void)willAppearPhotoBrowser:(RLPhotoBrowser *)photoBrowser;
@@ -47,6 +50,9 @@
 @property (nonatomic, assign) BOOL disableVerticalSwipe;
 @property (nonatomic, assign) BOOL dismissOnTouch;
 
+@property (nonatomic, strong, readonly) UIScrollView *pagingScrollView;
+
+@property (nonatomic, strong) UIView *senderViewForAnimation;
 /**
  * Set to false to tell the photo viewer not to hide the interface when scrolling
  * Default to NO.
@@ -111,5 +117,13 @@
  * @return instance conform `RLPhoto`.
  */
 - (id<RLPhoto>)photoAtIndex:(NSUInteger)index;
+
+/**
+ * Get ZoomingScrollView at browser
+ *
+ * @return instance if `RLZoomingScrollView`.
+ */
+- (RLZoomingScrollView *)currentPageZoomingScrollView;
+
 
 @end
