@@ -81,11 +81,11 @@ UIWindow *RLNormalWindow(void) {
                 self.animateImageView.frame = [self animationFrameForImage:self.animateImageView.image presenting:YES scrollView:nil];
             } completion:^(BOOL finished) {
                 [self.animateImageView removeFromSuperview];
-                [self completeTransition:transitionContext isEnter:YES];
+                [self completeTransition:transitionContext];
             }];
         } else {
             [containerView addSubview:toView];
-            [self completeTransition:transitionContext isEnter:YES];
+            [self completeTransition:transitionContext];
         }
         return;
     }
@@ -115,7 +115,7 @@ UIWindow *RLNormalWindow(void) {
                 
                 [fadeView removeFromSuperview];
                 [self.animateImageView removeFromSuperview];
-                [self completeTransition:transitionContext isEnter:NO];
+                [self completeTransition:transitionContext];
             };
             
             CGRect senderViewOriginalFrame = [transitionView.superview convertRect:transitionView.frame toView:nil];
@@ -125,12 +125,12 @@ UIWindow *RLNormalWindow(void) {
                 self.animateImageView.layer.frame = senderViewOriginalFrame;
             } completion:completion];
         } else {
-            [self completeTransition:transitionContext isEnter:NO];
+            [self completeTransition:transitionContext];
         }
     }
 }
 
-- (void)completeTransition:(nullable id <UIViewControllerContextTransitioning>)transitionContext isEnter:(BOOL)isEnter {
+- (void)completeTransition:(nullable id <UIViewControllerContextTransitioning>)transitionContext {
     [transitionContext completeTransition:!transitionContext.transitionWasCancelled];
     self.isTransitioning = NO;
     _photoBrowser.pagingScrollView.hidden = NO;
