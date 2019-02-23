@@ -14,6 +14,7 @@
 @interface ViewController () <RLPhotoBrowserDelegate, UICollectionViewDelegate, UICollectionViewDataSource>
 
 @property (nonatomic, strong) UICollectionView *colectionView;
+@property (nonatomic, strong) RLPhotoBrowser *photoBrowser;
 
 @end
 
@@ -107,7 +108,6 @@
     button.contentMode = UIViewContentModeScaleAspectFill;
     RLPhotoBrowser *browser = [[RLPhotoBrowser alloc] initWithPhotos:array];
     browser.delegate = self;
-    browser.useAnimationForPresentOrDismiss = YES;
     browser.displayActionButton = YES;
     browser.displayCounterLabel = YES;
     browser.dismissOnTouch = YES;
@@ -203,7 +203,6 @@
     
     RLPhotoBrowser *browser = [[RLPhotoBrowser alloc] initWithPhotos:photos];
     browser.delegate = self;
-    browser.useAnimationForPresentOrDismiss = YES;
     browser.displayCounterLabel = YES;
     if (indexPath.section == 1) {
         if (indexPath.row == 1) {
@@ -248,7 +247,7 @@
     browser.displayActionButton = YES;
     [browser setInitialPageIndex:indexPath.item];
     [self presentViewController:browser animated:YES completion:nil];
-    
+    self.photoBrowser = browser;
     [collectionView deselectItemAtIndexPath:indexPath animated:YES];
 }
 
@@ -273,6 +272,10 @@
 }
 
 - (UIView <RLTransitionProtocol> *)photoBrowser:(RLPhotoBrowser *)photoBrowser transitionViewForPhotoAtIndex:(NSUInteger)index {
+    if (self.photoBrowser != photoBrowser) {
+        return nil;
+    }
+    
     CollectionViewCell <RLTransitionProtocol> *cell = (CollectionViewCell *)[self.colectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:index inSection:0]];
     return cell;
 }
