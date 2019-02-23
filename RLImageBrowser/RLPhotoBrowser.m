@@ -169,8 +169,18 @@ CGFloat const kPageViewPadding = 10.0f;
         BOOL distanceArrive = ABS(currentPoint.y - self.gestureInteractionStartPoint.y) > [UIScreen mainScreen].bounds.size.height * 0.22;
         BOOL shouldDismiss = distanceArrive || velocityArrive;
         if (shouldDismiss) {
-            [self doneButtonPressed:nil];
-            return;
+            if (_useAnimationForPresentOrDismiss) {
+                [self doneButtonPressed:nil];
+            } else {
+                [UIView animateWithDuration:_animationDuration animations:^{
+                    [scrollView setCenter: self.zoomingScrollViewCenter];
+                    scrollView.transform = CGAffineTransformMakeScale(0.001f, 0.001f);
+                    scrollView.alpha = 0;
+                    self.view.backgroundColor = [UIColor colorWithWhite:0 alpha:0];
+                } completion:^(BOOL finished) {
+                    [self doneButtonPressed:nil];
+                }];
+            }
         } else {
             // Continue Showing View
             _isDraggingPhoto = NO;
