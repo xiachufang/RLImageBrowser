@@ -99,6 +99,7 @@ CGFloat const kPageViewPadding = 10.0f;
 		self.modalPresentationStyle = UIModalPresentationCustom;
 		self.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
 		self.modalPresentationCapturesStatusBarAppearance = YES;
+        self.transitioningDelegate = self;
 
         // Listen for RLPhoto notifications
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -118,13 +119,6 @@ CGFloat const kPageViewPadding = 10.0f;
         _photos = [[NSMutableArray alloc] initWithArray:photosArray];
 	}
 	return self;
-}
-
-- (void)setUseAnimationForPresentOrDismiss:(BOOL)useAnimationForPresentOrDismiss {
-    _useAnimationForPresentOrDismiss = useAnimationForPresentOrDismiss;
-    if (useAnimationForPresentOrDismiss) {
-        self.transitioningDelegate = self;
-    }
 }
 
 - (instancetype)initWithPhotoURLs:(NSArray *)photoURLsArray {
@@ -975,11 +969,11 @@ CGFloat const kPageViewPadding = 10.0f;
 #pragma mark <UIViewControllerTransitioningDelegate>
 
 - (id<UIViewControllerAnimatedTransitioning>)animationControllerForPresentedController:(UIViewController *)presented presentingController:(UIViewController *)presenting sourceController:(UIViewController *)source {
-    return self.transitionManager;
+    return self.useAnimationForPresentOrDismiss ? self.transitionManager : nil;
 }
 
 - (id<UIViewControllerAnimatedTransitioning>)animationControllerForDismissedController:(UIViewController *)dismissed {
-    return self.transitionManager;
+    return self.useAnimationForPresentOrDismiss ? self.transitionManager : nil;
 }
 
 @end
