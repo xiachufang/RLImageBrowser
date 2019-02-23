@@ -99,7 +99,7 @@ UIWindow *RLNormalWindow(void) {
         if (transitionView) {
             RLZoomingScrollView *scrollView = [self.photoBrowser currentPageZoomingScrollView];
             
-            float fadeAlpha = 1 - fabs(scrollView.frame.origin.y) / scrollView.frame.size.height;
+            CGFloat fadeAlpha = 1 - fabs(scrollView.frame.origin.y) / scrollView.frame.size.height;
             UIView *fadeView = [[UIView alloc] initWithFrame:RLNormalWindow().bounds];
             fadeView.backgroundColor =  [UIColor blackColor];
             fadeView.alpha = fadeAlpha;
@@ -119,6 +119,9 @@ UIWindow *RLNormalWindow(void) {
             };
             
             CGRect senderViewOriginalFrame = [transitionView.superview convertRect:transitionView.frame toView:nil];
+            if (!CGRectIntersectsRect(RLNormalWindow().bounds, senderViewOriginalFrame)) {
+                senderViewOriginalFrame = CGRectMake([UIScreen mainScreen].bounds.size.width * 0.5f, [UIScreen mainScreen].bounds.size.height * 0.5, 1, 1);
+            }
             [UIView animateWithDuration:[self transitionDuration:transitionContext] animations:^{
                 fadeView.alpha = 0;
                 fromView.backgroundColor = [UIColor clearColor];
