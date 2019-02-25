@@ -20,12 +20,8 @@
     self.contentMode = UIViewContentModeScaleAspectFill;
 }
 
-- (UIImage *)transitionImage {
-    return self.imageView.image;
-}
-
-- (UIViewContentMode)transitionViewContentMode {
-    return UIViewContentModeScaleAspectFill;
+- (UIImageView *)transitionAnimatedImageView {
+    return self.imageView;
 }
 
 @end

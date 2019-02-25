@@ -105,7 +105,7 @@ UIWindow *RLNormalWindow(void) {
             fadeView.alpha = fadeAlpha;
             [RLNormalWindow() addSubview:fadeView];
             
-            CGRect imageViewFrame = [self animationFrameForImage:[transitionView transitionImage] presenting:NO scrollView:scrollView];
+            CGRect imageViewFrame = [self animationFrameForImage:[transitionView transitionAnimatedImageView].image presenting:NO scrollView:scrollView];
             self.animateImageView.frame = imageViewFrame;
             [RLNormalWindow() addSubview:self.animateImageView];
             
@@ -148,8 +148,9 @@ UIWindow *RLNormalWindow(void) {
         return nil;
     }
     NSAssert([transitionView conformsToProtocol:@protocol(RLTransitionProtocol)], @"This view must conforms `RLTransitionProtocol`");
-    self.animateImageView.image = [transitionView transitionImage];
-    self.animateImageView.contentMode = [transitionView transitionViewContentMode];
+    UIImageView *animatedImageView = [transitionView transitionAnimatedImageView];
+    self.animateImageView.image = animatedImageView.image;
+    self.animateImageView.contentMode = animatedImageView.contentMode;
 
     self.animateImageView.frame = [transitionView convertRect:transitionView.layer.bounds toView:RLNormalWindow()];
     return transitionView;

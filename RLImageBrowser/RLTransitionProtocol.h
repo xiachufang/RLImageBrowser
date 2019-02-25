@@ -11,8 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol RLTransitionProtocol <NSObject>
 
-- (UIImage *)transitionImage;
-- (UIViewContentMode)transitionViewContentMode;
+- (UIImageView *)transitionAnimatedImageView;
 
 @end
 
