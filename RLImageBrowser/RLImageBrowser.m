@@ -65,8 +65,7 @@ CGFloat const kPageViewPadding = 10.0f;
 
         _displayCloseButton = YES;
         _displayToolbar = YES;
-        _displayActionButton = YES;
-        _displayCounterLabel = NO;
+        _displayCounterLabel = YES;
 
         _forceHideStatusBar = NO;
 		_disableVerticalSwipe = NO;

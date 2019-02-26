@@ -246,8 +246,6 @@
     browser.delegate = self;
     browser.dismissOnTouch = YES;
     browser.useAnimationForPresentOrDismiss = YES;
-    browser.displayCounterLabel = YES;
-    browser.displayActionButton = YES;
     [browser setInitialPageIndex:indexPath.item];
     [self presentViewController:browser animated:YES completion:nil];
     self.photoBrowser = browser;
