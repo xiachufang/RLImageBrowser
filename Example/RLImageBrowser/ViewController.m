@@ -212,7 +212,6 @@
         if (indexPath.row == 1) {
             browser.displayActionButton = YES;
         } else if (indexPath.row == 2) {
-            browser.useWhiteBackgroundColor = YES;
             browser.view.tintColor = [UIColor orangeColor];
             browser.progressTintColor = [UIColor orangeColor];
             browser.trackTintColor = [UIColor colorWithWhite:0.8 alpha:1];
@@ -239,11 +238,13 @@
     NSMutableArray *photos = [NSMutableArray arrayWithCapacity:9];
     for (int i = 0; i < 9; i ++) {
         RLPhoto *photo = [RLPhoto photoWithURL:self.urlArrays[i]];
+        photo.caption = @"collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath";
         [photos addObject:photo];
     }
 
     RLPhotoBrowser *browser = [[RLPhotoBrowser alloc] initWithPhotos:photos];
     browser.delegate = self;
+    browser.dismissOnTouch = YES;
     browser.useAnimationForPresentOrDismiss = YES;
     browser.displayCounterLabel = YES;
     browser.displayActionButton = YES;
