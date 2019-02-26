@@ -16,27 +16,8 @@
 CGFloat const kLessThaniOS11StatusBarHeight = 20.0f;
 CGFloat const kPageViewPadding = 10.0f;
 
-@interface RLPhotoBrowser () <UIViewControllerTransitioningDelegate> {
-	// Data
-    NSMutableArray *_photos;
-	// Paging
-    NSMutableSet *_visiblePages, *_recycledPages;
-    NSUInteger _pageIndexBeforeRotation;
-	
-	UIBarButtonItem *_actionButtonItem;
-    UIBarButtonItem *_counterButtonItem;
-    UILabel *_counterLabel;
-    
-	BOOL _statusBarOriginallyHidden;
+@interface RLPhotoBrowser () <UIViewControllerTransitioningDelegate>
 
-    // Misc
-    BOOL _performingLayout;
-	BOOL _rotating;
-    BOOL _viewIsActive;
-    BOOL _autoHide;
-    
-    BOOL _isDraggingPhoto;
-}
 @property (nonatomic, strong, readwrite) UIScrollView *pagingScrollView;
 @property (nonatomic, strong) UIActivityViewController *activityViewController;
 @property (nonatomic, assign) CGPoint gestureInteractionStartPoint;
@@ -44,16 +25,24 @@ CGFloat const kPageViewPadding = 10.0f;
 @property (nonatomic, assign) NSUInteger currentPageIndex;
 @property (nonatomic, strong) UIPanGestureRecognizer *panGesture;
 @property (nonatomic, strong) UIButton *closeButton;
+@property (nonatomic, strong) UILabel *counterLabel;
 @property (nonatomic, strong) RLTransitionManager *transitionManager;
 
 @end
 
 @implementation RLPhotoBrowser {
-    NSTimer *_controlVisibilityTimer;
+    BOOL _autoHide;
     BOOL _isGestureInteraction;
-    UIView <RLTransitionProtocol> *_previousTransitionView;
+    BOOL _isDraggingPhoto;
+    BOOL _viewIsActive;
+    BOOL _performingLayout;
+    BOOL _statusBarOriginalHidden;
     NSInteger _initalPageIndex;
     UIToolbar *_toolbar;
+    NSMutableArray *_photos;
+    NSMutableSet *_visiblePages, *_recycledPages;
+    UIBarButtonItem *_actionButtonItem, *_counterButtonItem;
+    UIView <RLTransitionProtocol> *_previousTransitionView;
 }
 
 #pragma mark - NSObject
@@ -65,7 +54,6 @@ CGFloat const kPageViewPadding = 10.0f;
 		
         _currentPageIndex = 0;
 		_performingLayout = NO; // Reset on view did appear
-		_rotating = NO;
         _viewIsActive = NO;
         _visiblePages = [NSMutableSet new];
         _recycledPages = [NSMutableSet new];
@@ -97,7 +85,6 @@ CGFloat const kPageViewPadding = 10.0f;
 		self.modalPresentationCapturesStatusBarAppearance = YES;
         self.transitioningDelegate = self;
 
-        // Listen for RLPhoto notifications
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(handleRLPhotoLoadingDidEndNotification:)
                                                      name:RLPhoto_LOADING_DID_END_NOTIFICATION
@@ -156,7 +143,7 @@ CGFloat const kPageViewPadding = 10.0f;
     if ([sender state] == UIGestureRecognizerStateBegan) {
         self.gestureInteractionStartPoint = currentPoint;
         self.zoomingScrollViewCenter = scrollView.center;
-        [self setControlsHidden:YES animated:YES permanent:YES];
+        [self setControlsHidden:YES animated:YES];
         _isDraggingPhoto = YES;
         [self setNeedsStatusBarAppearanceUpdate];
     } else if (sender.state == UIGestureRecognizerStateCancelled || sender.state == UIGestureRecognizerStateEnded || sender.state == UIGestureRecognizerStateRecognized || sender.state == UIGestureRecognizerStateFailed) {
@@ -178,9 +165,8 @@ CGFloat const kPageViewPadding = 10.0f;
                 }];
             }
         } else {
-            // Continue Showing View
             _isDraggingPhoto = NO;
-            [self setNeedsStatusBarAppearanceUpdate];
+            [self setControlsHidden:!_displayToolbar animated:YES];
             
             self.view.backgroundColor = [UIColor colorWithWhite:0 alpha:1];
             [UIView animateWithDuration:0.15 animations:^{
@@ -248,10 +234,10 @@ CGFloat const kPageViewPadding = 10.0f;
     }];
 }
 
-- (UIButton*)customToolbarButtonImage:(UIImage *)image imageSelected:(UIImage *)selectedImage action:(SEL)action {
+- (UIButton*)customToolbarButtonImage:(UIImage *)image disabledImage:(UIImage *)disabledImage action:(SEL)action {
     UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
     [button setImage:image forState:UIControlStateNormal];
-    [button setImage:selectedImage forState:UIControlStateDisabled];
+    [button setImage:disabledImage forState:UIControlStateDisabled];
     [button addTarget:self action:action forControlEvents:UIControlEventTouchUpInside];
     [button setContentMode:UIViewContentModeCenter];
     [button setFrame:[self getToolbarButtonFrame:image]];
@@ -311,20 +297,11 @@ CGFloat const kPageViewPadding = 10.0f;
     [_closeButton addTarget:self action:@selector(doneButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [_closeButton setImage:[UIImage imageWithContentsOfFile:[[NSBundle bundleForClass:[self class]] pathForResource:@"browser_close@2x" ofType:@"png"]] forState:UIControlStateNormal];
 
-    _counterLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 95, 40)];
-    _counterLabel.backgroundColor = [UIColor clearColor];
+    _counterButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self.counterLabel];
 
-    _counterLabel.textColor = [UIColor whiteColor];
-    _counterLabel.shadowColor = [UIColor darkTextColor];
-    _counterLabel.shadowOffset = CGSizeMake(0, 1);
-  
-    // Counter Button
-    _counterButtonItem = [[UIBarButtonItem alloc] initWithCustomView:_counterLabel];
-
-    // Action Button
-    if(_actionButtonImage != nil && _actionButtonSelectedImage != nil) {
+    if(_actionButtonImage != nil && _actionButtonDisabledImage != nil) {
         _actionButtonItem = [[UIBarButtonItem alloc] initWithCustomView:[self customToolbarButtonImage:_actionButtonImage
-                                                                                   imageSelected:_actionButtonSelectedImage
+                                                                                   disabledImage:_actionButtonDisabledImage
                                                                                           action:@selector(actionButtonPressed:)]];
     } else {
         _actionButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction
@@ -338,21 +315,15 @@ CGFloat const kPageViewPadding = 10.0f;
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-    // Update
     [self reloadData];
     
     if ([_delegate respondsToSelector:@selector(willAppearPhotoBrowser:)]) {
         [_delegate willAppearPhotoBrowser:self];
     }
-
-    // Super
+    
 	[super viewWillAppear:animated];
-
-    // Status Bar
-    _statusBarOriginallyHidden = [UIApplication sharedApplication].statusBarHidden;
-
-    // Update UI
-	[self hideControlsAfterDelay];
+    
+    _statusBarOriginalHidden = [UIApplication sharedApplication].statusBarHidden;
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -371,7 +342,7 @@ CGFloat const kPageViewPadding = 10.0f;
         return YES;
     }
     if (_isDraggingPhoto) {
-        return _statusBarOriginallyHidden;
+        return _statusBarOriginalHidden;
     } else {
         return [self areControlsHidden];
     }
@@ -753,7 +724,7 @@ CGFloat const kPageViewPadding = 10.0f;
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView  {
     
-    if (!_viewIsActive || _performingLayout || _rotating) { return; }
+    if (!_viewIsActive || _performingLayout) { return; }
 
     [self tilePages];
 
@@ -778,14 +749,12 @@ CGFloat const kPageViewPadding = 10.0f;
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
-	
     if (_autoHideInterface) {
-        [self setControlsHidden:YES animated:YES permanent:NO];
+        [self setControlsHidden:YES animated:YES];
     }
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-	
     if(! _arrowButtonsChangePhotosAnimated) {
         [self updateToolbarCounterLabel];
     }
@@ -830,16 +799,11 @@ CGFloat const kPageViewPadding = 10.0f;
             [self updateToolbarCounterLabel];
         }
 	}
-
-	[self hideControlsAfterDelay];
 }
 
 #pragma mark - Control Hiding / Showing
 
-- (void)setControlsHidden:(BOOL)hidden animated:(BOOL)animated permanent:(BOOL)permanent {
-    // Cancel any timers
-    [self cancelControlHiding];
-
+- (void)setControlsHidden:(BOOL)hidden animated:(BOOL)animated {
     NSMutableSet *captionViews = [[NSMutableSet alloc] initWithCapacity:_visiblePages.count];
     for (RLZoomingScrollView *page in _visiblePages) {
         if (page.captionView) {
@@ -857,30 +821,7 @@ CGFloat const kPageViewPadding = 10.0f;
         }
     } completion:nil];
 
-	if (!permanent) {
-		[self hideControlsAfterDelay];
-	}
-	
     [self setNeedsStatusBarAppearanceUpdate];
-}
-
-- (void)cancelControlHiding {
-
-	if (_controlVisibilityTimer) {
-		[_controlVisibilityTimer invalidate];
-		_controlVisibilityTimer = nil;
-	}
-}
-
-- (void)hideControlsAfterDelay {
-    if (![self autoHideInterface]) {
-        return;
-    }
-
-	if (![self areControlsHidden]) {
-        [self cancelControlHiding];
-		_controlVisibilityTimer = [NSTimer scheduledTimerWithTimeInterval:5 target:self selector:@selector(hideControls) userInfo:nil repeats:NO];
-	}
 }
 
 - (BOOL)areControlsHidden {
@@ -889,14 +830,14 @@ CGFloat const kPageViewPadding = 10.0f;
 
 - (void)hideControls {
 	if(_autoHide && _autoHideInterface) {
-		[self setControlsHidden:YES animated:YES permanent:NO];
+		[self setControlsHidden:YES animated:YES ];
 	}
 }
 - (void)handleSingleTap {
 	if (_dismissOnTouch) {
 		[self doneButtonPressed:nil];
 	} else {
-		[self setControlsHidden:![self areControlsHidden] animated:YES permanent:NO];
+		[self setControlsHidden:![self areControlsHidden] animated:YES];
 	}
 }
 
@@ -944,20 +885,19 @@ CGFloat const kPageViewPadding = 10.0f;
 
         __typeof__(self) __weak wself = self;
         [self.activityViewController setCompletionWithItemsHandler:^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
-            [wself hideControlsAfterDelay];
             wself.activityViewController = nil;
         }];
 
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
             [self presentViewController:self.activityViewController animated:YES completion:nil];
-        } else { // iPad
+        } else {
+            // iPad
             UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:self.activityViewController];
             [popover presentPopoverFromRect:CGRectMake(self.view.frame.size.width / 2, self.view.frame.size.height / 4, 0, 0)
                                      inView:self.view permittedArrowDirections:UIPopoverArrowDirectionAny
                                    animated:YES];
         }
-        // Keep controls hidden
-        [self setControlsHidden:NO animated:YES permanent:YES];
+        [self setControlsHidden:NO animated:YES];
     }
 }
 
@@ -966,6 +906,18 @@ CGFloat const kPageViewPadding = 10.0f;
         _transitionManager = [[RLTransitionManager alloc] initWithPhotoBrowser:self];
     }
     return _transitionManager;
+}
+
+- (UILabel *)counterLabel {
+    if (!_counterLabel) {
+        _counterLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 95, 40)];
+        _counterLabel.backgroundColor = [UIColor clearColor];
+        
+        _counterLabel.textColor = [UIColor whiteColor];
+        _counterLabel.shadowColor = [UIColor darkTextColor];
+        _counterLabel.shadowOffset = CGSizeMake(0, 1);
+    }
+    return _counterLabel;
 }
 
 #pragma mark <UIViewControllerTransitioningDelegate>
