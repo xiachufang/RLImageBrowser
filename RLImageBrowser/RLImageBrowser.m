@@ -554,7 +554,6 @@ CGFloat const kPageViewPadding = 10.0f;
 			[_recycledPages addObject:page];
             [page prepareForReuse];
 			[page removeFromSuperview];
-            RLLog(@"Removed page at index %li", PAGE_INDEX(page));
 		}
 	}
 	[_visiblePages minusSet:_recycledPages];
@@ -571,7 +570,6 @@ CGFloat const kPageViewPadding = 10.0f;
 			[self configurePage:page forIndex:index];
 			[_visiblePages addObject:page];
 			[_pagingScrollView addSubview:page];
-            RLLog(@"Added page at index %lu", (unsigned long)index);
 
             // Add caption
             RLCaptionView *captionView = [self captionViewForPhotoAtIndex:index];
