@@ -14,20 +14,20 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class RLPhotoBrowser, RLPhoto, RLCaptionView;
+@class RLImageBrowser, RLPhoto, RLCaptionView;
 
 @interface RLZoomingScrollView : UIScrollView <UIScrollViewDelegate, RLDetectingViewDelegate, UIDragInteractionDelegate> {
     DACircularProgressView *_progressView;
 }
 
-@property (nonatomic, weak) RLPhotoBrowser *photoBrowser;
+@property (nonatomic, weak) RLImageBrowser *photoBrowser;
 @property (nonatomic, strong) RLDetectingImageView *photoImageView;
 @property (nonatomic, strong) RLDetectingView *tapView;
 @property (nonatomic, strong, nullable) RLCaptionView *captionView;
 @property (nonatomic, strong, nullable) id<RLPhoto> photo;
 @property (nonatomic) CGFloat maximumDoubleTapZoomScale;
 
-- (instancetype)initWithPhotoBrowser:(RLPhotoBrowser *)browser;
+- (instancetype)initWithPhotoBrowser:(RLImageBrowser *)browser;
 - (void)displayImage;
 - (void)displayImageFailure;
 - (void)setProgress:(CGFloat)progress forPhoto:(RLPhoto*)photo;

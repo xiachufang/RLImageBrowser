@@ -8,7 +8,7 @@
 
 
 #import "RLPhoto.h"
-#import "RLPhotoBrowser.h"
+#import "RLImageBrowser.h"
 #import "UIImage+MultiFormat.h"
 
 @interface RLPhoto ()

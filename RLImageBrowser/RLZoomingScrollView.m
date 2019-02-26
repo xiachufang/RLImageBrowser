@@ -7,12 +7,12 @@
 //
 
 #import "RLZoomingScrollView.h"
-#import "RLPhotoBrowser.h"
+#import "RLImageBrowser.h"
 #import "RLPhoto.h"
 
 #pragma mark - Private methods of image browser
 
-@interface RLPhotoBrowser ()
+@interface RLImageBrowser ()
 
 - (UIImage *)imageForPhoto:(id<RLPhoto>)photo;
 - (void)cancelControlHiding;
@@ -23,7 +23,7 @@
 
 @implementation RLZoomingScrollView
 
-- (instancetype)initWithPhotoBrowser:(RLPhotoBrowser *)browser {
+- (instancetype)initWithPhotoBrowser:(RLImageBrowser *)browser {
     if ((self = [super init])) {
         self.photoBrowser = browser;
         

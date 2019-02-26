@@ -7,7 +7,7 @@
 //
 
 #import "ViewController.h"
-#import "RLPhotoBrowser.h"
+#import "RLImageBrowser.h"
 #import "RLPhoto.h"
 #import "CollectionViewCell.h"
 #import <SDWebImage/SDWebImage.h>
@@ -15,7 +15,7 @@
 @interface ViewController () <RLPhotoBrowserDelegate, UICollectionViewDelegate, UICollectionViewDataSource>
 
 @property (nonatomic, strong) UICollectionView *colectionView;
-@property (nonatomic, strong) RLPhotoBrowser *photoBrowser;
+@property (nonatomic, strong) RLImageBrowser *photoBrowser;
 @property (nonatomic, copy) NSArray *urlArrays;
 
 @end
@@ -110,7 +110,7 @@
         [array addObject:photo];
     }
     button.contentMode = UIViewContentModeScaleAspectFill;
-    RLPhotoBrowser *browser = [[RLPhotoBrowser alloc] initWithPhotos:array];
+    RLImageBrowser *browser = [[RLImageBrowser alloc] initWithPhotos:array];
     browser.delegate = self;
     browser.displayActionButton = YES;
     browser.displayCounterLabel = YES;
@@ -205,7 +205,7 @@
         }
     }
     
-    RLPhotoBrowser *browser = [[RLPhotoBrowser alloc] initWithPhotos:photos];
+    RLImageBrowser *browser = [[RLImageBrowser alloc] initWithPhotos:photos];
     browser.delegate = self;
     browser.displayCounterLabel = YES;
     if (indexPath.section == 1) {
@@ -242,7 +242,7 @@
         [photos addObject:photo];
     }
 
-    RLPhotoBrowser *browser = [[RLPhotoBrowser alloc] initWithPhotos:photos];
+    RLImageBrowser *browser = [[RLImageBrowser alloc] initWithPhotos:photos];
     browser.delegate = self;
     browser.dismissOnTouch = YES;
     browser.useAnimationForPresentOrDismiss = YES;
@@ -255,26 +255,26 @@
 }
 
 
-- (void)photoBrowser:(RLPhotoBrowser *)photoBrowser didShowPhotoAtIndex:(NSUInteger)index {
+- (void)imageBrowser:(RLImageBrowser *)photoBrowser didShowPhotoAtIndex:(NSUInteger)index {
     RLPhoto *photo = [photoBrowser photoAtIndex:index];
     NSLog(@"Did show photoBrowser with photo index: %zd, photo caption: %@", index, photo.caption);
 }
 
-- (void)photoBrowser:(RLPhotoBrowser *)photoBrowser willDismissAtPageIndex:(NSUInteger)index {
+- (void)imageBrowser:(RLImageBrowser *)photoBrowser willDismissAtPageIndex:(NSUInteger)index {
     RLPhoto *photo = [photoBrowser photoAtIndex:index];
     NSLog(@"Will dismiss photoBrowser with photo index: %zd, photo caption: %@", index, photo.caption);
 }
 
-- (void)photoBrowser:(RLPhotoBrowser *)photoBrowser didDismissAtPageIndex:(NSUInteger)index {
+- (void)imageBrowser:(RLImageBrowser *)photoBrowser didDismissAtPageIndex:(NSUInteger)index {
     RLPhoto *photo = [photoBrowser photoAtIndex:index];
     NSLog(@"Did dismiss photoBrowser with photo index: %zd, photo caption: %@", index, photo.caption);
 }
 
-- (void)willDisappearPhotoBrowser:(RLPhotoBrowser *)photoBrowser {
+- (void)willDisappearPhotoBrowser:(RLImageBrowser *)photoBrowser {
      NSLog(@"willDisappearPhotoBrowser ");
 }
 
-- (UIView <RLTransitionProtocol> *)photoBrowser:(RLPhotoBrowser *)photoBrowser transitionViewForPhotoAtIndex:(NSUInteger)index {
+- (UIView <RLTransitionProtocol> *)imageBrowser:(RLImageBrowser *)photoBrowser transitionViewForPhotoAtIndex:(NSUInteger)index {
     if (self.photoBrowser != photoBrowser) {
         return nil;
     }

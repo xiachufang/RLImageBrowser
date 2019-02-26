@@ -6,14 +6,14 @@
 //
 
 #import "RLTransitionManager.h"
-#import "RLPhotoBrowser.h"
+#import "RLImageBrowser.h"
 #import "RLRectHelper.h"
 
 @interface RLTransitionManager()
 
 @property (nonatomic, assign) BOOL isTransitioning;
 @property (nonatomic, strong) UIImageView *animateImageView;
-@property (nonatomic, weak) RLPhotoBrowser *photoBrowser;
+@property (nonatomic, weak) RLImageBrowser *photoBrowser;
 
 @end
 
@@ -36,7 +36,7 @@ UIWindow *RLNormalWindow(void) {
 
 #pragma mark - life cycle
 
-- (instancetype)initWithPhotoBrowser:(RLPhotoBrowser *)photoBrowser {
+- (instancetype)initWithPhotoBrowser:(RLImageBrowser *)photoBrowser {
     if (self = [super init]) {
         _photoBrowser = photoBrowser;
         _isTransitioning = NO;
@@ -140,10 +140,10 @@ UIWindow *RLNormalWindow(void) {
 }
 
 - (UIView <RLTransitionProtocol> *)configAnimateImageView {
-    if (![self.photoBrowser.delegate respondsToSelector:@selector(photoBrowser:transitionViewForPhotoAtIndex:)]) {
+    if (![self.photoBrowser.delegate respondsToSelector:@selector(imageBrowser:transitionViewForPhotoAtIndex:)]) {
         return nil;
     }
-    UIView <RLTransitionProtocol> *transitionView = [self.photoBrowser.delegate photoBrowser:self.photoBrowser transitionViewForPhotoAtIndex:self.photoBrowser.currentPageIndex];
+    UIView <RLTransitionProtocol> *transitionView = [self.photoBrowser.delegate imageBrowser:self.photoBrowser transitionViewForPhotoAtIndex:self.photoBrowser.currentPageIndex];
     if (!transitionView) {
         return nil;
     }

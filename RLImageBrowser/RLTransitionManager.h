@@ -7,7 +7,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class RLPhotoBrowser;
+@class RLImageBrowser;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, assign, readonly) BOOL isTransitioning;
 
-- (instancetype)initWithPhotoBrowser:(RLPhotoBrowser *)photoBrowser NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithPhotoBrowser:(RLImageBrowser *)photoBrowser NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)new NS_UNAVAILABLE;

@@ -2,8 +2,8 @@
 Pod::Spec.new do |s|
     s.name             = 'RLImageBrowser'
     s.version          = '1.0.0'
-    s.summary          = 'A simple image browser.'
-    s.description      = 'A simple image browser...'
+    s.summary          = 'A simple image browser with webp/gif support and gesture to dismiss.'
+    s.description      = 'A simple image browser with jpg/png/webp/gif support and gesture to dismiss...'
     
     s.homepage         = 'https://github.com/kinarob/RLImageBrowser'
     s.license          = { :type => 'MIT', :file => 'LICENSE' }
@@ -13,8 +13,7 @@ Pod::Spec.new do |s|
     
     s.resources    = 'RLImageBrowser/RLPhotoBrowser.bundle', 'RLImageBrowser/RLLocalizations.bundle'
     s.source_files = 'RLImageBrowser/**/*'
-    s.dependency 'SDWebImage', '~> 5.0.0-beta4'
-    s.dependency 'SDWebImageWebPCoder', '~> 0.1.1'
+    s.dependency 'SDWebImageWebPCoder', '~> 0.1.2'
     s.dependency 'DACircularProgress'
     
 end

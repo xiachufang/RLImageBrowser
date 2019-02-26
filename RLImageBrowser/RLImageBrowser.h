@@ -16,21 +16,21 @@
 
 extern CGFloat const kLessThaniOS11StatusBarHeight;
 
-@class RLPhotoBrowser;
+@class RLImageBrowser;
 
 @protocol RLPhotoBrowserDelegate <NSObject>
 @optional
-- (void)willAppearPhotoBrowser:(RLPhotoBrowser *)photoBrowser;
-- (void)willDisappearPhotoBrowser:(RLPhotoBrowser *)photoBrowser;
-- (void)photoBrowser:(RLPhotoBrowser *)photoBrowser didShowPhotoAtIndex:(NSUInteger)index;
-- (void)photoBrowser:(RLPhotoBrowser *)photoBrowser didDismissAtPageIndex:(NSUInteger)index;
-- (void)photoBrowser:(RLPhotoBrowser *)photoBrowser willDismissAtPageIndex:(NSUInteger)index;
-- (RLCaptionView *)photoBrowser:(RLPhotoBrowser *)photoBrowser captionViewForPhotoAtIndex:(NSUInteger)index;
-- (UIView <RLTransitionProtocol> *)photoBrowser:(RLPhotoBrowser *)photoBrowser transitionViewForPhotoAtIndex:(NSUInteger)index;
-- (void)photoBrowser:(RLPhotoBrowser *)photoBrowser imageFailed:(NSUInteger)index imageView:(RLDetectingImageView *)imageView;
+- (void)willAppearPhotoBrowser:(RLImageBrowser *)photoBrowser;
+- (void)willDisappearPhotoBrowser:(RLImageBrowser *)photoBrowser;
+- (void)imageBrowser:(RLImageBrowser *)photoBrowser didShowPhotoAtIndex:(NSUInteger)index;
+- (void)imageBrowser:(RLImageBrowser *)photoBrowser didDismissAtPageIndex:(NSUInteger)index;
+- (void)imageBrowser:(RLImageBrowser *)photoBrowser willDismissAtPageIndex:(NSUInteger)index;
+- (RLCaptionView *)imageBrowser:(RLImageBrowser *)photoBrowser captionViewForPhotoAtIndex:(NSUInteger)index;
+- (UIView <RLTransitionProtocol> *)imageBrowser:(RLImageBrowser *)photoBrowser transitionViewForPhotoAtIndex:(NSUInteger)index;
+- (void)photoBrowser:(RLImageBrowser *)imageBrowser imageFailed:(NSUInteger)index imageView:(RLDetectingImageView *)imageView;
 @end
 
-@interface RLPhotoBrowser : UIViewController <UIScrollViewDelegate>
+@interface RLImageBrowser : UIViewController <UIScrollViewDelegate>
 
 @property (nonatomic, strong) id <RLPhotoBrowserDelegate> delegate;
 

@@ -7,7 +7,7 @@
 //
 
 #import <QuartzCore/QuartzCore.h>
-#import "RLPhotoBrowser.h"
+#import "RLImageBrowser.h"
 #import "RLTransitionManager.h"
 #import "RLRectHelper.h"
 #import "SDImageCodersManager.h"
@@ -16,7 +16,7 @@
 CGFloat const kLessThaniOS11StatusBarHeight = 20.0f;
 CGFloat const kPageViewPadding = 10.0f;
 
-@interface RLPhotoBrowser () <UIViewControllerTransitioningDelegate>
+@interface RLImageBrowser () <UIViewControllerTransitioningDelegate>
 
 @property (nonatomic, strong, readwrite) UIScrollView *pagingScrollView;
 @property (nonatomic, strong) UIActivityViewController *activityViewController;
@@ -30,7 +30,7 @@ CGFloat const kPageViewPadding = 10.0f;
 
 @end
 
-@implementation RLPhotoBrowser {
+@implementation RLImageBrowser {
     BOOL _autoHide;
     BOOL _isGestureInteraction;
     BOOL _isDraggingPhoto;
@@ -224,12 +224,12 @@ CGFloat const kPageViewPadding = 10.0f;
 }
 
 - (void)dismissPhotoBrowserAnimated:(BOOL)animated {
-    if ([_delegate respondsToSelector:@selector(photoBrowser:willDismissAtPageIndex:)])
-        [_delegate photoBrowser:self willDismissAtPageIndex:_currentPageIndex];
+    if ([_delegate respondsToSelector:@selector(imageBrowser:willDismissAtPageIndex:)])
+        [_delegate imageBrowser:self willDismissAtPageIndex:_currentPageIndex];
 
     [self dismissViewControllerAnimated:animated completion:^{
-        if ([self->_delegate respondsToSelector:@selector(photoBrowser:didDismissAtPageIndex:)]) {
-            [self->_delegate photoBrowser:self didDismissAtPageIndex:self->_currentPageIndex];
+        if ([self->_delegate respondsToSelector:@selector(imageBrowser:didDismissAtPageIndex:)]) {
+            [self->_delegate imageBrowser:self didDismissAtPageIndex:self->_currentPageIndex];
         }
     }];
 }
@@ -453,8 +453,8 @@ CGFloat const kPageViewPadding = 10.0f;
 
 - (RLCaptionView *)captionViewForPhotoAtIndex:(NSUInteger)index {
     RLCaptionView *captionView = nil;
-    if ([_delegate respondsToSelector:@selector(photoBrowser:captionViewForPhotoAtIndex:)]) {
-        captionView = [_delegate photoBrowser:self captionViewForPhotoAtIndex:index];
+    if ([_delegate respondsToSelector:@selector(imageBrowser:captionViewForPhotoAtIndex:)]) {
+        captionView = [_delegate imageBrowser:self captionViewForPhotoAtIndex:index];
     } else {
         id <RLPhoto> photo = [self photoAtIndex:index];
         if ([photo respondsToSelector:@selector(caption)]) {
@@ -642,12 +642,12 @@ CGFloat const kPageViewPadding = 10.0f;
     if ([currentPhoto underlyingImage]) {
         [self loadAdjacentPhotosIfNecessary:currentPhoto];
     }
-    if ([_delegate respondsToSelector:@selector(photoBrowser:didShowPhotoAtIndex:)]) {
-        [_delegate photoBrowser:self didShowPhotoAtIndex:index];
+    if ([_delegate respondsToSelector:@selector(imageBrowser:didShowPhotoAtIndex:)]) {
+        [_delegate imageBrowser:self didShowPhotoAtIndex:index];
         
-        if ([_delegate respondsToSelector:@selector(photoBrowser:transitionViewForPhotoAtIndex:)]) {
+        if ([_delegate respondsToSelector:@selector(imageBrowser:transitionViewForPhotoAtIndex:)]) {
              _previousTransitionView.hidden = NO;
-            UIView <RLTransitionProtocol> *currentTransitionView = [_delegate photoBrowser:self transitionViewForPhotoAtIndex:_currentPageIndex];
+            UIView <RLTransitionProtocol> *currentTransitionView = [_delegate imageBrowser:self transitionViewForPhotoAtIndex:_currentPageIndex];
             currentTransitionView.hidden = YES;
             _previousTransitionView = currentTransitionView;
         }
