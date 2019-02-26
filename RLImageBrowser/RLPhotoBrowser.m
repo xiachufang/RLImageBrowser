@@ -16,17 +16,13 @@
 CGFloat const kLessThaniOS11StatusBarHeight = 20.0f;
 CGFloat const kPageViewPadding = 10.0f;
 
-// Private
 @interface RLPhotoBrowser () <UIViewControllerTransitioningDelegate> {
 	// Data
     NSMutableArray *_photos;
-
 	// Paging
     NSMutableSet *_visiblePages, *_recycledPages;
     NSUInteger _pageIndexBeforeRotation;
-    
-	// Toolbar
-	UIToolbar *_toolbar;
+	
 	UIBarButtonItem *_actionButtonItem;
     UIBarButtonItem *_counterButtonItem;
     UILabel *_counterLabel;
@@ -38,7 +34,7 @@ CGFloat const kPageViewPadding = 10.0f;
 	BOOL _rotating;
     BOOL _viewIsActive;
     BOOL _autoHide;
-    NSInteger _initalPageIndex;
+    
     BOOL _isDraggingPhoto;
 }
 @property (nonatomic, strong, readwrite) UIScrollView *pagingScrollView;
@@ -56,6 +52,8 @@ CGFloat const kPageViewPadding = 10.0f;
     NSTimer *_controlVisibilityTimer;
     BOOL _isGestureInteraction;
     UIView <RLTransitionProtocol> *_previousTransitionView;
+    NSInteger _initalPageIndex;
+    UIToolbar *_toolbar;
 }
 
 #pragma mark - NSObject
@@ -86,8 +84,6 @@ CGFloat const kPageViewPadding = 10.0f;
 		_disableVerticalSwipe = NO;
 		
 		_dismissOnTouch = NO;
-
-        _useWhiteBackgroundColor = NO;
         _arrowButtonsChangePhotosAnimated = YES;
 
         _animationDuration = 0.25;
@@ -166,7 +162,7 @@ CGFloat const kPageViewPadding = 10.0f;
     } else if (sender.state == UIGestureRecognizerStateCancelled || sender.state == UIGestureRecognizerStateEnded || sender.state == UIGestureRecognizerStateRecognized || sender.state == UIGestureRecognizerStateFailed) {
         CGPoint velocity = [sender velocityInView:self.view];
         BOOL velocityArrive = ABS(velocity.y) > 800;
-        BOOL distanceArrive = ABS(currentPoint.y - self.gestureInteractionStartPoint.y) > [UIScreen mainScreen].bounds.size.height * 0.22;
+        BOOL distanceArrive = ABS(currentPoint.y - self.gestureInteractionStartPoint.y) > [UIScreen mainScreen].bounds.size.height * 0.12;
         BOOL shouldDismiss = distanceArrive || velocityArrive;
         if (shouldDismiss) {
             if (_useAnimationForPresentOrDismiss) {
@@ -186,7 +182,7 @@ CGFloat const kPageViewPadding = 10.0f;
             _isDraggingPhoto = NO;
             [self setNeedsStatusBarAppearanceUpdate];
             
-            self.view.backgroundColor = [UIColor colorWithWhite:(_useWhiteBackgroundColor ? 1 : 0) alpha:1];
+            self.view.backgroundColor = [UIColor colorWithWhite:0 alpha:1];
             [UIView animateWithDuration:0.15 animations:^{
                 scrollView.center = self.zoomingScrollViewCenter;
                 scrollView.layer.anchorPoint = CGPointMake(0.5, 0.5);
@@ -228,7 +224,7 @@ CGFloat const kPageViewPadding = 10.0f;
             CGFloat alpha = 1 - ABS(currentPoint.y - self.gestureInteractionStartPoint.y) / ([UIScreen mainScreen].bounds.size.height);
             if (alpha > 1) alpha = 1;
             if (alpha < 0) alpha = 0;
-            self.view.backgroundColor = [UIColor colorWithWhite:(_useWhiteBackgroundColor ? 1 : 0) alpha:alpha];
+            self.view.backgroundColor = [UIColor colorWithWhite:0 alpha:alpha];
         }
     }
 }
@@ -284,7 +280,7 @@ CGFloat const kPageViewPadding = 10.0f;
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-	self.view.backgroundColor = [UIColor colorWithWhite:(_useWhiteBackgroundColor ? 1 : 0) alpha:1];
+	self.view.backgroundColor = [UIColor colorWithWhite:0 alpha:1];
     self.view.clipsToBounds = YES;
 
 	// Setup paging scrolling view
@@ -318,14 +314,10 @@ CGFloat const kPageViewPadding = 10.0f;
     _counterLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 95, 40)];
     _counterLabel.backgroundColor = [UIColor clearColor];
 
-    if (_useWhiteBackgroundColor == NO) {
-        _counterLabel.textColor = [UIColor whiteColor];
-        _counterLabel.shadowColor = [UIColor darkTextColor];
-        _counterLabel.shadowOffset = CGSizeMake(0, 1);
-    } else {
-        _counterLabel.textColor = [UIColor blackColor];
-    }
-
+    _counterLabel.textColor = [UIColor whiteColor];
+    _counterLabel.shadowColor = [UIColor darkTextColor];
+    _counterLabel.shadowOffset = CGSizeMake(0, 1);
+  
     // Counter Button
     _counterButtonItem = [[UIBarButtonItem alloc] initWithCustomView:_counterLabel];
 
@@ -371,7 +363,7 @@ CGFloat const kPageViewPadding = 10.0f;
 #pragma mark - Status Bar
 
 - (UIStatusBarStyle)preferredStatusBarStyle {
-    return _useWhiteBackgroundColor ? UIStatusBarStyleDefault : UIStatusBarStyleLightContent;
+    return  UIStatusBarStyleLightContent;
 }
 
 - (BOOL)prefersStatusBarHidden {
