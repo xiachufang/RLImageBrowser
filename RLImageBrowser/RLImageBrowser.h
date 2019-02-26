@@ -18,7 +18,7 @@ extern CGFloat const kLessThaniOS11StatusBarHeight;
 
 @class RLImageBrowser;
 
-@protocol RLPhotoBrowserDelegate <NSObject>
+@protocol RLImageBrowserDelegate <NSObject>
 @optional
 - (void)willAppearPhotoBrowser:(RLImageBrowser *)photoBrowser;
 - (void)willDisappearPhotoBrowser:(RLImageBrowser *)photoBrowser;
@@ -32,7 +32,7 @@ extern CGFloat const kLessThaniOS11StatusBarHeight;
 
 @interface RLImageBrowser : UIViewController <UIScrollViewDelegate>
 
-@property (nonatomic, strong) id <RLPhotoBrowserDelegate> delegate;
+@property (nonatomic, strong) id <RLImageBrowserDelegate> delegate;
 
 @property (nonatomic, assign) BOOL displayToolbar;
 @property (nonatomic, assign) BOOL displayCounterLabel;

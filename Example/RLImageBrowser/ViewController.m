@@ -12,7 +12,7 @@
 #import "CollectionViewCell.h"
 #import <SDWebImage/SDWebImage.h>
 
-@interface ViewController () <RLPhotoBrowserDelegate, UICollectionViewDelegate, UICollectionViewDataSource>
+@interface ViewController () <RLImageBrowserDelegate, UICollectionViewDelegate, UICollectionViewDataSource>
 
 @property (nonatomic, strong) UICollectionView *colectionView;
 @property (nonatomic, strong) RLImageBrowser *photoBrowser;

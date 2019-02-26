@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
     s.source           = { :git => 'https://github.com/kinarob/RLImageBrowser.git', :tag => s.version.to_s }
     s.ios.deployment_target = '8.0'
     
-    s.resources    = 'RLImageBrowser/RLPhotoBrowser.bundle'
+    s.resources    = 'RLImageBrowser/RLImageBrowser.bundle'
     s.source_files = 'RLImageBrowser/**/*'
     s.dependency 'SDWebImageWebPCoder', '~> 0.1.2'
     s.dependency 'DACircularProgress'
