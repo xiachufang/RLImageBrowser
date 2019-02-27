@@ -259,7 +259,6 @@
 				6003F5AA195388D20070C39A /* Sources */,
 				6003F5AB195388D20070C39A /* Frameworks */,
 				6003F5AC195388D20070C39A /* Resources */,
-				3C9F877710309EF44A5F3148 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -350,7 +349,7 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-RLImageBrowser_Example/Pods-RLImageBrowser_Example-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-RLImageBrowser_Example/Pods-RLImageBrowser_Example-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/DACircularProgress/DACircularProgress.framework",
 				"${BUILT_PRODUCTS_DIR}/FHHFPSIndicator/FHHFPSIndicator.framework",
 				"${BUILT_PRODUCTS_DIR}/RLImageBrowser/RLImageBrowser.framework",
@@ -371,29 +370,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-RLImageBrowser_Example/Pods-RLImageBrowser_Example-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		3C9F877710309EF44A5F3148 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-RLImageBrowser_Tests/Pods-RLImageBrowser_Tests-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/FBSnapshotTestCase/FBSnapshotTestCase.framework",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FBSnapshotTestCase.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-RLImageBrowser_Tests/Pods-RLImageBrowser_Tests-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-RLImageBrowser_Example/Pods-RLImageBrowser_Example-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		643E9B2F2FABA3DE06FEEBB4 /* [CP] Check Pods Manifest.lock */ = {

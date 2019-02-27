@@ -8,6 +8,5 @@ target 'RLImageBrowser_Example' do
   target 'RLImageBrowser_Tests' do
     inherit! :search_paths
 
-    pod 'FBSnapshotTestCase'
   end
 end

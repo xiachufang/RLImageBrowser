@@ -1,10 +1,5 @@
 PODS:
   - DACircularProgress (2.3.1)
-  - FBSnapshotTestCase (2.1.4):
-    - FBSnapshotTestCase/SwiftSupport (= 2.1.4)
-  - FBSnapshotTestCase/Core (2.1.4)
-  - FBSnapshotTestCase/SwiftSupport (2.1.4):
-    - FBSnapshotTestCase/Core
   - FHHFPSIndicator (1.0.2)
   - libwebp (1.0.2):
     - libwebp/core (= 1.0.2)
@@ -34,19 +29,17 @@ PODS:
     - DACircularProgress
     - SDWebImageWebPCoder (~> 0.1.2)
   - SDWebImage/Core (5.0.0-beta5)
-  - SDWebImageWebPCoder (0.1.3):
+  - SDWebImageWebPCoder (0.1.5):
     - libwebp (~> 1.0)
     - SDWebImage/Core (>= 5.0.0-beta4)
 
 DEPENDENCIES:
-  - FBSnapshotTestCase
   - FHHFPSIndicator
   - RLImageBrowser (from `../`)
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
     - DACircularProgress
-    - FBSnapshotTestCase
     - FHHFPSIndicator
     - libwebp
     - SDWebImage
@@ -58,13 +51,12 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   DACircularProgress: 4dd437c0fc3da5161cb289e07ac449493d41db71
-  FBSnapshotTestCase: 094f9f314decbabe373b87cc339bea235a63e07a
   FHHFPSIndicator: 29d986402ea729a941a3cda184e3635d1def69ae
-  libwebp: b068a3bd7c45f7460f6715be7bed1a18fd5d6b48
-  RLImageBrowser: f27055fc209722cf4716adf888b7ef203922763d
+  libwebp: 00eb2a159eb1b5ec02a44b573523a3ae92b077f7
+  RLImageBrowser: 842837f72dbc7f9e9a0fc552c9d0712cd8d761b0
   SDWebImage: fd609df53c0f55fdcd4705bd14c01c9d5c348d0c
-  SDWebImageWebPCoder: a0aba868d75fb474d67a5417d8536142ad9e383b
+  SDWebImageWebPCoder: 082a55a220770521cf7ca29714100f5ddde69be6
 
-PODFILE CHECKSUM: 242392a3ea3d0fca3ef814826e6e194ba2c55842
+PODFILE CHECKSUM: b857ac1bbd92f8820cd99a557a54365d3e6cf216
 
-COCOAPODS: 1.5.3
+COCOAPODS: 1.6.1
