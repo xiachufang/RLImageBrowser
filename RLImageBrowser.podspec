@@ -12,8 +12,8 @@ Pod::Spec.new do |s|
     s.ios.deployment_target = '8.0'
     
     s.resources    = 'RLImageBrowser/RLImageBrowser.bundle'
-    s.source_files = 'RLImageBrowser/**/*'
-    s.dependency 'SDWebImageWebPCoder', '~> 0.1.2'
+    s.source_files = 'RLImageBrowser/**/*.{h,m}'
+    s.dependency 'SDWebImageWebPCoder', '~> 0.1.5'
     s.dependency 'DACircularProgress'
     
 end

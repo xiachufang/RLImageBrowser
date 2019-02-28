@@ -349,7 +349,7 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-RLImageBrowser_Example/Pods-RLImageBrowser_Example-frameworks.sh",
+				"${SRCROOT}/Pods/Target Support Files/Pods-RLImageBrowser_Example/Pods-RLImageBrowser_Example-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/DACircularProgress/DACircularProgress.framework",
 				"${BUILT_PRODUCTS_DIR}/FHHFPSIndicator/FHHFPSIndicator.framework",
 				"${BUILT_PRODUCTS_DIR}/RLImageBrowser/RLImageBrowser.framework",
@@ -370,7 +370,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-RLImageBrowser_Example/Pods-RLImageBrowser_Example-frameworks.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-RLImageBrowser_Example/Pods-RLImageBrowser_Example-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		643E9B2F2FABA3DE06FEEBB4 /* [CP] Check Pods Manifest.lock */ = {

@@ -27,7 +27,7 @@ PODS:
   - libwebp/webp (1.0.2)
   - RLImageBrowser (1.0.0):
     - DACircularProgress
-    - SDWebImageWebPCoder (~> 0.1.2)
+    - SDWebImageWebPCoder (~> 0.1.5)
   - SDWebImage/Core (5.0.0-beta5)
   - SDWebImageWebPCoder (0.1.5):
     - libwebp (~> 1.0)
@@ -52,11 +52,11 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   DACircularProgress: 4dd437c0fc3da5161cb289e07ac449493d41db71
   FHHFPSIndicator: 29d986402ea729a941a3cda184e3635d1def69ae
-  libwebp: 00eb2a159eb1b5ec02a44b573523a3ae92b077f7
-  RLImageBrowser: 842837f72dbc7f9e9a0fc552c9d0712cd8d761b0
+  libwebp: b068a3bd7c45f7460f6715be7bed1a18fd5d6b48
+  RLImageBrowser: eaf66bbfd70b0263a839352ff10b02f0c9de9d22
   SDWebImage: fd609df53c0f55fdcd4705bd14c01c9d5c348d0c
   SDWebImageWebPCoder: 082a55a220770521cf7ca29714100f5ddde69be6
 
 PODFILE CHECKSUM: b857ac1bbd92f8820cd99a557a54365d3e6cf216
 
-COCOAPODS: 1.6.1
+COCOAPODS: 1.5.3
