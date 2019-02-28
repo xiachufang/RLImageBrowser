@@ -58,7 +58,7 @@ UIWindow *RLNormalWindow(void) {
 }
 
 - (NSTimeInterval)transitionDuration:(nullable id <UIViewControllerContextTransitioning>)transitionContext {
-    return 0.25;
+    return self.photoBrowser ? self.photoBrowser.animationDuration : 0.25;
 }
 
 - (void)animateTransition:(id <UIViewControllerContextTransitioning>)transitionContext {
