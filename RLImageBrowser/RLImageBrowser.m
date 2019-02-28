@@ -294,7 +294,7 @@ CGFloat const kPageViewPadding = 10.0f;
     [_closeButton setFrame:[self frameForDoneButtonAtOrientation:currentOrientation]];
     [_closeButton setAlpha:1.0f];
     [_closeButton addTarget:self action:@selector(doneButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    [_closeButton setImage:[UIImage imageWithContentsOfFile:[[NSBundle bundleForClass:[self class]] pathForResource:@"browser_close@2x" ofType:@"png"]] forState:UIControlStateNormal];
+    [_closeButton setImage:[UIImage imageWithContentsOfFile:[[NSBundle bundleForClass:[self class]] pathForResource:@"RLImageBrowser.bundle/browser_close@2x" ofType:@"png"]] forState:UIControlStateNormal];
 
     _counterButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self.counterLabel];
 
