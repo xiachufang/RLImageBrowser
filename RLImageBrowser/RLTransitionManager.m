@@ -107,6 +107,7 @@ UIWindow *RLNormalWindow(void) {
         UIImage *animatedImage = transitionView ? [transitionView transitionAnimatedImageView].image : scrollView.photoImageView.image;
         CGRect imageViewFrame = [self animationFrameForImage:animatedImage presenting:NO scrollView:scrollView];
         self.animateImageView.frame = imageViewFrame;
+        self.animateImageView.image = animatedImage;
         [RLNormalWindow() addSubview:self.animateImageView];
         
         fromView.hidden = YES;
