@@ -96,40 +96,36 @@ UIWindow *RLNormalWindow(void) {
         self.isTransitioning = YES;
         
         UIView <RLTransitionProtocol> *transitionView = [self configAnimateImageView];
-        if (transitionView) {
-            RLZoomingScrollView *scrollView = [self.photoBrowser currentPageZoomingScrollView];
-            
-            CGFloat fadeAlpha = 1 - fabs(scrollView.frame.origin.y) / scrollView.frame.size.height;
-            UIView *fadeView = [[UIView alloc] initWithFrame:RLNormalWindow().bounds];
-            fadeView.backgroundColor =  [UIColor blackColor];
-            fadeView.alpha = fadeAlpha;
-            [RLNormalWindow() addSubview:fadeView];
-            
-            CGRect imageViewFrame = [self animationFrameForImage:[transitionView transitionAnimatedImageView].image presenting:NO scrollView:scrollView];
-            self.animateImageView.frame = imageViewFrame;
-            [RLNormalWindow() addSubview:self.animateImageView];
-            
-            fromView.hidden = YES;
-            void (^completion)(BOOL finished) = ^(BOOL finished) {
-                transitionView.hidden = NO;
-                
-                [fadeView removeFromSuperview];
-                [self.animateImageView removeFromSuperview];
-                [self completeTransition:transitionContext];
-            };
-            
-            CGRect senderViewOriginalFrame = [transitionView.superview convertRect:transitionView.frame toView:nil];
-            if (!CGRectIntersectsRect(RLNormalWindow().bounds, senderViewOriginalFrame)) {
-                senderViewOriginalFrame = CGRectMake([UIScreen mainScreen].bounds.size.width * 0.5f, [UIScreen mainScreen].bounds.size.height * 0.5, 1, 1);
-            }
-            [UIView animateWithDuration:[self transitionDuration:transitionContext] animations:^{
-                fadeView.alpha = 0;
-                fromView.backgroundColor = [UIColor clearColor];
-                self.animateImageView.layer.frame = senderViewOriginalFrame;
-            } completion:completion];
-        } else {
+        RLZoomingScrollView *scrollView = [self.photoBrowser currentPageZoomingScrollView];
+        
+        CGFloat fadeAlpha = 1 - fabs(scrollView.frame.origin.y) / scrollView.frame.size.height;
+        UIView *fadeView = [[UIView alloc] initWithFrame:RLNormalWindow().bounds];
+        fadeView.backgroundColor =  [UIColor blackColor];
+        fadeView.alpha = fadeAlpha;
+        [RLNormalWindow() addSubview:fadeView];
+        
+        UIImage *animatedImage = transitionView ? [transitionView transitionAnimatedImageView].image : scrollView.photoImageView.image;
+        CGRect imageViewFrame = [self animationFrameForImage:animatedImage presenting:NO scrollView:scrollView];
+        self.animateImageView.frame = imageViewFrame;
+        [RLNormalWindow() addSubview:self.animateImageView];
+        
+        fromView.hidden = YES;
+        void (^completion)(BOOL finished) = ^(BOOL finished) {
+            transitionView.hidden = NO;
+            [fadeView removeFromSuperview];
+            [self.animateImageView removeFromSuperview];
             [self completeTransition:transitionContext];
+        };
+        
+        CGRect senderViewOriginalFrame = [transitionView.superview convertRect:transitionView.frame toView:nil];
+        if (!CGRectIntersectsRect(RLNormalWindow().bounds, senderViewOriginalFrame) || !transitionView) {
+            senderViewOriginalFrame = CGRectMake([UIScreen mainScreen].bounds.size.width * 0.5f, [UIScreen mainScreen].bounds.size.height * 0.5, 1, 1);
         }
+        [UIView animateWithDuration:[self transitionDuration:transitionContext] animations:^{
+            fadeView.alpha = 0;
+            fromView.backgroundColor = [UIColor clearColor];
+            self.animateImageView.layer.frame = senderViewOriginalFrame;
+        } completion:completion];
     }
 }
 
