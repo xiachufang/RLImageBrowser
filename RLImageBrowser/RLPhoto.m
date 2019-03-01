@@ -9,7 +9,8 @@
 
 #import "RLPhoto.h"
 #import "RLImageBrowser.h"
-#import "UIImage+MultiFormat.h"
+#import <SDWebImage/UIImage+MultiFormat.h>
+#import <SDWebImage/SDWebImageCodersManager.h>
 
 @interface RLPhoto ()
 @property (nonatomic, strong) UIImage *underlyingImage;
@@ -157,7 +158,7 @@
             }
         } @finally {
             if (self.underlyingImage) {
-                self.underlyingImage = [[SDImageCodersManager sharedManager] decodedImageWithData:self.underlyingImage.sd_imageData options:0] ;
+                self.underlyingImage = [[SDWebImageCodersManager sharedInstance] decodedImageWithData:self.underlyingImage.sd_imageData] ;
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self imageLoadingComplete];
                 });

@@ -10,8 +10,6 @@
 #import "RLImageBrowser.h"
 #import "RLTransitionManager.h"
 #import "RLRectHelper.h"
-#import "SDImageCodersManager.h"
-#import "SDImageWebPCoder.h"
 
 CGFloat const kLessThaniOS11StatusBarHeight = 20.0f;
 CGFloat const kPageViewPadding = 10.0f;
@@ -88,9 +86,6 @@ CGFloat const kPageViewPadding = 10.0f;
                                                  selector:@selector(handleRLPhotoLoadingDidEndNotification:)
                                                      name:RLPhoto_LOADING_DID_END_NOTIFICATION
                                                    object:nil];
-        if (![[SDImageCodersManager sharedManager].coders containsObject:[SDImageWebPCoder sharedCoder]]) {
-            [[SDImageCodersManager sharedManager] addCoder:[SDImageWebPCoder sharedCoder]];
-        }
     }
 	
     return self;

@@ -7,8 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0F45A9BD3A20EC0902AB7092 /* Pods_RLImageBrowser_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B664E26A1EC2DBE164A0BE92 /* Pods_RLImageBrowser_Tests.framework */; };
-		42CD794F8BB849D5838536F4 /* Pods_RLImageBrowser_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB451160C86C5F5BC5AB1FE9 /* Pods_RLImageBrowser_Example.framework */; };
+		3C87709282B41880F6DC1646 /* libPods-RLImageBrowser_Tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 55D56A5A04486F4AEEB7E4C9 /* libPods-RLImageBrowser_Tests.a */; };
 		6003F58E195388D20070C39A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
 		6003F590195388D20070C39A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58F195388D20070C39A /* CoreGraphics.framework */; };
 		6003F592195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
@@ -35,6 +34,7 @@
 		88B0CAC1221E955300E57E20 /* photo9.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 88B0CAB8221E955300E57E20 /* photo9.jpg */; };
 		88B0CAC2221E955300E57E20 /* photo7.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 88B0CAB9221E955300E57E20 /* photo7.jpg */; };
 		88B0CAC3221E955300E57E20 /* photo4.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 88B0CABA221E955300E57E20 /* photo4.jpg */; };
+		E3F16F0754F231A9520D180D /* libPods-RLImageBrowser_Example.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DD5D40FB1A5516B6E12BDB03 /* libPods-RLImageBrowser_Example.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +49,7 @@
 
 /* Begin PBXFileReference section */
 		1E979B3A5FECF3943360C3EC /* Pods-RLImageBrowser_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RLImageBrowser_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-RLImageBrowser_Tests/Pods-RLImageBrowser_Tests.release.xcconfig"; sourceTree = "<group>"; };
+		55D56A5A04486F4AEEB7E4C9 /* libPods-RLImageBrowser_Tests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RLImageBrowser_Tests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5C5AEE12AD465208D64D087C /* RLImageBrowser.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = RLImageBrowser.podspec; path = ../RLImageBrowser.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		6003F58A195388D20070C39A /* RLImageBrowser_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RLImageBrowser_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -85,10 +86,9 @@
 		88B0CABA221E955300E57E20 /* photo4.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = photo4.jpg; sourceTree = "<group>"; };
 		9D8BF9B3A2739E40E734BB59 /* Pods-RLImageBrowser_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RLImageBrowser_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-RLImageBrowser_Tests/Pods-RLImageBrowser_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		B5BB6535BDF45FDFF473D4F1 /* Pods-RLImageBrowser_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RLImageBrowser_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-RLImageBrowser_Example/Pods-RLImageBrowser_Example.release.xcconfig"; sourceTree = "<group>"; };
-		B664E26A1EC2DBE164A0BE92 /* Pods_RLImageBrowser_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RLImageBrowser_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9ED7572D43FC626DC0000DE /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		DC709024FD8E09A359E7C70D /* Pods-RLImageBrowser_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RLImageBrowser_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-RLImageBrowser_Example/Pods-RLImageBrowser_Example.debug.xcconfig"; sourceTree = "<group>"; };
-		FB451160C86C5F5BC5AB1FE9 /* Pods_RLImageBrowser_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RLImageBrowser_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DD5D40FB1A5516B6E12BDB03 /* libPods-RLImageBrowser_Example.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RLImageBrowser_Example.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,7 +99,7 @@
 				6003F590195388D20070C39A /* CoreGraphics.framework in Frameworks */,
 				6003F592195388D20070C39A /* UIKit.framework in Frameworks */,
 				6003F58E195388D20070C39A /* Foundation.framework in Frameworks */,
-				42CD794F8BB849D5838536F4 /* Pods_RLImageBrowser_Example.framework in Frameworks */,
+				E3F16F0754F231A9520D180D /* libPods-RLImageBrowser_Example.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -110,7 +110,7 @@
 				6003F5B0195388D20070C39A /* XCTest.framework in Frameworks */,
 				6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */,
 				6003F5B1195388D20070C39A /* Foundation.framework in Frameworks */,
-				0F45A9BD3A20EC0902AB7092 /* Pods_RLImageBrowser_Tests.framework in Frameworks */,
+				3C87709282B41880F6DC1646 /* libPods-RLImageBrowser_Tests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -145,8 +145,8 @@
 				6003F58F195388D20070C39A /* CoreGraphics.framework */,
 				6003F591195388D20070C39A /* UIKit.framework */,
 				6003F5AF195388D20070C39A /* XCTest.framework */,
-				FB451160C86C5F5BC5AB1FE9 /* Pods_RLImageBrowser_Example.framework */,
-				B664E26A1EC2DBE164A0BE92 /* Pods_RLImageBrowser_Tests.framework */,
+				DD5D40FB1A5516B6E12BDB03 /* libPods-RLImageBrowser_Example.a */,
+				55D56A5A04486F4AEEB7E4C9 /* libPods-RLImageBrowser_Tests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -240,7 +240,7 @@
 				6003F586195388D20070C39A /* Sources */,
 				6003F587195388D20070C39A /* Frameworks */,
 				6003F588195388D20070C39A /* Resources */,
-				0850647FB97E2B8B46D9CF7A /* [CP] Embed Pods Frameworks */,
+				6D314757ACC56D97B4A8AFA8 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -341,38 +341,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		0850647FB97E2B8B46D9CF7A /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-RLImageBrowser_Example/Pods-RLImageBrowser_Example-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/DACircularProgress/DACircularProgress.framework",
-				"${BUILT_PRODUCTS_DIR}/FHHFPSIndicator/FHHFPSIndicator.framework",
-				"${BUILT_PRODUCTS_DIR}/RLImageBrowser/RLImageBrowser.framework",
-				"${BUILT_PRODUCTS_DIR}/SDWebImage/SDWebImage.framework",
-				"${BUILT_PRODUCTS_DIR}/SDWebImageWebPCoder/SDWebImageWebPCoder.framework",
-				"${BUILT_PRODUCTS_DIR}/libwebp/libwebp.framework",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/DACircularProgress.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FHHFPSIndicator.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RLImageBrowser.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImage.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImageWebPCoder.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/libwebp.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-RLImageBrowser_Example/Pods-RLImageBrowser_Example-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		643E9B2F2FABA3DE06FEEBB4 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -393,6 +361,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		6D314757ACC56D97B4A8AFA8 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-RLImageBrowser_Example/Pods-RLImageBrowser_Example-resources.sh",
+				"${PODS_ROOT}/../../RLImageBrowser/RLImageBrowser.bundle",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/RLImageBrowser.bundle",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-RLImageBrowser_Example/Pods-RLImageBrowser_Example-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		89797366E99EB951BDA44572 /* [CP] Check Pods Manifest.lock */ = {

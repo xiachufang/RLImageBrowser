@@ -8,8 +8,6 @@
 
 #import "AppDelegate.h"
 #import "ViewController.h"
-#import <SDWebImageWebPCoder/SDWebImageWebPCoder.h>
-#import <SDWebImage/SDImageCodersManager.h>
 
 #if defined(DEBUG) || defined(_DEBUG)
 #import "FHHFPSIndicator.h"
@@ -28,10 +26,6 @@
     [[FHHFPSIndicator sharedFPSIndicator] show];
     [FHHFPSIndicator sharedFPSIndicator].fpsLabelPosition = FPSIndicatorPositionTopRight;
 #endif
-    
-    if (![[SDImageCodersManager sharedManager].coders containsObject:[SDImageWebPCoder sharedCoder]]) {
-        [[SDImageCodersManager sharedManager] addCoder:[SDImageWebPCoder sharedCoder]];
-    }
     
     return YES;
 }

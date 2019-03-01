@@ -6,7 +6,7 @@
 //  Copyright © 2019 kinarobin@outlook.com. All rights reserved.
 //
 
-#import <SDWebImage/SDWebImage.h>
+#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -21,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak) id <RLDetectingViewDelegate> detectingDelegate;
 @end
 
-@interface RLDetectingImageView : SDAnimatedImageView
+@interface RLDetectingImageView : UIImageView
 @property (nonatomic, weak) id <RLDetectingViewDelegate> detectingDelegate;
 @end
 

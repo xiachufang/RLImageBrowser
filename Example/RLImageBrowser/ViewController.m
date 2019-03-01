@@ -10,7 +10,7 @@
 #import "RLImageBrowser.h"
 #import "RLPhoto.h"
 #import "CollectionViewCell.h"
-#import <SDWebImage/SDWebImage.h>
+#import <SDWebImage/UIImageView+WebCache.h>
 
 @interface ViewController () <RLImageBrowserDelegate, UICollectionViewDelegate, UICollectionViewDataSource>
 
@@ -30,7 +30,15 @@
     
     [self setupTableViewFooterView];
     
-    self.urlArrays = @[[NSURL URLWithString:@"http://i2.chuimg.com/c11b178206344c76932ac28dbb81836f_2448w_1836h.jpg?imageView2/2/w/300/interlace/1/q/90"], [NSURL URLWithString:@"http://i2.chuimg.com/db8ebb9ed7ad4ae88e46d072338c6089_4032w_3024h.jpg?imageView2/2/w/300/interlace/1/q/90"], [NSURL URLWithString:@"http://www.ioncannon.net/wp-content/uploads/2011/06/test9.webp"], [NSURL URLWithString:@"http://littlesvr.ca/apng/images/SteamEngine.webp"], [NSURL URLWithString:@"https://apng.onevcat.com/assets/elephant.png"], [NSURL URLWithString:@"http://img4.duitang.com/uploads/item/201601/15/20160115231312_TWuG5.gif"], [NSURL URLWithString:@"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1524118892596&di=5e8f287b5c62ca0c813a548246faf148&imgtype=0&src=http%3A%2F%2Fwx1.sinaimg.cn%2Fcrop.0.0.1080.606.1000%2F8d7ad99bly1fcte4d1a8kj20u00u0gnb.jpg"], [NSURL URLWithString:@"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1524118914981&di=7fa3504d8767ab709c4fb519ad67cf09&imgtype=0&src=http%3A%2F%2Fimg5.duitang.com%2Fuploads%2Fitem%2F201410%2F05%2F20141005221124_awAhx.jpeg"], [NSURL URLWithString:@"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1524118934390&di=fbb86678336593d38c78878bc33d90c3&imgtype=0&src=http%3A%2F%2Fi2.hdslb.com%2Fbfs%2Farchive%2Fe90aa49ddb2fa345fa588cf098baf7b3d0e27553.jpg"]];
+    self.urlArrays = @[[NSURL URLWithString:@"http://i2.chuimg.com/c11b178206344c76932ac28dbb81836f_2448w_1836h.jpg?imageView2/2/w/300/interlace/1/q/90"],
+                       [NSURL URLWithString:@"http://i2.chuimg.com/db8ebb9ed7ad4ae88e46d072338c6089_4032w_3024h.jpg?imageView2/2/w/300/interlace/1/q/90"],
+                       [NSURL URLWithString:@"http://www.ioncannon.net/wp-content/uploads/2011/06/test9.webp"],
+                       [NSURL URLWithString:@"http://littlesvr.ca/apng/images/SteamEngine.webp"],
+                       [NSURL URLWithString:@"https://apng.onevcat.com/assets/elephant.png"],
+                       [NSURL URLWithString:@"http://img4.duitang.com/uploads/item/201601/15/20160115231312_TWuG5.gif"],
+                       [NSURL URLWithString:@"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1524118892596&di=5e8f287b5c62ca0c813a548246faf148&imgtype=0&src=http%3A%2F%2Fwx1.sinaimg.cn%2Fcrop.0.0.1080.606.1000%2F8d7ad99bly1fcte4d1a8kj20u00u0gnb.jpg"],
+                       [NSURL URLWithString:@"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1524118914981&di=7fa3504d8767ab709c4fb519ad67cf09&imgtype=0&src=http%3A%2F%2Fimg5.duitang.com%2Fuploads%2Fitem%2F201410%2F05%2F20141005221124_awAhx.jpeg"],
+                       [NSURL URLWithString:@"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1524118934390&di=fbb86678336593d38c78878bc33d90c3&imgtype=0&src=http%3A%2F%2Fi2.hdslb.com%2Fbfs%2Farchive%2Fe90aa49ddb2fa345fa588cf098baf7b3d0e27553.jpg"]];
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle {
