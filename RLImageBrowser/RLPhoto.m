@@ -154,7 +154,9 @@
         @try {
             self.underlyingImage = [UIImage imageWithContentsOfFile:_photoPath];
             if (!_underlyingImage) {
-                RLLog(@"Error loading photo from path: %@", _photoPath);
+#ifdef DEBUG
+                NSLog(@"Error loading photo from path: %@", _photoPath);
+#endif
             }
         } @finally {
             if (self.underlyingImage) {

@@ -7,8 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RLConstants.h"
-
 
 /**
  * If you wish to use your own data models for photo then they must conform

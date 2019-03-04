@@ -14,6 +14,9 @@
 CGFloat const kLessThaniOS11StatusBarHeight = 20.0f;
 CGFloat const kPageViewPadding = 10.0f;
 
+#define PAGE_INDEX_TAG_OFFSET   1000
+#define PAGE_INDEX(page)        ([(page) tag] - PAGE_INDEX_TAG_OFFSET)
+
 @interface RLImageBrowser () <UIViewControllerTransitioningDelegate>
 
 @property (nonatomic, strong, readwrite) UIScrollView *pagingScrollView;
