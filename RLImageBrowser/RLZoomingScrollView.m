@@ -15,8 +15,6 @@
 @interface RLImageBrowser ()
 
 - (UIImage *)imageForPhoto:(id<RLPhoto>)photo;
-- (void)cancelControlHiding;
-- (void)hideControlsAfterDelay;
 - (void)handleSingleTap;
 
 @end
@@ -278,18 +276,6 @@
 	return _photoImageView;
 }
 
-- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
-	[_photoBrowser cancelControlHiding];
-}
-
-- (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(UIView *)view {
-	[_photoBrowser cancelControlHiding];
-}
-
-- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
-	[_photoBrowser hideControlsAfterDelay];
-}
-
 - (void)scrollViewDidZoom:(UIScrollView *)scrollView {
     [self setNeedsLayout];
     [self layoutIfNeeded];
@@ -298,7 +284,7 @@
 #pragma mark - Tap Detection
 
 - (void)handleSingleTap:(CGPoint)touchPoint {
-	[_photoBrowser performSelector:@selector(handleSingleTap) withObject:nil afterDelay:0.2];
+	[_photoBrowser performSelector:@selector(handleSingleTap) withObject:nil afterDelay:0.1];
 }
 
 - (void)handleDoubleTap:(CGPoint)touchPoint {
@@ -314,8 +300,6 @@
 		CGPoint targetPoint = CGPointMake(touchPoint.x - targetSize.width / 2, touchPoint.y - targetSize.height / 2);
 		[self zoomToRect:CGRectMake(targetPoint.x, targetPoint.y, targetSize.width, targetSize.height) animated:YES];
 	}
-	// Delay controls
-	[_photoBrowser hideControlsAfterDelay];
 }
 
 #pragma mark - RLTapDetectingViewDelegate
