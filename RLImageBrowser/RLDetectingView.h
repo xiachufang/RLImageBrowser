@@ -12,8 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol RLDetectingViewDelegate <NSObject>
 
-- (void)detectingView:(UIView *)view singleTapDetected:(UITouch *)touch;
-- (void)detectingView:(UIView *)view doubleTapDetected:(UITouch *)touch;
+- (void)detectingView:(UIView *)view singleTapDetected:(UITapGestureRecognizer *)tap;
+- (void)detectingView:(UIView *)view doubleTapDetected:(UITapGestureRecognizer *)tap;
 
 @end
 

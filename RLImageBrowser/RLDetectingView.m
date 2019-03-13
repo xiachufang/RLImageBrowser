@@ -12,42 +12,40 @@
 
 - (instancetype)init {
 	if ((self = [super init])) {
-		self.userInteractionEnabled = YES;
+        [self configGestureRecognizer];
 	}
 	return self;
 }
 
 - (instancetype)initWithFrame:(CGRect)frame {
 	if ((self = [super initWithFrame:frame])) {
-		self.userInteractionEnabled = YES;
+		[self configGestureRecognizer];
 	}
 	return self;
 }
 
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-	UITouch *touch = [touches anyObject];
-	NSUInteger tapCount = touch.tapCount;
-	switch (tapCount) {
-		case 1:
-			[self handleSingleTap:touch];
-			break;
-		case 2:
-			[self handleDoubleTap:touch];
-			break;
-		default:
-			break;
-	}
-	[[self nextResponder] touchesEnded:touches withEvent:event];
+- (void)configGestureRecognizer {
+    self.userInteractionEnabled = YES;
+    UITapGestureRecognizer *tapOnceGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleSingleTap:)];
+    tapOnceGesture.numberOfTapsRequired = 1;
+    [self addGestureRecognizer:tapOnceGesture];
+    
+    UITapGestureRecognizer *tapTwiceGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTap:)];
+    tapTwiceGesture.numberOfTapsRequired = 2;
+    [self addGestureRecognizer:tapTwiceGesture];
+    [tapOnceGesture requireGestureRecognizerToFail:tapTwiceGesture];
 }
 
-- (void)handleSingleTap:(UITouch *)touch {
-	if ([_detectingDelegate respondsToSelector:@selector(detectingView:singleTapDetected:)])
-		[_detectingDelegate detectingView:self singleTapDetected:touch];
+- (void)handleSingleTap:(UITapGestureRecognizer *)tap {
+    if ([_detectingDelegate respondsToSelector:@selector(detectingView:singleTapDetected:)]) {
+		[_detectingDelegate detectingView:self singleTapDetected:tap];
+    }
 }
 
-- (void)handleDoubleTap:(UITouch *)touch {
-	if ([_detectingDelegate respondsToSelector:@selector(detectingView:doubleTapDetected:)])
-		[_detectingDelegate detectingView:self doubleTapDetected:touch];
+- (void)handleDoubleTap:(UITapGestureRecognizer *)tap {
+    if ([_detectingDelegate respondsToSelector:@selector(detectingView:doubleTapDetected:)]) {
+		[_detectingDelegate detectingView:self doubleTapDetected:tap];
+    }
 }
 
 @end
@@ -58,49 +56,47 @@
 
 - (instancetype)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
-        self.userInteractionEnabled = YES;
+        [self configGestureRecognizer];
     }
     return self;
 }
 
 - (instancetype)initWithImage:(UIImage *)image {
     if ((self = [super initWithImage:image])) {
-        self.userInteractionEnabled = YES;
+        [self configGestureRecognizer];
     }
     return self;
 }
 
 - (instancetype)initWithImage:(UIImage *)image highlightedImage:(UIImage *)highlightedImage {
     if ((self = [super initWithImage:image highlightedImage:highlightedImage])) {
-        self.userInteractionEnabled = YES;
+        [self configGestureRecognizer];
     }
     return self;
 }
 
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    UITouch *touch = [touches anyObject];
-    NSUInteger tapCount = touch.tapCount;
-    switch (tapCount) {
-        case 1:
-            [self handleSingleTap:touch];
-            break;
-        case 2:
-            [self handleDoubleTap:touch];
-            break;
-        default:
-            break;
+- (void)configGestureRecognizer {
+    self.userInteractionEnabled = YES;
+    UITapGestureRecognizer *tapOnceGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleSingleTap:)];
+    tapOnceGesture.numberOfTapsRequired = 1;
+    [self addGestureRecognizer:tapOnceGesture];
+    
+    UITapGestureRecognizer *tapTwiceGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTap:)];
+    tapTwiceGesture.numberOfTapsRequired = 2;
+    [self addGestureRecognizer:tapTwiceGesture];
+    [tapOnceGesture requireGestureRecognizerToFail:tapTwiceGesture];
+}
+
+- (void)handleSingleTap:(UITapGestureRecognizer *)tap {
+    if ([_detectingDelegate respondsToSelector:@selector(detectingView:singleTapDetected:)]) {
+        [_detectingDelegate detectingView:self singleTapDetected:tap];
     }
-    [[self nextResponder] touchesEnded:touches withEvent:event];
 }
 
-- (void)handleSingleTap:(UITouch *)touch {
-    if ([_detectingDelegate respondsToSelector:@selector(detectingView:singleTapDetected:)])
-        [_detectingDelegate detectingView:self singleTapDetected:touch];
-}
-
-- (void)handleDoubleTap:(UITouch *)touch {
-    if ([_detectingDelegate respondsToSelector:@selector(detectingView:doubleTapDetected:)])
-        [_detectingDelegate detectingView:self doubleTapDetected:touch];
+- (void)handleDoubleTap:(UITapGestureRecognizer *)tap {
+    if ([_detectingDelegate respondsToSelector:@selector(detectingView:doubleTapDetected:)]) {
+        [_detectingDelegate detectingView:self doubleTapDetected:tap];
+    }
 }
 
 @end

@@ -185,7 +185,7 @@
 	}
     
 	// Calculate Max
-	CGFloat maxScale = 4.0; // Allow double scale
+	CGFloat maxScale = 6.0; // Allow double scale
     // on high resolution screens we have double the pixel density, so we will be seeing every pixel if we limit the
     // maximum zoom scale to 0.5.
 	if ([UIScreen instancesRespondToSelector:@selector(scale)]) {
@@ -196,7 +196,7 @@
 		}
 	}
 	// Calculate Max Scale Of Double Tap
-	CGFloat maxDoubleTapZoomScale = 4.0 * minScale; // Allow double scale
+	CGFloat maxDoubleTapZoomScale = 6.0 * minScale; // Allow double scale
     // on high resolution screens we have double the pixel density, so we will be seeing every pixel if we limit the
     // maximum zoom scale to 0.5.
 	if ([UIScreen instancesRespondToSelector:@selector(scale)]) {
@@ -284,7 +284,7 @@
 #pragma mark - Tap Detection
 
 - (void)handleSingleTap:(CGPoint)touchPoint {
-	[_photoBrowser performSelector:@selector(handleSingleTap) withObject:nil afterDelay:0.2];
+    [_photoBrowser handleSingleTap];
 }
 
 - (void)handleDoubleTap:(CGPoint)touchPoint {
@@ -304,11 +304,11 @@
 
 #pragma mark - RLTapDetectingViewDelegate
 
-- (void)detectingView:(UIImageView *)imageView singleTapDetected:(UITouch *)touch {
-    [self handleSingleTap:[touch locationInView:imageView]];
+- (void)detectingView:(UIImageView *)imageView singleTapDetected:(UITapGestureRecognizer *)tap {
+    [self handleSingleTap:[tap locationInView:imageView]];
 }
-- (void)detectingView:(UIImageView *)imageView doubleTapDetected:(UITouch *)touch {
-    [self handleDoubleTap:[touch locationInView:imageView]];
+- (void)detectingView:(UIImageView *)imageView doubleTapDetected:(UITapGestureRecognizer *)tap {
+    [self handleDoubleTap:[tap locationInView:imageView]];
 }
 
 @end
