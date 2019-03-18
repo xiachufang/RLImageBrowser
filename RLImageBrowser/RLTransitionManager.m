@@ -70,7 +70,7 @@ UIWindow *RLNormalWindow(void) {
     UIView *fromView = fromController.view;
     UIView *toView = toController.view;
     
-    // present
+    /** present */
     if (toController.isBeingPresented) {
         self->_isEnter = YES;
         self.isTransitioning = YES;
@@ -90,7 +90,7 @@ UIWindow *RLNormalWindow(void) {
         return;
     }
     
-    // dismiss
+    /** dismiss */
     if (fromController.isBeingDismissed) {
         self->_isEnter = NO;
         self.isTransitioning = YES;
@@ -104,10 +104,14 @@ UIWindow *RLNormalWindow(void) {
         fadeView.alpha = fadeAlpha;
         [RLNormalWindow() addSubview:fadeView];
         
-        UIImage *animatedImage = transitionView ? [transitionView transitionAnimatedImageView].image : scrollView.photoImageView.image;
+        UIImageView *transitionImageView = [transitionView transitionAnimatedImageView];
+        UIImage *animatedImage = transitionView ? transitionImageView.image : scrollView.photoImageView.image;
         CGRect imageViewFrame = [self animationFrameForImage:animatedImage presenting:NO scrollView:scrollView];
         self.animateImageView.frame = imageViewFrame;
         self.animateImageView.image = animatedImage;
+        self.animateImageView.clipsToBounds = transitionImageView ? transitionView.clipsToBounds : scrollView.photoImageView.clipsToBounds;
+        self.animateImageView.layer.cornerRadius = transitionImageView ? transitionImageView.layer.cornerRadius : scrollView.photoImageView.layer.cornerRadius;
+        
         [RLNormalWindow() addSubview:self.animateImageView];
         
         fromView.hidden = YES;
