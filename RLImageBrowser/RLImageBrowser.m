@@ -180,13 +180,12 @@ CGFloat const kPageViewPadding = 10.0f;
     } else if (sender.state == UIGestureRecognizerStateChanged) {
         CGPoint velocity = [sender velocityInView:self.view];
         BOOL startPointValid = !CGPointEqualToPoint(self.gestureInteractionStartPoint, CGPointZero);
-        BOOL distanceArrive = ABS(currentPoint.x - self.gestureInteractionStartPoint.x) < 3 && ABS(velocity.x) < 500;
+        BOOL distanceArrive = ABS(velocity.x) < 500;
         BOOL upArrive = currentPoint.y - self.gestureInteractionStartPoint.y > 3 && scrollView.contentOffset.y <= 1,
         downArrive = currentPoint.y - self.gestureInteractionStartPoint.y < - 3 && scrollView.contentOffset.y + scrollView.bounds.size.height >= MAX(scrollView.contentSize.height, scrollView.bounds.size.height) - 1;
         BOOL shouldStart = startPointValid && !_isGestureInteraction && distanceArrive && (upArrive || downArrive);
         if (shouldStart) {
             self.gestureInteractionStartPoint = currentPoint;
-            
             CGRect startFrame = scrollView.frame;
             CGFloat anchorX = currentPoint.x / startFrame.size.width,
             anchorY = currentPoint.y / startFrame.size.height;

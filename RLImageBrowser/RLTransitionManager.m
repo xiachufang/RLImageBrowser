@@ -109,7 +109,6 @@ UIWindow *RLNormalWindow(void) {
         CGRect imageViewFrame = [self animationFrameForImage:animatedImage presenting:NO scrollView:scrollView];
         self.animateImageView.frame = imageViewFrame;
         self.animateImageView.image = animatedImage;
-        self.animateImageView.clipsToBounds = transitionImageView ? transitionView.clipsToBounds : scrollView.photoImageView.clipsToBounds;
         self.animateImageView.layer.cornerRadius = transitionImageView ? transitionImageView.layer.cornerRadius : scrollView.photoImageView.layer.cornerRadius;
         
         [RLNormalWindow() addSubview:self.animateImageView];
