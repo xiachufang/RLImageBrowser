@@ -98,19 +98,24 @@ UIWindow *RLNormalWindow(void) {
         UIView <RLTransitionProtocol> *transitionView = [self configAnimateImageView];
         RLZoomingScrollView *scrollView = [self.photoBrowser currentPageZoomingScrollView];
         
+        UIImageView *transitionImageView = [transitionView transitionAnimatedImageView];
+        UIImage *animatedImage = transitionView ? transitionImageView.image : scrollView.photoImageView.image;
+        if (!animatedImage) {
+            transitionView.hidden = NO;
+            [self completeTransition:transitionContext];
+            return;
+        }
+        CGRect imageViewFrame = [self animationFrameForImage:animatedImage presenting:NO scrollView:scrollView];
+        
         CGFloat fadeAlpha = 1 - fabs(scrollView.frame.origin.y) / scrollView.frame.size.height;
         UIView *fadeView = [[UIView alloc] initWithFrame:RLNormalWindow().bounds];
         fadeView.backgroundColor =  [UIColor blackColor];
         fadeView.alpha = fadeAlpha;
         [RLNormalWindow() addSubview:fadeView];
         
-        UIImageView *transitionImageView = [transitionView transitionAnimatedImageView];
-        UIImage *animatedImage = transitionView ? transitionImageView.image : scrollView.photoImageView.image;
-        CGRect imageViewFrame = [self animationFrameForImage:animatedImage presenting:NO scrollView:scrollView];
         self.animateImageView.frame = imageViewFrame;
         self.animateImageView.image = animatedImage;
         self.animateImageView.layer.cornerRadius = transitionImageView ? transitionImageView.layer.cornerRadius : scrollView.photoImageView.layer.cornerRadius;
-        
         [RLNormalWindow() addSubview:self.animateImageView];
         
         fromView.hidden = YES;
