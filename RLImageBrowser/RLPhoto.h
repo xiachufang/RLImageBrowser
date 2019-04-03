@@ -31,6 +31,7 @@ typedef void (^RLProgressUpdateBlock)(CGFloat progress);
 
 @property (nonatomic, strong) NSString *caption;
 @property (nonatomic, strong) NSURL *photoURL;
+@property (nonatomic, strong) NSURL *videoURL;
 @property (nonatomic, strong) RLProgressUpdateBlock progressUpdateBlock;
 @property (nonatomic, strong) UIImage *placeholderImage;
 
@@ -45,6 +46,7 @@ typedef void (^RLProgressUpdateBlock)(CGFloat progress);
 - (instancetype)initWithImage:(UIImage *)image;
 - (instancetype)initWithFilePath:(NSString *)path;
 - (instancetype)initWithURL:(NSURL *)url;
+- (instancetype)initWithVideo:(NSURL *)videoURL;
 
 @end
 

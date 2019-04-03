@@ -97,6 +97,13 @@
 	return self;
 }
 
+- (instancetype)initWithVideo:(NSURL *)videoURL {
+    if ((self = [super init])) {
+        self.videoURL = videoURL;
+    }
+    return self;
+}
+
 #pragma mark RLPhoto Protocol Methods
 
 - (UIImage *)underlyingImage {

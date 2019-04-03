@@ -32,6 +32,19 @@
 		_tapView.backgroundColor = [UIColor clearColor];
 		[self addSubview:_tapView];
         
+        _videoPlayerView = [[RLDetectingView alloc] initWithFrame:self.bounds];
+        _videoPlayerView.detectingDelegate = self;
+        _videoPlayerView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        _videoPlayerView.backgroundColor = [UIColor clearColor];
+        [self addSubview:_videoPlayerView];
+        
+        _videoPlayerLayer = [[AVPlayerLayer alloc] init];
+        _videoPlayerLayer.backgroundColor = [UIColor clearColor].CGColor;
+        [_videoPlayerLayer setFrame:_videoPlayerView.bounds];
+        [_videoPlayerLayer setVideoGravity:AVLayerVideoGravityResizeAspect];
+        [_videoPlayerView.layer addSublayer:_videoPlayerLayer];
+        
+        
 		// Image view
 		_photoImageView = [[RLDetectingImageView alloc] initWithFrame:CGRectZero];
 		_photoImageView.detectingDelegate = self;
@@ -46,6 +59,7 @@
         if (@available(iOS 11.0, *)) {
             UIDragInteraction *drag = [[UIDragInteraction alloc] initWithDelegate: self];
             [_photoImageView addInteraction:drag];
+            [_videoPlayerView addInteraction:drag];
         }
         
         CGRect screenBound = [[UIScreen mainScreen] bounds];
@@ -86,6 +100,12 @@
 }
 
 - (void)prepareForReuse {
+    [_progressView setProgress:0 animated:NO];
+    [_progressView setIndeterminate:NO];
+    [_videoPlayerLayer.player removeObserver:self forKeyPath:@"status" context:nil];
+    [_videoPlayerLayer.player pause];
+    _videoPlayerLayer.player = NULL;
+    
     self.photo = nil;
     [_captionView removeFromSuperview];
     self.captionView = nil;
@@ -113,7 +133,7 @@
     // Get image from browser as it handles ordering of fetching
     UIImage *photoImage = [self.photoBrowser imageForPhoto:_photo];
     if (photoImage) {
-        // Hide ProgressView
+         _videoPlayerView.hidden = YES;
         //_progressView.alpha = 0.0f;
         [_progressView removeFromSuperview];
         
@@ -131,6 +151,25 @@
 
         // Set zoom to minimum zoom
         [self setMaxMinZoomScalesForCurrentBounds];
+    } else if (_photo.videoURL != NULL) {
+        // Hide ProgressView
+        //_progressView.alpha = 0.0f;
+        [_progressView setProgress:0.3 animated:YES];
+        [_progressView setIndeterminateDuration:0.7f];
+        [_progressView setIndeterminate:YES];
+        
+        _photoImageView.hidden = YES;
+        _videoPlayerView.hidden = NO;
+        
+        [_videoPlayerLayer.player pause];
+        _videoPlayerLayer.player = NULL;
+        AVPlayer *player = [AVPlayer playerWithURL:_photo.videoURL];
+        [_videoPlayerLayer setPlayer:player];
+        
+        [player seekToTime:kCMTimeZero];
+        [player play];
+        
+        [player addObserver:self forKeyPath:@"status" options:0 context:nil];
     } else {
         // Hide image view
         _photoImageView.hidden = YES;
@@ -138,7 +177,16 @@
         _progressView.alpha = 1.0f;
     }
     [self setNeedsLayout];
-	
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    if (object == _videoPlayerLayer.player && [keyPath isEqualToString:@"status"]) {
+        if (_videoPlayerLayer.player.status == AVPlayerStatusReadyToPlay) {
+            [_progressView removeFromSuperview];
+        }
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
 }
 
 - (void)setProgress:(CGFloat)progress forPhoto:(RLPhoto*)photo {
@@ -225,6 +273,10 @@
 - (void)layoutSubviews {
 	// Update tap view frame
 	_tapView.frame = self.bounds;
+    
+    _videoPlayerView.frame = self.bounds;
+    _videoPlayerLayer.frame = _videoPlayerView.bounds;
+
 	// Super
 	[super layoutSubviews];
     
