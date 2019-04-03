@@ -116,8 +116,8 @@ CGFloat const kPageViewPadding = 10.0f;
 }
 
 - (void)releaseAllUnderlyingPhotos {
-    for (id p in _photos) {
-        if (p != [NSNull null]) {
+    for (id<RLPhoto> p in _photos) {
+        if (![p isKindOfClass:[NSNull class]]) {
             [p unloadUnderlyingImage];
         }
     }
@@ -495,7 +495,7 @@ CGFloat const kPageViewPadding = 10.0f;
 #pragma mark - RLPhoto Loading Notification
 
 - (void)handleRLPhotoLoadingDidEndNotification:(NSNotification *)notification {
-    id <RLPhoto> photo = [notification object];
+    id<RLPhoto> photo = [notification object];
     RLZoomingScrollView *page = [self pageDisplayingPhoto:photo];
     if (page) {
         if ([photo underlyingImage]) {
@@ -604,7 +604,7 @@ CGFloat const kPageViewPadding = 10.0f;
     page.tag = PAGE_INDEX_TAG_OFFSET + index;
     page.photo = [self photoAtIndex:index];
 
-    __block __weak RLPhoto *photo = (RLPhoto*)page.photo;
+    __block __weak RLPhoto *photo = (RLPhoto *)page.photo;
     __weak RLZoomingScrollView *weakPage = page;
     photo.progressUpdateBlock = ^(CGFloat progress){
         [weakPage setProgress:progress forPhoto:photo];
@@ -726,7 +726,6 @@ CGFloat const kPageViewPadding = 10.0f;
     _currentPageIndex = index;
     if (_currentPageIndex != previousCurrentPage) {
         [self didStartViewingPageAtIndex:index];
-
         if (_arrowButtonsChangePhotosAnimated) {
             [self updateToolbarCounterLabel];
         }
@@ -740,7 +739,7 @@ CGFloat const kPageViewPadding = 10.0f;
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-    if(! _arrowButtonsChangePhotosAnimated) {
+    if (!_arrowButtonsChangePhotosAnimated) {
         [self updateToolbarCounterLabel];
     }
 }
@@ -748,7 +747,8 @@ CGFloat const kPageViewPadding = 10.0f;
 #pragma mark - Toolbar
 - (void)configToolBar {
     UIBarButtonItem *flexSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
-                                                                               target:self action:nil];
+                                                                               target:self
+                                                                               action:nil];
     NSMutableArray *items = [NSMutableArray new];
     if (_displayCounterLabel) {
         [items addObject:_counterButtonItem];
