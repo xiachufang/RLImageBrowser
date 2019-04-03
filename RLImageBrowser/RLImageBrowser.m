@@ -42,7 +42,7 @@ CGFloat const kPageViewPadding = 10.0f;
     UIToolbar *_toolbar;
     NSMutableArray *_photos;
     NSMutableSet *_visiblePages, *_recycledPages;
-    UIBarButtonItem *_actionButtonItem, *_counterButtonItem;
+    UIBarButtonItem *_counterButtonItem;
     UIView <RLTransitionProtocol> *_previousTransitionView;
 }
 
@@ -295,15 +295,6 @@ CGFloat const kPageViewPadding = 10.0f;
 
     _counterButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self.counterLabel];
 
-    if(_actionButtonImage != nil && _actionButtonDisabledImage != nil) {
-        _actionButtonItem = [[UIBarButtonItem alloc] initWithCustomView:[self customToolbarButtonImage:_actionButtonImage
-                                                                                   disabledImage:_actionButtonDisabledImage
-                                                                                          action:@selector(actionButtonPressed:)]];
-    } else {
-        _actionButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction
-                                                                  target:self
-                                                                  action:@selector(actionButtonPressed:)];
-    }
     // Gesture
     _panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGestureRecognized:)];
     [_panGesture setMinimumNumberOfTouches:1];
@@ -765,10 +756,6 @@ CGFloat const kPageViewPadding = 10.0f;
     [items addObject:flexSpace];
     [items addObject:flexSpace];
     
-    if (_displayActionButton) {
-        [items addObject:flexSpace];
-        [items addObject:_actionButtonItem];
-    }
     [_toolbar setItems:items];
 }
 
@@ -866,33 +853,6 @@ CGFloat const kPageViewPadding = 10.0f;
 
     [self prepareForClosePhotoBrowser];
     [self dismissPhotoBrowserAnimated:YES];
-}
-
-- (void)actionButtonPressed:(id)sender {
-    id <RLPhoto> photo = [self photoAtIndex:_currentPageIndex];
-    if ([self numberOfPhotos] > 0 && [photo underlyingImage]) {
-        // Activity view
-        NSMutableArray *activityItems = [NSMutableArray arrayWithObject:[photo underlyingImage]];
-        if (photo.caption) [activityItems addObject:photo.caption];
-
-        self.activityViewController = [[UIActivityViewController alloc] initWithActivityItems:activityItems applicationActivities:nil];
-
-        __typeof__(self) __weak wself = self;
-        [self.activityViewController setCompletionWithItemsHandler:^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
-            wself.activityViewController = nil;
-        }];
-
-        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
-            [self presentViewController:self.activityViewController animated:YES completion:nil];
-        } else {
-            // iPad
-            UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:self.activityViewController];
-            [popover presentPopoverFromRect:CGRectMake(self.view.frame.size.width / 2, self.view.frame.size.height / 4, 0, 0)
-                                     inView:self.view permittedArrowDirections:UIPopoverArrowDirectionAny
-                                   animated:YES];
-        }
-        [self setControlsHidden:NO animated:YES];
-    }
 }
 
 - (RLTransitionManager *)transitionManager {

@@ -36,10 +36,6 @@ extern CGFloat const kLessThaniOS11StatusBarHeight;
 
 @property (nonatomic, assign) BOOL displayToolbar;
 @property (nonatomic, assign) BOOL displayCounterLabel;
-@property (nonatomic, assign) BOOL displayActionButton;
-
-@property (nonatomic, weak) UIImage *actionButtonImage, *actionButtonDisabledImage;
-
 @property (nonatomic, assign) BOOL displayCloseButton;
 @property (nonatomic, weak) UIColor *trackTintColor, *progressTintColor;
 @property (nonatomic, assign) BOOL arrowButtonsChangePhotosAnimated;

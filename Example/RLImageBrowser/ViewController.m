@@ -120,7 +120,6 @@
     button.contentMode = UIViewContentModeScaleAspectFill;
     RLImageBrowser *browser = [[RLImageBrowser alloc] initWithPhotos:array];
     browser.delegate = self;
-    browser.displayActionButton = YES;
     browser.displayCounterLabel = YES;
     browser.dismissOnTouch = YES;
     
@@ -217,9 +216,7 @@
     browser.delegate = self;
     browser.displayCounterLabel = YES;
     if (indexPath.section == 1) {
-        if (indexPath.row == 1) {
-            browser.displayActionButton = YES;
-        } else if (indexPath.row == 2) {
+        if (indexPath.row == 2) {
             browser.view.tintColor = [UIColor orangeColor];
             browser.progressTintColor = [UIColor orangeColor];
             browser.trackTintColor = [UIColor colorWithWhite:0.8 alpha:1];
