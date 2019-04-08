@@ -193,7 +193,9 @@ static NSString * const kPlayerKeyPath = @"status";
             __weak typeof(self) wself = self;
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 __strong typeof (wself) sself = wself;
-                [sself->_progressView removeFromSuperview];
+                if (sself) {
+                    [sself->_progressView removeFromSuperview];
+                }
             });
         } else if (_videoPlayerLayer.player.status == AVPlayerStatusFailed) {
 #ifdef DEBUG
