@@ -30,8 +30,8 @@
     
     [self setupTableViewFooterView];
     
-    self.urlArrays = @[[NSURL URLWithString:@"http://i2.chuimg.com/c11b178206344c76932ac28dbb81836f_2448w_1836h.jpg?imageView2/2/w/300/interlace/1/q/90"],
-                       [NSURL URLWithString:@"http://i2.chuimg.com/db8ebb9ed7ad4ae88e46d072338c6089_4032w_3024h.jpg?imageView2/2/w/300/interlace/1/q/90"],
+    self.urlArrays = @[[NSURL URLWithString:@"http://i1.chuimg.com/d3a93854fcdc4b65b2c7dc263dd78e04_480w_384h.jpg@2o_50sh_1pr_1l_480w_384h_1c_1e_90q_1wh.webp"],
+                       [NSURL URLWithString:@"http://i2.chuimg.com/7faea6beeedc4941a56b532722188b52_480w_384h.jpg?imageView2/1/w/480/h/384/q/90/format/webp"],
                        [NSURL URLWithString:@"http://www.ioncannon.net/wp-content/uploads/2011/06/test9.webp"],
                        [NSURL URLWithString:@"http://littlesvr.ca/apng/images/SteamEngine.webp"],
                        [NSURL URLWithString:@"https://apng.onevcat.com/assets/elephant.png"],
@@ -242,9 +242,17 @@
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     NSMutableArray *photos = [NSMutableArray arrayWithCapacity:9];
     for (int i = 0; i < 9; i ++) {
-        RLPhoto *photo = [RLPhoto photoWithURL:self.urlArrays[i]];
-        photo.caption = @"collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath";
-        [photos addObject:photo];
+        if (i == 0 ) {
+            RLPhoto *photo = [[RLPhoto alloc] initWithVideo:[NSURL URLWithString:@"http://i4.chuimg.com/ef34ba4059a611e995e202420a001538_480w_384h.mp4"]];
+            [photos addObject:photo];
+        } else if (i == 1) {
+            RLPhoto *photo = [[RLPhoto alloc] initWithVideo:[NSURL URLWithString:@"http://i4.chuimg.com/f7ac96de59a611e9bc7402420a001538_480w_384h.mp4"]];
+            [photos addObject:photo];
+        } else  {
+            RLPhoto *photo = [RLPhoto photoWithURL:self.urlArrays[i]];
+            photo.caption = @"collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath";
+            [photos addObject:photo];
+        }
     }
 
     RLImageBrowser *browser = [[RLImageBrowser alloc] initWithPhotos:photos];

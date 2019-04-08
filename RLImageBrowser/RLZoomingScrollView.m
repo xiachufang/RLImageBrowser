@@ -54,7 +54,7 @@ static NSString * const kPlayerKeyPath = @"status";
         if (@available(iOS 11.0, *)) {
             _photoImageView.accessibilityIgnoresInvertColors = YES;
         }
-		[self addSubview:_photoImageView];
+        [self addSubview:_photoImageView];
         
         //Add darg&drop in iOS 11
         if (@available(iOS 11.0, *)) {
@@ -154,9 +154,8 @@ static NSString * const kPlayerKeyPath = @"status";
         [self setMaxMinZoomScalesForCurrentBounds];
     } else if (_photo.videoURL != NULL) {
         // Hide ProgressView
-        //_progressView.alpha = 0.0f;
-        [_progressView setProgress:0.3 animated:YES];
-        [_progressView setIndeterminateDuration:0.7f];
+        [_progressView setProgress:0.2 animated:YES];
+        [_progressView setIndeterminateDuration:0.8f];
         [_progressView setIndeterminate:YES];
         
         _photoImageView.hidden = YES;
