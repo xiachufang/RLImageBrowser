@@ -190,7 +190,15 @@ static NSString * const kPlayerKeyPath = @"status";
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if (object == _videoPlayerLayer.player && [keyPath isEqualToString:kPlayerKeyPath]) {
         if (_videoPlayerLayer.player.status == AVPlayerStatusReadyToPlay) {
-            [_progressView removeFromSuperview];
+            __weak typeof(self) wself = self;
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                __strong typeof (wself) sself = wself;
+                [sself->_progressView removeFromSuperview];
+            });
+        } else if (_videoPlayerLayer.player.status == AVPlayerStatusFailed) {
+#ifdef DEBUG
+            NSLog(@" Loading video with error: %@", _videoPlayerLayer.player.error);
+#endif
         }
     } else {
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
