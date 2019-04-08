@@ -7,6 +7,7 @@
 //
 
 #import <QuartzCore/QuartzCore.h>
+#import <AVFoundation/AVFoundation.h>
 #import "RLImageBrowser.h"
 #import "RLTransitionManager.h"
 #import "RLRectHelper.h"
@@ -89,6 +90,10 @@ CGFloat const kPageViewPadding = 10.0f;
                                                  selector:@selector(handleRLPhotoLoadingDidEndNotification:)
                                                      name:RLPhoto_LOADING_DID_END_NOTIFICATION
                                                    object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(playerDidFinishPlaying:)
+                                                     name:AVPlayerItemDidPlayToEndTimeNotification
+                                                   object:NULL];
     }
 	
     return self;
@@ -128,6 +133,13 @@ CGFloat const kPageViewPadding = 10.0f;
     
     [self releaseAllUnderlyingPhotos];
     [_recycledPages removeAllObjects];
+}
+
+#pragma mark - Video Loop
+
+- (void)playerDidFinishPlaying:(NSNotification *)notification {
+    [[self pageDisplayedAtIndex:_currentPageIndex].videoPlayerLayer.player seekToTime:kCMTimeZero];
+    [[self pageDisplayedAtIndex:_currentPageIndex].videoPlayerLayer.player play];
 }
 
 #pragma mark - Pan Gesture

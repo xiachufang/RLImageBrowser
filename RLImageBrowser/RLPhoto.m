@@ -35,6 +35,10 @@
 	return [[RLPhoto alloc] initWithURL:url];
 }
 
++ (RLPhoto *)photoWithVideo:(NSURL *)url {
+    return [[RLPhoto alloc] initWithVideo:url];
+}
+
 + (NSArray *)photosWithImages:(NSArray *)imagesArray {
     NSMutableArray *photos = [NSMutableArray arrayWithCapacity:imagesArray.count];
     
@@ -95,6 +99,13 @@
 		_photoURL = [url copy];
 	}
 	return self;
+}
+
+- (instancetype)initWithVideo:(NSURL *)videoURL {
+    if ((self = [super init])) {
+        self.videoURL = videoURL;
+    }
+    return self;
 }
 
 #pragma mark RLPhoto Protocol Methods
