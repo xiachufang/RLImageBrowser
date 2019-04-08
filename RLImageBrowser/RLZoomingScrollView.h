@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) RLDetectingImageView *photoImageView;
 @property (nonatomic, strong) RLDetectingView *tapView;
 @property (nonatomic, strong, nullable) RLCaptionView *captionView;
-@property (nonatomic, strong, nullable) id<RLPhoto> photo;
+@property (nonatomic, strong, nullable) RLPhoto <RLPhoto> *photo;
 
 @property (nonatomic, strong) RLDetectingView *videoPlayerView;
 @property (nonatomic, strong) AVPlayerLayer *videoPlayerLayer;

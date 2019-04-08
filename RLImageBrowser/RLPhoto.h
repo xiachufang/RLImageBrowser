@@ -38,6 +38,7 @@ typedef void (^RLProgressUpdateBlock)(CGFloat progress);
 + (RLPhoto *)photoWithImage:(UIImage *)image;
 + (RLPhoto *)photoWithFilePath:(NSString *)path;
 + (RLPhoto *)photoWithURL:(NSURL *)url;
++ (RLPhoto *)photoWithVideo:(NSURL *)url;
 
 + (NSArray *)photosWithImages:(NSArray *)imagesArray;
 + (NSArray *)photosWithFilePaths:(NSArray *)pathsArray;
