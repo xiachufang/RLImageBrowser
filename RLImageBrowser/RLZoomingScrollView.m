@@ -73,9 +73,9 @@ static NSString * const kPlayerKeyPath = @"status";
         }
         
         // Progress view
-        _progressView = [[DACircularProgressView alloc] initWithFrame:CGRectMake((screenWidth-35.)/2., (screenHeight-35.)/2, 35.0f, 35.0f)];
+        _progressView = [[DACircularProgressView alloc] initWithFrame:CGRectMake((screenWidth - 35.0) * 0.5f, (screenHeight - 35.0) * 0.5f, 35.0f, 35.0f)];
         [_progressView setProgress:0.0f];
-        _progressView.thicknessRatio = 0.1;
+        _progressView.thicknessRatio = 0.18;
         _progressView.roundedCorners = NO;
         _progressView.trackTintColor    = browser.trackTintColor    ? self.photoBrowser.trackTintColor    : [UIColor colorWithWhite:0.2 alpha:1];
         _progressView.progressTintColor = browser.progressTintColor ? self.photoBrowser.progressTintColor : [UIColor colorWithWhite:1.0 alpha:1];
@@ -100,12 +100,20 @@ static NSString * const kPlayerKeyPath = @"status";
     [self displayImage];
 }
 
-- (void)prepareForReuse {
-    [_progressView setProgress:0 animated:NO];
-    [_progressView setIndeterminate:NO];
+- (void)dealloc {
+    [self resetPlayerLayer];
+}
+
+- (void)resetPlayerLayer {
     [_videoPlayerLayer.player removeObserver:self forKeyPath:kPlayerKeyPath context:nil];
     [_videoPlayerLayer.player pause];
     _videoPlayerLayer.player = NULL;
+}
+
+- (void)prepareForReuse {
+    [_progressView setProgress:0 animated:NO];
+    [_progressView setIndeterminate:NO];
+    [self resetPlayerLayer];
     
     self.photo = nil;
     [_captionView removeFromSuperview];
