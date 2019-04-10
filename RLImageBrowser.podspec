@@ -1,7 +1,7 @@
 
 Pod::Spec.new do |s|
     s.name             = 'RLImageBrowser'
-    s.version          = '1.0.1'
+    s.version          = '1.0.2'
     s.summary          = 'A simple image browser support gesture to dismiss.'
     s.description      = 'A simple image browser support gesture to dismiss...'
     
