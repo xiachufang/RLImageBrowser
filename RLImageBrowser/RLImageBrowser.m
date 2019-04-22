@@ -12,7 +12,7 @@
 #import "RLTransitionManager.h"
 #import "RLRectHelper.h"
 #import <SDWebImage/SDImageCodersManager.h>
-#import <SDWebImageWebPCoder/SDWebImageWebPCoder.h>
+#import <SDWebImageWebPCoder/SDImageWebPCoder.h>
 
 CGFloat const kLessThaniOS11StatusBarHeight = 20.0f;
 CGFloat const kPageViewPadding = 10.0f;
