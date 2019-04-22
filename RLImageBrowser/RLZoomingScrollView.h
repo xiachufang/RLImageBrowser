@@ -9,17 +9,17 @@
 #import <Foundation/Foundation.h>
 #import "RLPhotoProtocol.h"
 #import "RLDetectingView.h"
+#import "RLCircularProgressView.h"
 #import <AVKit/AVKit.h>
 #import <AVFoundation/AVFoundation.h>
 
-#import <DACircularProgress/DACircularProgressView.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class RLImageBrowser, RLPhoto, RLCaptionView;
 
 @interface RLZoomingScrollView : UIScrollView <UIScrollViewDelegate, RLDetectingViewDelegate, UIDragInteractionDelegate> {
-    DACircularProgressView *_progressView;
+    RLCircularProgressView *_progressView;
 }
 
 @property (nonatomic, weak) RLImageBrowser *photoBrowser;

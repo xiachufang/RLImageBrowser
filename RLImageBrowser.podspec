@@ -15,6 +15,5 @@ Pod::Spec.new do |s|
     s.source_files = 'RLImageBrowser/**/*.{h,m}'
     s.dependency 'SDWebImage/Core'
     s.dependency 'SDWebImage/WebP'
-    s.dependency 'DACircularProgress'
     
 end

@@ -371,7 +371,7 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-RLImageBrowser_Example/Pods-RLImageBrowser_Example-resources.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-RLImageBrowser_Example/Pods-RLImageBrowser_Example-resources.sh",
 				"${PODS_ROOT}/../../RLImageBrowser/RLImageBrowser.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
@@ -382,7 +382,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-RLImageBrowser_Example/Pods-RLImageBrowser_Example-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-RLImageBrowser_Example/Pods-RLImageBrowser_Example-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		89797366E99EB951BDA44572 /* [CP] Check Pods Manifest.lock */ = {

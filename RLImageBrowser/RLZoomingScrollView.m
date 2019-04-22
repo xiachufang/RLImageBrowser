@@ -73,7 +73,7 @@ static NSString * const kPlayerKeyPath = @"status";
         }
         
         // Progress view
-        _progressView = [[DACircularProgressView alloc] initWithFrame:CGRectMake((screenWidth - 35.0) * 0.5f, (screenHeight - 35.0) * 0.5f, 35.0f, 35.0f)];
+        _progressView = [[RLCircularProgressView alloc] initWithFrame:CGRectMake((screenWidth - 35.0) * 0.5f, (screenHeight - 35.0) * 0.5f, 35.0f, 35.0f)];
         [_progressView setProgress:0.0f];
         _progressView.thicknessRatio = 0.18;
         _progressView.roundedCorners = NO;

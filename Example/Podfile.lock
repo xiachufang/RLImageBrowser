@@ -1,5 +1,4 @@
 PODS:
-  - DACircularProgress (2.3.1)
   - FHHFPSIndicator (1.0.2)
   - libwebp (1.0.2):
     - libwebp/core (= 1.0.2)
@@ -25,8 +24,7 @@ PODS:
   - libwebp/utils (1.0.2):
     - libwebp/core
   - libwebp/webp (1.0.2)
-  - RLImageBrowser (1.0.0):
-    - DACircularProgress
+  - RLImageBrowser (1.0.2):
     - SDWebImage/Core
     - SDWebImage/WebP
   - SDWebImage/Core (4.4.6)
@@ -40,7 +38,6 @@ DEPENDENCIES:
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
-    - DACircularProgress
     - FHHFPSIndicator
     - libwebp
     - SDWebImage
@@ -50,12 +47,11 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  DACircularProgress: 4dd437c0fc3da5161cb289e07ac449493d41db71
   FHHFPSIndicator: 29d986402ea729a941a3cda184e3635d1def69ae
   libwebp: b068a3bd7c45f7460f6715be7bed1a18fd5d6b48
-  RLImageBrowser: 9ef271b07efbe840911b4d81be847ca608c9ad4c
+  RLImageBrowser: b98ca4bb998bf9ac6cb1d2112ccd115edee4083f
   SDWebImage: 3f3f0c02f09798048c47a5ed0a13f17b063572d8
 
 PODFILE CHECKSUM: ddefcf7c311326f8b4cdcefbe66789f03325975a
 
-COCOAPODS: 1.5.3
+COCOAPODS: 1.6.1
