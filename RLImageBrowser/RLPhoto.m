@@ -10,7 +10,8 @@
 #import "RLPhoto.h"
 #import "RLImageBrowser.h"
 #import <SDWebImage/UIImage+MultiFormat.h>
-#import <SDWebImage/SDWebImageCodersManager.h>
+#import <SDWebImage/SDImageCodersManager.h>
+#import <SDWebImage/SDImageCoderHelper.h>
 
 @interface RLPhoto ()
 @property (nonatomic, strong) UIImage *underlyingImage;
@@ -24,15 +25,15 @@
 #pragma mark Class Methods
 
 + (RLPhoto *)photoWithImage:(UIImage *)image {
-	return [[RLPhoto alloc] initWithImage:image];
+    return [[RLPhoto alloc] initWithImage:image];
 }
 
 + (RLPhoto *)photoWithFilePath:(NSString *)path {
-	return [[RLPhoto alloc] initWithFilePath:path];
+    return [[RLPhoto alloc] initWithFilePath:path];
 }
 
 + (RLPhoto *)photoWithURL:(NSURL *)url {
-	return [[RLPhoto alloc] initWithURL:url];
+    return [[RLPhoto alloc] initWithURL:url];
 }
 
 + (RLPhoto *)photoWithVideo:(NSURL *)url {
@@ -81,24 +82,24 @@
 #pragma mark NSObject
 
 - (instancetype)initWithImage:(UIImage *)image {
-	if ((self = [super init])) {
-		self.underlyingImage = image;
-	}
+    if ((self = [super init])) {
+        self.underlyingImage = image;
+    }
 	return self;
 }
 
 - (instancetype)initWithFilePath:(NSString *)path {
-	if ((self = [super init])) {
-		_photoPath = [path copy];
-	}
-	return self;
+    if ((self = [super init])) {
+        _photoPath = [path copy];
+    }
+    return self;
 }
 
 - (instancetype)initWithURL:(NSURL *)url {
-	if ((self = [super init])) {
-		_photoURL = [url copy];
-	}
-	return self;
+    if ((self = [super init])) {
+        _photoURL = [url copy];
+    }
+    return self;
 }
 
 - (instancetype)initWithVideo:(NSURL *)videoURL {
@@ -153,9 +154,9 @@
 - (void)unloadUnderlyingImage {
     _loadingInProgress = NO;
 
-	if (self.underlyingImage && (_photoPath || _photoURL)) {
-		self.underlyingImage = nil;
-	}
+    if (self.underlyingImage && (_photoPath || _photoURL)) {
+        self.underlyingImage = nil;
+    }
 }
 
 #pragma mark - Async Loading
@@ -171,7 +172,8 @@
             }
         } @finally {
             if (self.underlyingImage) {
-                self.underlyingImage = [[SDWebImageCodersManager sharedInstance] decodedImageWithData:self.underlyingImage.sd_imageData] ;
+                UIImage *image = [[SDImageCodersManager sharedManager] decodedImageWithData:self.underlyingImage.sd_imageData options:0];
+                self.underlyingImage = [SDImageCoderHelper decodedImageWithImage:image];
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self imageLoadingComplete];
                 });

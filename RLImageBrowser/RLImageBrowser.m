@@ -11,6 +11,8 @@
 #import "RLImageBrowser.h"
 #import "RLTransitionManager.h"
 #import "RLRectHelper.h"
+#import <SDWebImage/SDImageCodersManager.h>
+#import <SDWebImageWebPCoder/SDImageWebPCoder.h>
 
 CGFloat const kLessThaniOS11StatusBarHeight = 20.0f;
 CGFloat const kPageViewPadding = 10.0f;
@@ -94,6 +96,9 @@ CGFloat const kPageViewPadding = 10.0f;
                                                  selector:@selector(playerDidFinishPlaying:)
                                                      name:AVPlayerItemDidPlayToEndTimeNotification
                                                    object:NULL];
+        if (![[SDImageCodersManager sharedManager].coders containsObject:[SDImageWebPCoder sharedCoder]]) {
+            [[SDImageCodersManager sharedManager] addCoder:[SDImageWebPCoder sharedCoder]];
+        }
     }
 	
     return self;
