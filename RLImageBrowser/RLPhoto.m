@@ -86,7 +86,7 @@
     if ((self = [super init])) {
         self.underlyingImage = image;
     }
-	return self;
+    return self;
 }
 
 - (instancetype)initWithFilePath:(NSString *)path {
@@ -128,7 +128,7 @@
             });
         } else if (_photoURL) {
             __weak typeof(self) wself = self;
-			_combineOperation = [[SDWebImageManager sharedManager] loadImageWithURL:_photoURL options:SDWebImageRetryFailed progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
+            _combineOperation = [[SDWebImageManager sharedManager] loadImageWithURL:_photoURL options:SDWebImageRetryFailed progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     CGFloat progress = ((CGFloat)receivedSize)/((CGFloat)expectedSize);
                     if (wself.progressUpdateBlock) {
