@@ -20,6 +20,7 @@
 @implementation RLPhoto {
     NSString *_photoPath;
     BOOL _loadingInProgress;
+    __weak id <SDWebImageOperation> _combineOperation;
 }
 
 #pragma mark Class Methods
@@ -127,21 +128,21 @@
             });
         } else if (_photoURL) {
             __weak typeof(self) wself = self;
-			[[SDWebImageManager sharedManager] loadImageWithURL:_photoURL options:SDWebImageRetryFailed progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
+			_combineOperation = [[SDWebImageManager sharedManager] loadImageWithURL:_photoURL options:SDWebImageRetryFailed progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     CGFloat progress = ((CGFloat)receivedSize)/((CGFloat)expectedSize);
                     if (wself.progressUpdateBlock) {
                         wself.progressUpdateBlock(progress);
                     }
                 });
-			} completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+            } completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     if (image) {
                         wself.underlyingImage = image;
                     }
                     [wself imageLoadingComplete];
                 });
-			}];
+            }];
         } else {
             self.underlyingImage = nil;
             [self imageLoadingComplete];
@@ -154,6 +155,10 @@
 - (void)unloadUnderlyingImage {
     _loadingInProgress = NO;
 
+    if (_combineOperation && [_combineOperation conformsToProtocol:@protocol(SDWebImageOperation)]) {
+        [_combineOperation cancel];
+    }
+    
     if (self.underlyingImage && (_photoPath || _photoURL)) {
         self.underlyingImage = nil;
     }
