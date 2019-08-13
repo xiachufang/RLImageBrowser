@@ -8,11 +8,12 @@
 
 #import <UIKit/UIKit.h>
 #import "RLTransitionProtocol.h"
+#import <SDWebImage/SDWebImage.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface CollectionViewCell : UICollectionViewCell <RLTransitionProtocol>
-@property (nonatomic, weak) IBOutlet UIImageView *imageView;
+@property (nonatomic, weak) IBOutlet SDAnimatedImageView *imageView;
 @end
 
 NS_ASSUME_NONNULL_END

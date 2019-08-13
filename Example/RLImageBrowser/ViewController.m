@@ -207,7 +207,11 @@
             photo.caption = @"Campervan";
             [photos addObject:photo];
         } else if ( indexPath.row == 1 || indexPath.row == 2 ) {
-            NSArray *array = @[[NSURL URLWithString:@"http://i2.chuimg.com/c11b178206344c76932ac28dbb81836f_2448w_1836h.jpg?imageView2/2/w/300/interlace/1/q/90"], [NSURL URLWithString:@"http://i2.chuimg.com/db8ebb9ed7ad4ae88e46d072338c6089_4032w_3024h.jpg?imageView2/2/w/300/interlace/1/q/90"], [NSURL URLWithString:@"http://www.ioncannon.net/wp-content/uploads/2011/06/test9.webp"], [NSURL URLWithString:@"http://littlesvr.ca/apng/images/SteamEngine.webp"], [NSURL URLWithString:@"https://apng.onevcat.com/assets/elephant.png"]];
+            NSArray *array = @[[NSURL URLWithString:@"http://i2.chuimg.com/c11b178206344c76932ac28dbb81836f_2448w_1836h.jpg?imageView2/2/w/300/interlace/1/q/90"],
+                               [NSURL URLWithString:@"http://i2.chuimg.com/db8ebb9ed7ad4ae88e46d072338c6089_4032w_3024h.jpg?imageView2/2/w/300/interlace/1/q/90"],
+                               [NSURL URLWithString:@"http://www.ioncannon.net/wp-content/uploads/2011/06/test9.webp"],
+                               [NSURL URLWithString:@"http://littlesvr.ca/apng/images/SteamEngine.webp"],
+                               [NSURL URLWithString:@"https://apng.onevcat.com/assets/elephant.png"]];
             photos = [NSMutableArray arrayWithArray:[RLPhoto photosWithURLs:array]];
         }
     }
