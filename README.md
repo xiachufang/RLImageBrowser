@@ -12,7 +12,7 @@
 
 ### <a id="示例展示"></a>示例展示
 
-![](ScreenRecording/screen_recording.mp4)
+![](ScreenRecording/screen_recording.gif)
 
 ### <a id="使用方法"></a>使用方法
 
@@ -27,8 +27,8 @@ NSArray *photosURL = @[
 
 NSMutableArray *photos = [NSMutableArray new];
 for (NSURL *url in photosURL) {
-	RLPhoto *photo = [RLPhoto photoWithURL:url];
-	[photos addObject:photo];
+  RLPhoto *photo = [RLPhoto photoWithURL:url];
+  [photos addObject:photo];
 }
 NSArray *photos = [RLPhoto photosWithURLs:photosURL]; 
 ```
@@ -66,21 +66,20 @@ RLImageBrowserDelegate
 
 ```
 
-如果展示图片需要过渡动画，必须实现协议：
+如果展示需要过渡动画，必须实现协议：
 
 ```ruby
 - (UIView <RLTransitionProtocol> *)imageBrowser:(RLImageBrowser *)photoBrowser transitionViewForPhotoAtIndex:(NSUInteger)index;
 ```
 返回需要做动画的视图，并且告知browser这个视图哪个image是用来做动画的.
 
-### Requirements
+### 要求
 iOS 8   
 Xcode 10
 
-###  Installation
+###  安装
 
-RLImageBrowser is available through [CocoaPods](https://cocoapods.org). To install
-it, simply add the following line to your Podfile:
+RLImageBrowser 可以直接通过 [CocoaPods](https://cocoapods.org)安装， 直接在Podfile添加：
 
 ```ruby
 pod 'RLImageBrowser'
