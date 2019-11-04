@@ -14,6 +14,6 @@ Pod::Spec.new do |s|
     s.resources    = 'RLImageBrowser/RLImageBrowser.bundle'
     s.source_files = 'RLImageBrowser/**/*.{h,m}'
     s.dependency 'SDWebImage', '>= 5.0.2'
-    s.dependency 'SDWebImageWebPCoder', '>= 0.2.3'
+    s.dependency 'SDWebImageWebPCoder', '>= 0.2.1'
     
 end

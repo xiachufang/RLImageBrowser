@@ -19,6 +19,7 @@
  */
 
 NS_ASSUME_NONNULL_BEGIN
+@class RLPhotoTag;
 
 @interface RLPhoto : NSObject <RLPhoto>
 
@@ -34,6 +35,8 @@ typedef void (^RLProgressUpdateBlock)(CGFloat progress);
 @property (nonatomic, strong) NSURL *videoURL;
 @property (nonatomic, strong) RLProgressUpdateBlock progressUpdateBlock;
 @property (nonatomic, strong) UIImage *placeholderImage;
+@property (nonatomic, copy) NSArray <RLPhotoTag *> *photoTags;
+@property (nonatomic, assign) BOOL hiddenTags;
 
 + (RLPhoto *)photoWithImage:(UIImage *)image;
 + (RLPhoto *)photoWithFilePath:(NSString *)path;
@@ -50,5 +53,15 @@ typedef void (^RLProgressUpdateBlock)(CGFloat progress);
 - (instancetype)initWithVideo:(NSURL *)videoURL;
 
 @end
+
+
+@interface RLPhotoTag : NSObject
+
+@property (nonatomic, assign) CGFloat offsetX;
+@property (nonatomic, assign) CGFloat offsetY;
+@property (nonatomic, copy) NSString *name;
+
+@end
+
 
 NS_ASSUME_NONNULL_END

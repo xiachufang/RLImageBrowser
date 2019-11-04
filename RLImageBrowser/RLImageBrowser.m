@@ -47,6 +47,7 @@ CGFloat const kPageViewPadding = 10.0f;
     NSMutableSet *_visiblePages, *_recycledPages;
     UIBarButtonItem *_counterButtonItem;
     UIView <RLTransitionProtocol> *_previousTransitionView;
+    NSInteger _maxPhotoTags;
 }
 
 #pragma mark - NSObject
@@ -107,6 +108,11 @@ CGFloat const kPageViewPadding = 10.0f;
 - (instancetype)initWithPhotos:(NSArray *)photosArray {
     if ((self = [self init])) {
         _photos = [[NSMutableArray alloc] initWithArray:photosArray];
+        NSInteger maxPhotoTags = 0;
+        for (RLPhoto *photo in _photos) {
+            if (photo.photoTags.count > maxPhotoTags) maxPhotoTags = photo.photoTags.count;
+        }
+        _maxPhotoTags = maxPhotoTags;
 	}
 	return self;
 }
@@ -115,6 +121,10 @@ CGFloat const kPageViewPadding = 10.0f;
     if ((self = [self init])) {
         NSArray *photosArray = [RLPhoto photosWithURLs:photoURLsArray];
         _photos = [[NSMutableArray alloc] initWithArray:photosArray];
+        NSInteger maxPhotoTags = 0;
+        for (RLPhoto *photo in _photos) {
+            if (photo.photoTags.count > maxPhotoTags) maxPhotoTags = photo.photoTags.count;
+        }
 	}
 	return self;
 }
@@ -333,6 +343,8 @@ CGFloat const kPageViewPadding = 10.0f;
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     _viewIsActive = YES;
+    
+    [self _internalLayoutSubviews];
 }
 
 #pragma mark - Status Bar
@@ -358,7 +370,8 @@ CGFloat const kPageViewPadding = 10.0f;
 
 #pragma mark - Layout
 
-- (void)viewWillLayoutSubviews {
+
+- (void)_internalLayoutSubviews {
 	// Flag
 	_performingLayout = YES;
 
@@ -396,8 +409,6 @@ CGFloat const kPageViewPadding = 10.0f;
 	// Reset
 	_currentPageIndex = indexPriorToLayout;
 	_performingLayout = NO;
-
-    [super viewWillLayoutSubviews];
 }
 
 - (void)performLayout {
@@ -568,7 +579,10 @@ CGFloat const kPageViewPadding = 10.0f;
 	// Add missing pages
 	for (NSUInteger index = (NSUInteger)iFirstIndex; index <= (NSUInteger)iLastIndex; index++) {
 		if (![self isDisplayingPageForIndex:index]) {
-            RLZoomingScrollView *page = [[RLZoomingScrollView alloc] initWithPhotoBrowser:self];
+            RLZoomingScrollView *page = [self dequeueRecycledPage];
+            if (!page) {
+                page = [[RLZoomingScrollView alloc] initWithPhotoBrowser:self maxPhotoTags:_maxPhotoTags];
+            }
             page.backgroundColor = [UIColor clearColor];
             page.opaque = YES;
 

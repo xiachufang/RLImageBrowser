@@ -9,6 +9,7 @@
 #import "RLZoomingScrollView.h"
 #import "RLImageBrowser.h"
 #import "RLPhoto.h"
+#import "RLPhotoTagView.h"
 
 #pragma mark - Private methods of image browser
 static NSString * const kPlayerKeyPath = @"status";
@@ -20,9 +21,11 @@ static NSString * const kPlayerKeyPath = @"status";
 
 @end
 
-@implementation RLZoomingScrollView
+@implementation RLZoomingScrollView {
+    NSArray *_photoTagViews;
+}
 
-- (instancetype)initWithPhotoBrowser:(RLImageBrowser *)browser {
+- (instancetype)initWithPhotoBrowser:(RLImageBrowser *)browser maxPhotoTags:(NSInteger)maxPhotoTags {
     if ((self = [super init])) {
         self.photoBrowser = browser;
         
@@ -88,6 +91,16 @@ static NSString * const kPlayerKeyPath = @"status";
         self.showsVerticalScrollIndicator = NO;
         self.decelerationRate = UIScrollViewDecelerationRateFast;
         self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        
+        NSMutableArray *tempArray = [NSMutableArray array];
+        for (int i = 0; i < maxPhotoTags; i ++) {
+            RLPhotoTagView *tagView = [[RLPhotoTagView alloc] init];
+            tagView.hidden = YES;
+            [self addSubview:tagView];
+            [tempArray addObject:tagView];
+        }
+        _photoTagViews = tempArray.copy;
+        
     }
     return self;
 }
@@ -118,12 +131,20 @@ static NSString * const kPlayerKeyPath = @"status";
     self.photo = nil;
     [_captionView removeFromSuperview];
     self.captionView = nil;
+    
+    [self _hidePhotoTagView];
 }
 
 #pragma mark - Drag & Drop
 
 - (NSArray<UIDragItem *> *)dragInteraction:(UIDragInteraction *)interaction itemsForBeginningSession:(id<UIDragSession>)session NS_AVAILABLE_IOS(11.0) {
     return @[[[UIDragItem alloc] initWithItemProvider:[[NSItemProvider alloc] initWithObject:_photoImageView.image]]];
+}
+
+- (void)_hidePhotoTagView {
+    for (UIView *view in _photoTagViews) {
+        view.hidden = YES;
+    }
 }
 
 #pragma mark - Image
@@ -142,7 +163,7 @@ static NSString * const kPlayerKeyPath = @"status";
     // Get image from browser as it handles ordering of fetching
     UIImage *photoImage = [self.photoBrowser imageForPhoto:_photo];
     if (photoImage) {
-         _videoPlayerView.hidden = YES;
+        _videoPlayerView.hidden = YES;
         //_progressView.alpha = 0.0f;
         [_progressView removeFromSuperview];
         
@@ -156,6 +177,13 @@ static NSString * const kPlayerKeyPath = @"status";
         photoImageViewFrame.size = CGSizeMake(self.bounds.size.width, self.bounds.size.width * (photoImage.size.height / photoImage.size.width));
         
         _photoImageView.frame = photoImageViewFrame;
+        
+        //Async calculate the width of each tag, and cache the width
+        __weak typeof(self) wself = self;
+        [_photo loadPhotoTagsWidth:^(NSArray *widths) {
+            [wself configPhotoTagsViewWithWidths:widths];
+        }];
+        
         self.contentSize = photoImageViewFrame.size;
 
         // Set zoom to minimum zoom
@@ -214,6 +242,33 @@ static NSString * const kPlayerKeyPath = @"status";
             [_progressView setProgress:progress animated:YES];
         }
     }
+}
+
+
+- (void)configPhotoTagsViewWithWidths:(NSArray *)widths {
+    if (widths.count > _photoTagViews.count) {
+        return;
+    }
+    CGSize size = _photoImageView.frame.size;
+    const CGFloat tagViewHeight = 30;
+    const CGFloat zoomingViewHeight = self.bounds.size.height;
+    [widths enumerateObjectsUsingBlock:^(NSNumber *width, NSUInteger idx, BOOL * _Nonnull stop) {
+        if (width.floatValue <= 0) {
+            return;
+        }
+        RLPhotoTag *tagModel = self.photo.photoTags[idx];
+        RLPhotoTagView *view = _photoTagViews[idx];
+        view.hidden = NO;
+        view.photoTag = tagModel;
+        CGFloat X = MAX(size.width * tagModel.offsetX, 15) ;
+        CGFloat Y = size.height * tagModel.offsetY + (zoomingViewHeight - size.height) * 0.5;
+        CGFloat W = width.floatValue + 21;
+        view.frame = CGRectMake(MIN(X, size.width - W - 2),
+                                MIN(Y, (zoomingViewHeight + size.height) * 0.5 - tagViewHeight - 2),
+                                W,
+                                tagViewHeight);
+    }];
+    
 }
 
 // Image failed so just show black!

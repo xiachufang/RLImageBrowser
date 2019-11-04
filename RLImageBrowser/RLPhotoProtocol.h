@@ -52,6 +52,11 @@
  */
 - (void)unloadUnderlyingImage;
 
+/**
+  This is called when the photo  has tags.
+*/
+- (void)loadPhotoTagsWidth:(void(^)(NSArray *widths))complain;
+
 @optional
 
 /**

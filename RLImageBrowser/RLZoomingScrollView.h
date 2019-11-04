@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) CGFloat maximumDoubleTapZoomScale;
 
-- (instancetype)initWithPhotoBrowser:(RLImageBrowser *)browser;
+- (instancetype)initWithPhotoBrowser:(RLImageBrowser *)browser maxPhotoTags:(NSInteger)maxPhotoTags;
 - (void)displayImage;
 - (void)displayImageFailure;
 - (void)setProgress:(CGFloat)progress forPhoto:(RLPhoto*)photo;

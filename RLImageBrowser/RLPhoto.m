@@ -15,6 +15,7 @@
 
 @interface RLPhoto ()
 @property (nonatomic, strong) UIImage *underlyingImage;
+@property (nonatomic, strong) NSArray <NSNumber *>*photoTagWidths;
 @end
 
 @implementation RLPhoto {
@@ -150,6 +151,46 @@
     }
 }
 
+- (void)loadPhotoTagsWidth:(void(^)(NSArray *widths))complain {
+    if (!complain) {
+        return;
+    }
+    if (self.photoTags.count == 0 || self.hiddenTags) {
+        complain(nil);
+        return;
+    }
+    if (self.photoTagWidths.count) {
+        complain(self.photoTagWidths);
+        return;
+    }
+    
+    __weak typeof(self) wself = self;
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSMutableArray *widths = [NSMutableArray array];
+        [wself.photoTags enumerateObjectsUsingBlock:^(RLPhotoTag * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            if (obj.name) {
+                NSMutableAttributedString *attributeString = [[NSMutableAttributedString alloc] initWithString:obj.name];
+                [attributeString addAttribute:NSFontAttributeName
+                                        value:[UIFont boldSystemFontOfSize:13]
+                                        range:NSMakeRange(0, obj.name.length)];
+                NSStringDrawingOptions options = NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading;
+                CGSize size = [attributeString boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, 30)
+                                                            options:options
+                                                            context:nil].size;
+                [widths addObject:@(size.width)];
+            } else {
+                [widths addObject:@(0)];
+            }
+        }];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            __strong typeof(self) sself = wself;
+            sself.photoTagWidths = widths.copy;
+            complain(sself.photoTagWidths);
+        });
+    });
+}
+
+
 #pragma mark - release underlyingImage
 
 - (void)unloadUnderlyingImage {
@@ -194,5 +235,10 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:RLPhoto_LOADING_DID_END_NOTIFICATION
                                                         object:self];
 }
+
+@end
+
+
+@implementation RLPhotoTag
 
 @end
