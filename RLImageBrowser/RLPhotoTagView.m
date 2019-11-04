@@ -1,9 +1,9 @@
 //
-//  XCFTagView.m
-//  xcf-iphone
+//  RLPhotoTagView.h
+//  RLImageBrowser
 //
-//  Created by Alex on 2018/7/23.
-//  Copyright © 2018年 Xiachufang. All rights reserved.
+//  Created by kinarobin on 2019/1/31.
+//  Copyright © 2019 kinarobin@outlook.com. All rights reserved.
 //
 
 #import "RLPhotoTagView.h"
