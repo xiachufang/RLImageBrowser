@@ -25,6 +25,7 @@ extern CGFloat const kLessThaniOS11StatusBarHeight;
 - (void)imageBrowser:(RLImageBrowser *)photoBrowser didShowPhotoAtIndex:(NSUInteger)index;
 - (void)imageBrowser:(RLImageBrowser *)photoBrowser didDismissAtPageIndex:(NSUInteger)index;
 - (void)imageBrowser:(RLImageBrowser *)photoBrowser willDismissAtPageIndex:(NSUInteger)index;
+- (void)imageBrowser:(RLImageBrowser *)photoBrowser didClickPhotoTag:(RLPhotoTag *)photoTag;
 - (RLCaptionView *)imageBrowser:(RLImageBrowser *)photoBrowser captionViewForPhotoAtIndex:(NSUInteger)index;
 - (UIView <RLTransitionProtocol> *)imageBrowser:(RLImageBrowser *)photoBrowser transitionViewForPhotoAtIndex:(NSUInteger)index;
 - (void)photoBrowser:(RLImageBrowser *)imageBrowser imageFailed:(NSUInteger)index imageView:(RLDetectingImageView *)imageView;
@@ -37,6 +38,7 @@ extern CGFloat const kLessThaniOS11StatusBarHeight;
 @property (nonatomic, assign) BOOL displayToolbar;
 @property (nonatomic, assign) BOOL displayCounterLabel;
 @property (nonatomic, assign) BOOL displayCloseButton;
+@property (nonatomic, assign) BOOL displayTagButton;
 @property (nonatomic, weak) UIColor *trackTintColor, *progressTintColor;
 @property (nonatomic, assign) BOOL arrowButtonsChangePhotosAnimated;
 

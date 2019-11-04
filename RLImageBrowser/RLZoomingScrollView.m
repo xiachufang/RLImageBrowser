@@ -95,6 +95,8 @@ static NSString * const kPlayerKeyPath = @"status";
         NSMutableArray *tempArray = [NSMutableArray array];
         for (int i = 0; i < maxPhotoTags; i ++) {
             RLPhotoTagView *tagView = [[RLPhotoTagView alloc] init];
+            UITapGestureRecognizer *tagViewTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tagViewDidClick:)];
+            [tagView addGestureRecognizer:tagViewTap];
             tagView.hidden = YES;
             [self addSubview:tagView];
             [tempArray addObject:tagView];
@@ -132,7 +134,7 @@ static NSString * const kPlayerKeyPath = @"status";
     [_captionView removeFromSuperview];
     self.captionView = nil;
     
-    [self _hidePhotoTagView];
+    [self photoTagViewsShouldHide:YES];
 }
 
 #pragma mark - Drag & Drop
@@ -141,9 +143,9 @@ static NSString * const kPlayerKeyPath = @"status";
     return @[[[UIDragItem alloc] initWithItemProvider:[[NSItemProvider alloc] initWithObject:_photoImageView.image]]];
 }
 
-- (void)_hidePhotoTagView {
+- (void)photoTagViewsShouldHide:(BOOL)hidden {
     for (UIView *view in _photoTagViews) {
-        view.hidden = YES;
+        view.hidden = hidden;
     }
 }
 
@@ -422,6 +424,14 @@ static NSString * const kPlayerKeyPath = @"status";
         CGSize targetSize = CGSizeMake(self.frame.size.width / self.maximumDoubleTapZoomScale, self.frame.size.height / self.maximumDoubleTapZoomScale);
         CGPoint targetPoint = CGPointMake(touchPoint.x - targetSize.width / 2, touchPoint.y - targetSize.height / 2);
         [self zoomToRect:CGRectMake(targetPoint.x, targetPoint.y, targetSize.width, targetSize.height) animated:YES];
+    }
+}
+
+- (void)tagViewDidClick:(UITapGestureRecognizer *)tap {
+    if ([self.photoBrowser.delegate respondsToSelector:@selector(imageBrowser:didClickPhotoTag:)]) {
+        RLPhotoTagView *tagView = (RLPhotoTagView *)tap.view;
+        [self.photoBrowser.delegate imageBrowser:self.photoBrowser
+                                didClickPhotoTag:tagView.photoTag];
     }
 }
 

@@ -45,7 +45,7 @@ CGFloat const kPageViewPadding = 10.0f;
     UIToolbar *_toolbar;
     NSMutableArray *_photos;
     NSMutableSet *_visiblePages, *_recycledPages;
-    UIBarButtonItem *_counterButtonItem;
+    UIBarButtonItem *_counterButtonItem, *_photoTagButtonItem;
     UIView <RLTransitionProtocol> *_previousTransitionView;
     NSInteger _maxPhotoTags;
 }
@@ -322,6 +322,14 @@ CGFloat const kPageViewPadding = 10.0f;
 
     _counterButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self.counterLabel];
 
+    // Tag Button
+    UIButton *hideTagButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [hideTagButton setFrame:[self frameForDoneButtonAtOrientation:currentOrientation]];
+    [hideTagButton addTarget:self action:@selector(hideTagButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [hideTagButton setTitle:@"隐藏标签" forState:UIControlStateNormal];
+    [hideTagButton setTitle:@"显示标签" forState:UIControlStateSelected];
+    _photoTagButtonItem = [[UIBarButtonItem alloc] initWithCustomView:hideTagButton];
+    
     // Gesture
     _panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGestureRecognized:)];
     [_panGesture setMinimumNumberOfTouches:1];
@@ -786,6 +794,10 @@ CGFloat const kPageViewPadding = 10.0f;
     }
     [items addObject:flexSpace];
     [items addObject:flexSpace];
+    if (_displayTagButton) {
+        [items addObject:flexSpace];
+        [items addObject:_photoTagButtonItem];
+    }
     
     [_toolbar setItems:items];
 }
@@ -884,6 +896,17 @@ CGFloat const kPageViewPadding = 10.0f;
 
     [self prepareForClosePhotoBrowser];
     [self dismissPhotoBrowserAnimated:YES];
+}
+
+- (void)hideTagButtonPressed:(UIButton *)button {
+    button.selected = !button.isSelected;
+    
+    [_photos enumerateObjectsUsingBlock:^(RLPhoto *obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        obj.hiddenTags = button.isSelected;
+    }];
+    
+    RLZoomingScrollView *view = [self currentPageZoomingScrollView];
+    [view photoTagViewsShouldHide:button.isSelected];
 }
 
 - (RLTransitionManager *)transitionManager {

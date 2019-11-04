@@ -39,6 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setProgress:(CGFloat)progress forPhoto:(RLPhoto*)photo;
 - (void)setMaxMinZoomScalesForCurrentBounds;
 - (void)prepareForReuse;
+- (void)photoTagViewsShouldHide:(BOOL)hidden;
 
 @end
 
