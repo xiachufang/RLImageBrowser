@@ -30,6 +30,7 @@ CGFloat const kPageViewPadding = 10.0f;
 @property (nonatomic, strong) UIPanGestureRecognizer *panGesture;
 @property (nonatomic, strong) UIButton *closeButton;
 @property (nonatomic, strong) UILabel *counterLabel;
+@property (nonatomic, strong) UIButton *hideTagButton;
 @property (nonatomic, strong) RLTransitionManager *transitionManager;
 
 @end
@@ -323,12 +324,12 @@ CGFloat const kPageViewPadding = 10.0f;
     _counterButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self.counterLabel];
 
     // Tag Button
-    UIButton *hideTagButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [hideTagButton setFrame:[self frameForDoneButtonAtOrientation:currentOrientation]];
-    [hideTagButton addTarget:self action:@selector(hideTagButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    [hideTagButton setTitle:@"隐藏标签" forState:UIControlStateNormal];
-    [hideTagButton setTitle:@"显示标签" forState:UIControlStateSelected];
-    _photoTagButtonItem = [[UIBarButtonItem alloc] initWithCustomView:hideTagButton];
+    _hideTagButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [_hideTagButton setFrame:[self frameForDoneButtonAtOrientation:currentOrientation]];
+    [_hideTagButton addTarget:self action:@selector(hideTagButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [_hideTagButton setTitle:@"隐藏标签" forState:UIControlStateNormal];
+    [_hideTagButton setTitle:@"显示标签" forState:UIControlStateSelected];
+    _photoTagButtonItem = [[UIBarButtonItem alloc] initWithCustomView:_hideTagButton];
     
     // Gesture
     _panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGestureRecognized:)];
@@ -441,7 +442,7 @@ CGFloat const kPageViewPadding = 10.0f;
     
     [self configToolBar];
    
-	[self updateToolbarCounterLabel];
+	[self updateToolbarSubViews];
 
     // Content offset
 	_pagingScrollView.contentOffset = [self contentOffsetForPageAtIndex:_currentPageIndex];
@@ -766,7 +767,7 @@ CGFloat const kPageViewPadding = 10.0f;
     if (_currentPageIndex != previousCurrentPage) {
         [self didStartViewingPageAtIndex:index];
         if (_arrowButtonsChangePhotosAnimated) {
-            [self updateToolbarCounterLabel];
+            [self updateToolbarSubViews];
         }
     }
 }
@@ -779,7 +780,7 @@ CGFloat const kPageViewPadding = 10.0f;
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     if (!_arrowButtonsChangePhotosAnimated) {
-        [self updateToolbarCounterLabel];
+        [self updateToolbarSubViews];
     }
 }
 
@@ -802,13 +803,16 @@ CGFloat const kPageViewPadding = 10.0f;
     [_toolbar setItems:items];
 }
 
-- (void)updateToolbarCounterLabel {
+- (void)updateToolbarSubViews {
     
 	if ([self numberOfPhotos] > 1) {
 		_counterLabel.text = [NSString stringWithFormat:@"%lu / %lu", (unsigned long)(_currentPageIndex + 1), (unsigned long)[self numberOfPhotos]];
 	} else {
 		_counterLabel.text = nil;
 	}
+    
+    RLPhoto *photo = [self photoAtIndex:self.currentPageIndex];
+    _hideTagButton.hidden = (photo.photoTags.count == 0);
 }
 
 - (void)jumpToPageAtIndex:(NSUInteger)index {
@@ -820,7 +824,7 @@ CGFloat const kPageViewPadding = 10.0f;
             [_pagingScrollView setContentOffset:CGPointMake(pageFrame.origin.x - kPageViewPadding, 0) animated:YES];
         } else {
             _pagingScrollView.contentOffset = CGPointMake(pageFrame.origin.x - kPageViewPadding, 0);
-            [self updateToolbarCounterLabel];
+            [self updateToolbarSubViews];
         }
 	}
 }
