@@ -60,6 +60,7 @@ typedef void (^RLProgressUpdateBlock)(CGFloat progress);
 @property (nonatomic, assign) CGFloat offsetX;
 @property (nonatomic, assign) CGFloat offsetY;
 @property (nonatomic, copy) NSString *name;
+@property (nonatomic, copy) NSDictionary *tagInfo;
 
 @end
 

@@ -308,7 +308,7 @@ CGFloat const kPageViewPadding = 10.0f;
     UIInterfaceOrientation currentOrientation = [UIApplication sharedApplication].statusBarOrientation;
 
     // Toolbar
-    _toolbar = [[UIToolbar alloc] initWithFrame:[self frameForToolbarAtOrientation:currentOrientation]];
+    _toolbar = [[UIToolbar alloc] initWithFrame:CGRectZero];
     _toolbar.backgroundColor = [UIColor clearColor];
     _toolbar.clipsToBounds = YES;
     _toolbar.translucent = YES;
@@ -316,7 +316,6 @@ CGFloat const kPageViewPadding = 10.0f;
 
     // Close Button
     _closeButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [_closeButton setFrame:[self frameForDoneButtonAtOrientation:currentOrientation]];
     [_closeButton setAlpha:1.0f];
     [_closeButton addTarget:self action:@selector(doneButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [_closeButton setImage:[UIImage imageWithContentsOfFile:[[NSBundle bundleForClass:[self class]] pathForResource:@"RLImageBrowser.bundle/browser_close@2x" ofType:@"png"]] forState:UIControlStateNormal];
@@ -729,7 +728,7 @@ CGFloat const kPageViewPadding = 10.0f;
 - (CGRect)frameForCaptionView:(RLCaptionView *)captionView atIndex:(NSUInteger)index {
     CGRect pageFrame = [self frameForPageAtIndex:index];
     CGSize captionSize = [captionView sizeThatFits:CGSizeMake(pageFrame.size.width, 0)];
-    CGRect captionFrame = CGRectMake(pageFrame.origin.x, pageFrame.size.height - captionSize.height - (_toolbar.superview?_toolbar.frame.size.height:0), pageFrame.size.width, captionSize.height);
+    CGRect captionFrame = CGRectMake(pageFrame.origin.x, pageFrame.size.height - captionSize.height - (_toolbar.superview ? _toolbar.frame.size.height:0), pageFrame.size.width, captionSize.height);
     return captionFrame;
 }
 
