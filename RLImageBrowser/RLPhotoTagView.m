@@ -60,6 +60,13 @@
 - (void)setPhotoTag:(RLPhotoTag *)photoTag {
     _photoTag = photoTag;
     _tagLabel.text = photoTag.name;
+    if (_photoTag.direction == RLPhotoTagDirectionRight) {
+        self.tagLabel.transform = CGAffineTransformMakeScale(-1, 1);
+        self.transform = CGAffineTransformMakeScale(-1, 1);
+    } else {
+        self.tagLabel.transform = CGAffineTransformIdentity;
+        self.transform = CGAffineTransformIdentity;
+    }
 }
 
 - (void)layoutSubviews {

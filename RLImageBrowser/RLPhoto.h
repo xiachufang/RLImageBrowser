@@ -54,12 +54,19 @@ typedef void (^RLProgressUpdateBlock)(CGFloat progress);
 
 @end
 
+typedef NS_ENUM(NSUInteger, RLPhotoTagDirection) {
+    RLPhotoTagDirectionDefault,
+    RLPhotoTagDirectionLeft = RLPhotoTagDirectionDefault,
+    RLPhotoTagDirectionRight,
+};
+
 
 @interface RLPhotoTag : NSObject
 
 @property (nonatomic, assign) CGFloat offsetX;
 @property (nonatomic, assign) CGFloat offsetY;
 @property (nonatomic, copy) NSString *name;
+@property (nonatomic, assign) RLPhotoTagDirection direction;
 @property (nonatomic, copy) NSDictionary *tagInfo;
 
 @end
