@@ -10,9 +10,16 @@
 #import <AVFoundation/AVFoundation.h>
 #import "RLImageBrowser.h"
 #import "RLTransitionManager.h"
-#import "RLRectHelper.h"
 #import <SDWebImage/SDImageCodersManager.h>
 #import <SDWebImageWebPCoder/SDImageWebPCoder.h>
+
+inline static UIEdgeInsets RLScreenSafeAreaInsets(void) {
+    if (@available(iOS 11.0, *)) {
+        return [UIApplication sharedApplication].keyWindow.safeAreaInsets;
+    } else {
+        return UIEdgeInsetsZero;
+    }
+}
 
 CGFloat const kLessThaniOS11StatusBarHeight = 20.0f;
 CGFloat const kPageViewPadding = 10.0f;
@@ -308,14 +315,14 @@ CGFloat const kPageViewPadding = 10.0f;
     UIInterfaceOrientation currentOrientation = [UIApplication sharedApplication].statusBarOrientation;
 
     // Toolbar
-    _toolbar = [[UIToolbar alloc] initWithFrame:CGRectZero];
+    _toolbar = [[UIToolbar alloc] initWithFrame:[self frameForToolbarAtOrientation:currentOrientation]];
     _toolbar.backgroundColor = [UIColor clearColor];
     _toolbar.clipsToBounds = YES;
     _toolbar.translucent = YES;
     [_toolbar setBackgroundImage:[UIImage new] forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsDefault];
 
     // Close Button
-    _closeButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    _closeButton = [[UIButton alloc] initWithFrame:[self frameForDoneButtonAtOrientation:currentOrientation]];
     [_closeButton setAlpha:1.0f];
     [_closeButton addTarget:self action:@selector(doneButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [_closeButton setImage:[UIImage imageWithContentsOfFile:[[NSBundle bundleForClass:[self class]] pathForResource:@"RLImageBrowser.bundle/browser_close@2x" ofType:@"png"]] forState:UIControlStateNormal];
@@ -684,7 +691,6 @@ CGFloat const kPageViewPadding = 10.0f;
     CGRect frame = self.view.bounds;
     frame.origin.x -= kPageViewPadding;
     frame.size.width += (2 * kPageViewPadding);
-    frame = [self adjustForSafeArea:frame adjustForStatusBar:false];
     return frame;
 }
 
@@ -714,15 +720,15 @@ CGFloat const kPageViewPadding = 10.0f;
 
 - (CGRect)frameForToolbarAtOrientation:(UIInterfaceOrientation)orientation {
     CGFloat height = UIInterfaceOrientationIsLandscape(orientation) ? 32 : 44;
-    CGRect rtn = CGRectMake(0, self.view.bounds.size.height - height, self.view.bounds.size.width, height);
-    rtn = [self adjustForSafeArea:rtn adjustForStatusBar:true];
+    CGRect rtn = CGRectMake(0,
+                            self.view.bounds.size.height - height - RLScreenSafeAreaInsets().bottom,
+                            self.view.bounds.size.width,
+                            height);
     return rtn;
 }
 
 - (CGRect)frameForDoneButtonAtOrientation:(UIInterfaceOrientation)orientation {
-    CGRect rtn = CGRectMake(0, 10, 55.f, 26.f);
-    rtn = [self adjustForSafeArea:rtn adjustForStatusBar:true];
-    return rtn;
+    return CGRectMake(0, 10 + RLScreenSafeAreaInsets().top, 72.f, 26.f);
 }
 
 - (CGRect)frameForCaptionView:(RLCaptionView *)captionView atIndex:(NSUInteger)index {
@@ -730,18 +736,6 @@ CGFloat const kPageViewPadding = 10.0f;
     CGSize captionSize = [captionView sizeThatFits:CGSizeMake(pageFrame.size.width, 0)];
     CGRect captionFrame = CGRectMake(pageFrame.origin.x, pageFrame.size.height - captionSize.height - (_toolbar.superview ? _toolbar.frame.size.height:0), pageFrame.size.width, captionSize.height);
     return captionFrame;
-}
-
-- (CGRect)adjustForSafeArea:(CGRect)rect adjustForStatusBar:(BOOL)adjust {
-    if (@available(iOS 11.0, *)) {
-        return [self adjustForSafeArea:rect adjustForStatusBar:adjust forInsets:self.view.safeAreaInsets];
-    }
-    UIEdgeInsets insets = UIEdgeInsetsMake(kLessThaniOS11StatusBarHeight, 0, 0, 0);
-    return [self adjustForSafeArea:rect adjustForStatusBar:adjust forInsets:insets];
-}
-
-- (CGRect)adjustForSafeArea:(CGRect)rect adjustForStatusBar:(BOOL)adjust forInsets:(UIEdgeInsets) insets {
-    return [RLRectHelper adjustRect:rect forSafeAreaInsets:insets forBounds:self.view.bounds adjustForStatusBar:adjust statusBarHeight:kLessThaniOS11StatusBarHeight];
 }
 
 #pragma mark - UIScrollView Delegate

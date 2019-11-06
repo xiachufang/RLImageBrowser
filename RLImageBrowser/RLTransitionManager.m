@@ -7,7 +7,6 @@
 
 #import "RLTransitionManager.h"
 #import "RLImageBrowser.h"
-#import "RLRectHelper.h"
 
 @interface RLTransitionManager()
 
@@ -170,14 +169,6 @@ UIWindow *RLNormalWindow(void) {
     }
     CGSize imageSize = image.size;
     CGRect bounds = RLNormalWindow().bounds;
-    if (@available(iOS 11.0, *)) {
-        UIWindow *window = [UIApplication sharedApplication].keyWindow;
-        UIEdgeInsets insets = UIEdgeInsetsMake(kLessThaniOS11StatusBarHeight, 0, 0, 0);
-        if (window != NULL) {
-            insets = window.safeAreaInsets;
-        }
-        bounds = [RLRectHelper adjustRect:bounds forSafeAreaInsets:insets forBounds:bounds adjustForStatusBar:NO statusBarHeight:kLessThaniOS11StatusBarHeight];
-    }
     CGFloat maxWidth = CGRectGetWidth(bounds);
     CGFloat maxHeight = CGRectGetHeight(bounds);
     
