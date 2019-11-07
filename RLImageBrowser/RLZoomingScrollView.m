@@ -264,14 +264,14 @@ static NSString * const kPlayerKeyPath = @"status";
         view.photoTag = tagModel;
         CGFloat originX = MAX(size.width * tagModel.offsetX, 0);
         CGFloat W = MIN(width.floatValue + 21, size.width - 20);
-        CGFloat Y = MAX(size.height * tagModel.offsetY, 0) + (zoomingViewHeight - size.height) * 0.5;
+        CGFloat Y = MAX(size.height * tagModel.offsetY - 0.5 * tagViewHeight, 0) + (zoomingViewHeight - size.height) * 0.5;
         CGFloat originY = MIN(Y, (zoomingViewHeight + size.height) * 0.5 - tagViewHeight - 2);
         if (tagModel.direction == RLPhotoTagDirectionRight) {
-            originX = MIN(originX, size.width - W - 2 - 15);
+            originX = MAX(0, originX - W - 16);
         } else {
-            originX = (originX < 15) ? 15 : MIN(originX, size.width - W - 2);
+            originX = MIN(originX + 8, size.width - W - 10);
         }
-        view.frame = CGRectMake(originX, originY, W, tagViewHeight);
+        view.frame = CGRectMake(originX + 5, originY, W, tagViewHeight);
     }];
     
 }

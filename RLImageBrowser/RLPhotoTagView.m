@@ -37,7 +37,7 @@
 - (void)setUpSubviews {
     self.clipsToBounds = NO;
     _dotLayer = [CALayer layer];
-    _dotLayer.frame = CGRectMake(- 15, 11, 8, 8);
+    _dotLayer.frame = CGRectMake(-11, 11, 8, 8);
     _dotLayer.cornerRadius = 4;
     _dotLayer.shadowOffset = CGSizeMake(0, 1);
     _dotLayer.shadowOpacity = 4;
