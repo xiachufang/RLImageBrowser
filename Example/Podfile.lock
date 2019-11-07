@@ -24,7 +24,7 @@ PODS:
   - libwebp/utils (1.0.2):
     - libwebp/core
   - libwebp/webp (1.0.2)
-  - RLImageBrowser (1.1.1):
+  - RLImageBrowser (1.2.0):
     - SDWebImage (>= 5.0.2)
     - SDWebImageWebPCoder (>= 0.2.1)
   - SDWebImage (5.0.3):
@@ -39,7 +39,7 @@ DEPENDENCIES:
   - RLImageBrowser (from `../`)
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  https://github.com/CocoaPods/Specs.git:
     - FHHFPSIndicator
     - libwebp
     - SDWebImage
@@ -52,10 +52,10 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   FHHFPSIndicator: 29d986402ea729a941a3cda184e3635d1def69ae
   libwebp: b068a3bd7c45f7460f6715be7bed1a18fd5d6b48
-  RLImageBrowser: 712928e8f309fcd5d14a01bbf59691e02a5bee29
+  RLImageBrowser: 5753158c724cbb4c6f648cc093c38a514d2c7f7f
   SDWebImage: d4f87d7d36c8a4d9f9459dc282e0caa057fdf935
   SDWebImageWebPCoder: 6e04bcaef15bdf033782b24663cc0c9881d9b745
 
 PODFILE CHECKSUM: ddefcf7c311326f8b4cdcefbe66789f03325975a
 
-COCOAPODS: 1.6.1
+COCOAPODS: 1.8.3

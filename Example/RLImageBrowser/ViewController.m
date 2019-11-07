@@ -35,7 +35,7 @@
                        [NSURL URLWithString:@"http://www.ioncannon.net/wp-content/uploads/2011/06/test9.webp"],
                        [NSURL URLWithString:@"http://littlesvr.ca/apng/images/SteamEngine.webp"],
                        [NSURL URLWithString:@"https://apng.onevcat.com/assets/elephant.png"],
-                       [NSURL URLWithString:@"http://img4.duitang.com/uploads/item/201601/15/20160115231312_TWuG5.gif"],
+                       [NSURL URLWithString:@"http://www.ioncannon.net/wp-content/uploads/2011/06/test9.webp"],
                        [NSURL URLWithString:@"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1524118892596&di=5e8f287b5c62ca0c813a548246faf148&imgtype=0&src=http%3A%2F%2Fwx1.sinaimg.cn%2Fcrop.0.0.1080.606.1000%2F8d7ad99bly1fcte4d1a8kj20u00u0gnb.jpg"],
                        [NSURL URLWithString:@"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1524118914981&di=7fa3504d8767ab709c4fb519ad67cf09&imgtype=0&src=http%3A%2F%2Fimg5.duitang.com%2Fuploads%2Fitem%2F201410%2F05%2F20141005221124_awAhx.jpeg"],
                        [NSURL URLWithString:@"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1524118934390&di=fbb86678336593d38c78878bc33d90c3&imgtype=0&src=http%3A%2F%2Fi2.hdslb.com%2Fbfs%2Farchive%2Fe90aa49ddb2fa345fa588cf098baf7b3d0e27553.jpg"]];
@@ -255,6 +255,31 @@
         } else  {
             RLPhoto *photo = [RLPhoto photoWithURL:self.urlArrays[i]];
             photo.caption = @"collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath";
+           
+            RLPhotoTag *tag = [RLPhotoTag new];
+            tag.offsetX = 0.4;
+            tag.offsetY = 0.0;
+            tag.name = [NSString stringWithFormat:@"一人时%d", i];
+            
+            RLPhotoTag *tag1 = [RLPhotoTag new];
+            tag1.offsetX = 1;
+            tag1.offsetY = 0.9;
+            tag1.name = [NSString stringWithFormat:@"科技后打开结婚看数据都会看哈哈%d李斌会第三款会计核算肯德基和看炬华", i];
+            
+            RLPhotoTag *tag2 = [RLPhotoTag new];
+            tag2.offsetX = 0.99;
+            tag2.offsetY = -0.4;
+            tag2.name = [NSString stringWithFormat:@"标签%d科技后打开结婚看数据都会看哈哈科技后打开结婚看数据都会看哈哈", i];
+            if (i == 8) {
+                tag2.direction = RLPhotoTagDirectionRight;
+            }
+            
+            
+            
+            if (i != 4 && i != 6) {
+                photo.photoTags = @[tag, tag1, tag2];
+            }
+            
             [photos addObject:photo];
         }
     }
@@ -262,6 +287,7 @@
     RLImageBrowser *browser = [[RLImageBrowser alloc] initWithPhotos:photos];
     browser.delegate = self;
     browser.dismissOnTouch = YES;
+    browser.displayTagButton = YES;
     browser.useAnimationForPresentOrDismiss = YES;
     [browser setInitialPageIndex:indexPath.item];
     [self presentViewController:browser animated:YES completion:nil];
