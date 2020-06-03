@@ -36,9 +36,9 @@
                        [NSURL URLWithString:@"http://littlesvr.ca/apng/images/SteamEngine.webp"],
                        [NSURL URLWithString:@"https://apng.onevcat.com/assets/elephant.png"],
                        [NSURL URLWithString:@"http://www.ioncannon.net/wp-content/uploads/2011/06/test9.webp"],
-                       [NSURL URLWithString:@"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1524118892596&di=5e8f287b5c62ca0c813a548246faf148&imgtype=0&src=http%3A%2F%2Fwx1.sinaimg.cn%2Fcrop.0.0.1080.606.1000%2F8d7ad99bly1fcte4d1a8kj20u00u0gnb.jpg"],
-                       [NSURL URLWithString:@"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1524118914981&di=7fa3504d8767ab709c4fb519ad67cf09&imgtype=0&src=http%3A%2F%2Fimg5.duitang.com%2Fuploads%2Fitem%2F201410%2F05%2F20141005221124_awAhx.jpeg"],
-                       [NSURL URLWithString:@"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1524118934390&di=fbb86678336593d38c78878bc33d90c3&imgtype=0&src=http%3A%2F%2Fi2.hdslb.com%2Fbfs%2Farchive%2Fe90aa49ddb2fa345fa588cf098baf7b3d0e27553.jpg"]];
+                       [NSURL URLWithString:@"http://r0k.us/graphics/kodak/kodak/kodim01.png"],
+                       [NSURL URLWithString:@"http://r0k.us/graphics/kodak/kodak/kodim02.png"],
+                       [NSURL URLWithString:@"http://r0k.us/graphics/kodak/kodak/kodim03.png"]];
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle {
@@ -250,7 +250,7 @@
             RLPhoto *photo = [[RLPhoto alloc] initWithVideo:[NSURL URLWithString:@"http://i4.chuimg.com/ef34ba4059a611e995e202420a001538_480w_384h.mp4"]];
             [photos addObject:photo];
         } else if (i == 1) {
-            RLPhoto *photo = [[RLPhoto alloc] initWithVideo:[NSURL URLWithString:@"http://i4.chuimg.com/f7ac96de59a611e9bc7402420a001538_480w_384h.mp4"]];
+            RLPhoto *photo = [[RLPhoto alloc] initWithVideo:[NSURL URLWithString:@"https://video3.chuimg.com/9532a465vodtransgzp1252442451/0e55952b5285890803746811371/v.f230.m3u8?t=5ed93330&exper=0&us=vqhniudmeigr&sign=9b54aecf97012086869fe5d5015aa4f4"]];
             [photos addObject:photo];
         } else  {
             RLPhoto *photo = [RLPhoto photoWithURL:self.urlArrays[i]];

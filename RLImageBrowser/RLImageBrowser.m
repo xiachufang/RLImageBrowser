@@ -105,6 +105,12 @@ CGFloat const kPageViewPadding = 10.0f;
                                                  selector:@selector(playerDidFinishPlaying:)
                                                      name:AVPlayerItemDidPlayToEndTimeNotification
                                                    object:NULL];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(applicationDidBecomeActiveNotification) name:UIApplicationDidBecomeActiveNotification
+                                                   object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(applicationWillResignActiveNotification) name:UIApplicationWillResignActiveNotification
+                                                   object:nil];
         if (![[SDImageCodersManager sharedManager].coders containsObject:[SDImageWebPCoder sharedCoder]]) {
             [[SDImageCodersManager sharedManager] addCoder:[SDImageWebPCoder sharedCoder]];
         }
@@ -135,6 +141,20 @@ CGFloat const kPageViewPadding = 10.0f;
         }
 	}
 	return self;
+}
+
+- (void)applicationDidBecomeActiveNotification {
+    RLZoomingScrollView *scrollView = [self pageDisplayedAtIndex:_currentPageIndex];
+    if (scrollView.photo.videoURL && scrollView.videoPlayerLayer.player.status == AVPlayerStatusReadyToPlay) {
+        [scrollView.videoPlayerLayer.player play];
+    }
+}
+
+- (void)applicationWillResignActiveNotification {
+    RLZoomingScrollView *scrollView = [self pageDisplayedAtIndex:_currentPageIndex];
+    if (scrollView.photo.videoURL && scrollView.videoPlayerLayer.player.status == AVPlayerStatusReadyToPlay) {
+        [scrollView.videoPlayerLayer.player pause];
+    }
 }
 
 - (void)dealloc {
