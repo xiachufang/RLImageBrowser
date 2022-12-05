@@ -155,7 +155,7 @@
     if (!complain) {
         return;
     }
-    if (self.photoTags.count == 0 || self.hiddenTags) {
+    if (self.photoTags.count == 0) {
         complain(nil);
         return;
     }

@@ -261,6 +261,7 @@ static NSString * const kPlayerKeyPath = @"status";
         RLPhotoTag *tagModel = self.photo.photoTags[idx];
         RLPhotoTagView *view = _photoTagViews[idx];
         view.hidden = NO;
+        view.hidden = _photo.hiddenTags;
         view.photoTag = tagModel;
         CGFloat originX = MAX(size.width * tagModel.offsetX, 0);
         CGFloat W = MIN(width.floatValue + 21, size.width - 20);
