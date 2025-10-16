@@ -343,11 +343,17 @@ CGFloat const kPageViewPadding = 10.0f;
 
     // Close Button
     _closeButton = [[UIButton alloc] initWithFrame:[self frameForDoneButtonAtOrientation:currentOrientation]];
+    if (@available(iOS 26.0, *)) {
+        _closeButton.configuration = [UIButtonConfiguration glassButtonConfiguration];
+    }
     [_closeButton setAlpha:1.0f];
     [_closeButton addTarget:self action:@selector(doneButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [_closeButton setImage:[UIImage imageWithContentsOfFile:[[NSBundle bundleForClass:[self class]] pathForResource:@"RLImageBrowser.bundle/browser_close@2x" ofType:@"png"]] forState:UIControlStateNormal];
 
     _counterButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self.counterLabel];
+    if (@available(iOS 26.0, *)) {
+        _counterButtonItem.hidesSharedBackground = YES;
+    }
 
     // Tag Button
     _hideTagButton = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -356,7 +362,10 @@ CGFloat const kPageViewPadding = 10.0f;
     [_hideTagButton setTitle:@"隐藏标签" forState:UIControlStateNormal];
     [_hideTagButton setTitle:@"显示标签" forState:UIControlStateSelected];
     _photoTagButtonItem = [[UIBarButtonItem alloc] initWithCustomView:_hideTagButton];
-    
+    if (@available(iOS 26.0, *)) {
+        _photoTagButtonItem.hidesSharedBackground = YES;
+    }
+
     // Gesture
     _panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGestureRecognized:)];
     [_panGesture setMinimumNumberOfTouches:1];
@@ -748,6 +757,9 @@ CGFloat const kPageViewPadding = 10.0f;
 }
 
 - (CGRect)frameForDoneButtonAtOrientation:(UIInterfaceOrientation)orientation {
+    if (@available(iOS 26.0, *)) {
+        return CGRectMake(20, 10  + RLScreenSafeAreaInsets().top, 44.f, 44.f);
+    }
     return CGRectMake(0, 10 + RLScreenSafeAreaInsets().top, 72.f, 26.f);
 }
 
@@ -823,7 +835,8 @@ CGFloat const kPageViewPadding = 10.0f;
 	} else {
 		_counterLabel.text = nil;
 	}
-    
+    [_toolbar setNeedsLayout];
+    [_toolbar layoutIfNeeded];
     RLPhoto *photo = [self photoAtIndex:self.currentPageIndex];
     _hideTagButton.hidden = (photo.photoTags.count == 0);
 }
