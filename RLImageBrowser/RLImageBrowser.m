@@ -13,14 +13,6 @@
 #import <SDWebImage/SDImageCodersManager.h>
 #import <SDWebImageWebPCoder/SDImageWebPCoder.h>
 
-inline static UIEdgeInsets RLScreenSafeAreaInsets(void) {
-    if (@available(iOS 11.0, *)) {
-        return [UIApplication sharedApplication].keyWindow.safeAreaInsets;
-    } else {
-        return UIEdgeInsetsZero;
-    }
-}
-
 CGFloat const kLessThaniOS11StatusBarHeight = 20.0f;
 CGFloat const kPageViewPadding = 10.0f;
 
@@ -49,6 +41,10 @@ CGFloat const kPageViewPadding = 10.0f;
     BOOL _viewIsActive;
     BOOL _performingLayout;
     BOOL _statusBarOriginalHidden;
+    BOOL _hasLayout;
+    BOOL _controlsHiddenBeforeDrag;
+    CGRect _lastLayoutBounds;
+    UIEdgeInsets _lastLayoutSafeAreaInsets;
     NSInteger _initalPageIndex;
     UIToolbar *_toolbar;
     NSMutableArray *_photos;
@@ -193,6 +189,7 @@ CGFloat const kPageViewPadding = 10.0f;
     CGPoint currentPoint = [sender locationInView:self.view];
     // Gesture Began
     if ([sender state] == UIGestureRecognizerStateBegan) {
+        _controlsHiddenBeforeDrag = [self areControlsHidden];
         self.gestureInteractionStartPoint = currentPoint;
         self.zoomingScrollViewCenter = scrollView.center;
         [self setControlsHidden:YES animated:YES];
@@ -201,8 +198,9 @@ CGFloat const kPageViewPadding = 10.0f;
     } else if (sender.state == UIGestureRecognizerStateCancelled || sender.state == UIGestureRecognizerStateEnded || sender.state == UIGestureRecognizerStateRecognized || sender.state == UIGestureRecognizerStateFailed) {
         CGPoint velocity = [sender velocityInView:self.view];
         BOOL velocityArrive = ABS(velocity.y) > 800;
-        BOOL distanceArrive = ABS(currentPoint.y - self.gestureInteractionStartPoint.y) > [UIScreen mainScreen].bounds.size.height * 0.12;
-        BOOL shouldDismiss = distanceArrive || velocityArrive;
+        BOOL distanceArrive = ABS(currentPoint.y - self.gestureInteractionStartPoint.y) > CGRectGetHeight(self.view.bounds) * 0.12;
+        BOOL shouldDismiss = sender.state == UIGestureRecognizerStateEnded && _isGestureInteraction && (distanceArrive || velocityArrive);
+        if (!_isDraggingPhoto) return;
         if (shouldDismiss) {
             if (_useAnimationForPresentOrDismiss) {
                 [self doneButtonPressed:nil];
@@ -251,19 +249,41 @@ CGFloat const kPageViewPadding = 10.0f;
         }
         
         if (_isGestureInteraction) {
-            NSInteger index = _pagingScrollView.contentOffset.x / (self.view.frame.size.width + 2 * kPageViewPadding);
-            scrollView.center = CGPointMake(index * (self.view.frame.size.width + 2 * kPageViewPadding) + currentPoint.x + kPageViewPadding, currentPoint.y);;
-            CGFloat scale = 1 - ABS(currentPoint.y - self.gestureInteractionStartPoint.y) / ([UIScreen mainScreen].bounds.size.height);
+            CGFloat pageWidth = CGRectGetWidth(_pagingScrollView.bounds);
+            NSInteger index = _pagingScrollView.contentOffset.x / MAX(pageWidth, 1);
+            scrollView.center = CGPointMake(index * pageWidth + currentPoint.x + kPageViewPadding, currentPoint.y);
+            CGFloat distance = ABS(currentPoint.y - self.gestureInteractionStartPoint.y) / MAX(CGRectGetHeight(self.view.bounds), 1);
+            CGFloat scale = 1 - distance;
             if (scale > 1) scale = 1;
             if (scale < 0.35) scale = 0.35;
             scrollView.transform = CGAffineTransformMakeScale(scale, scale);
             
-            CGFloat alpha = 1 - ABS(currentPoint.y - self.gestureInteractionStartPoint.y) / ([UIScreen mainScreen].bounds.size.height);
+            CGFloat alpha = 1 - distance;
             if (alpha > 1) alpha = 1;
             if (alpha < 0) alpha = 0;
             self.view.backgroundColor = [UIColor colorWithWhite:0 alpha:alpha];
         }
     }
+}
+
+- (void)cancelPhotoDragForLayout {
+    if (!_isDraggingPhoto && !_isGestureInteraction) return;
+    // Disabling the recognizer sends Cancelled synchronously. Clear state first
+    // so a resize cannot accidentally dismiss the browser.
+    _isDraggingPhoto = NO;
+    _isGestureInteraction = NO;
+    self.gestureInteractionStartPoint = CGPointZero;
+    self.panGesture.enabled = NO;
+    self.panGesture.enabled = YES;
+    for (RLZoomingScrollView *page in _visiblePages) {
+        [page.layer removeAllAnimations];
+        page.transform = CGAffineTransformIdentity;
+        page.layer.anchorPoint = CGPointMake(0.5, 0.5);
+        page.userInteractionEnabled = YES;
+        page.scrollEnabled = YES;
+    }
+    self.view.backgroundColor = UIColor.blackColor;
+    [self setControlsHidden:_controlsHiddenBeforeDrag animated:NO];
 }
 
 #pragma mark - Genaral
@@ -296,7 +316,7 @@ CGFloat const kPageViewPadding = 10.0f;
 }
 
 - (CGRect)getToolbarButtonFrame:(UIImage *)image{
-    BOOL const isRetinaHd = ((float)[[UIScreen mainScreen] scale] > 2.0f);
+    BOOL const isRetinaHd = (self.traitCollection.displayScale > 2.0f);
     float const defaultButtonSize = isRetinaHd ? 66.0f : 44.0f;
     CGFloat buttonWidth = (image.size.width > defaultButtonSize) ? image.size.width : defaultButtonSize;
     CGFloat buttonHeight = (image.size.height > defaultButtonSize) ? image.size.width : defaultButtonSize;
@@ -323,7 +343,9 @@ CGFloat const kPageViewPadding = 10.0f;
 	// Setup paging scrolling view
 	CGRect pagingScrollViewFrame = [self frameForPagingScrollView];
 	_pagingScrollView = [[UIScrollView alloc] initWithFrame:pagingScrollViewFrame];
-    //_pagingScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    if (@available(iOS 11.0, *)) {
+        _pagingScrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
 	_pagingScrollView.pagingEnabled = YES;
 	_pagingScrollView.delegate = self;
 	_pagingScrollView.showsHorizontalScrollIndicator = NO;
@@ -332,17 +354,15 @@ CGFloat const kPageViewPadding = 10.0f;
     _pagingScrollView.contentSize = [self contentSizeForPagingScrollView];
 	[self.view addSubview:_pagingScrollView];
 
-    UIInterfaceOrientation currentOrientation = [UIApplication sharedApplication].statusBarOrientation;
-
     // Toolbar
-    _toolbar = [[UIToolbar alloc] initWithFrame:[self frameForToolbarAtOrientation:currentOrientation]];
+    _toolbar = [[UIToolbar alloc] initWithFrame:[self frameForToolbar]];
     _toolbar.backgroundColor = [UIColor clearColor];
     _toolbar.clipsToBounds = YES;
     _toolbar.translucent = YES;
     [_toolbar setBackgroundImage:[UIImage new] forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsDefault];
 
     // Close Button
-    _closeButton = [[UIButton alloc] initWithFrame:[self frameForDoneButtonAtOrientation:currentOrientation]];
+    _closeButton = [[UIButton alloc] initWithFrame:[self frameForDoneButton]];
     if (@available(iOS 26.0, *)) {
         _closeButton.configuration = [UIButtonConfiguration glassButtonConfiguration];
     }
@@ -357,7 +377,7 @@ CGFloat const kPageViewPadding = 10.0f;
 
     // Tag Button
     _hideTagButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [_hideTagButton setFrame:[self frameForDoneButtonAtOrientation:currentOrientation]];
+    [_hideTagButton setFrame:[self frameForDoneButton]];
     [_hideTagButton addTarget:self action:@selector(hideTagButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [_hideTagButton setTitle:@"隐藏标签" forState:UIControlStateNormal];
     [_hideTagButton setTitle:@"显示标签" forState:UIControlStateSelected];
@@ -389,6 +409,17 @@ CGFloat const kPageViewPadding = 10.0f;
     _viewIsActive = YES;
     
     [self _internalLayoutSubviews];
+    if ([self numberOfPhotos] > 0) [self didStartViewingPageAtIndex:_currentPageIndex];
+}
+
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    [self _internalLayoutSubviews];
+}
+
+- (void)viewSafeAreaInsetsDidChange {
+    [super viewSafeAreaInsetsDidChange];
+    [self.view setNeedsLayout];
 }
 
 #pragma mark - Status Bar
@@ -416,15 +447,26 @@ CGFloat const kPageViewPadding = 10.0f;
 
 
 - (void)_internalLayoutSubviews {
-	// Flag
-	_performingLayout = YES;
+    CGRect bounds = self.view.bounds;
+    UIEdgeInsets safeArea = [self browserSafeAreaInsets];
+    if (!_pagingScrollView || _performingLayout || self.isBeingDismissed ||
+        CGRectGetWidth(bounds) <= 0 || CGRectGetHeight(bounds) <= 0) return;
+    if (_hasLayout && CGRectEqualToRect(bounds, _lastLayoutBounds) &&
+        UIEdgeInsetsEqualToEdgeInsets(safeArea, _lastLayoutSafeAreaInsets)) return;
 
-    UIInterfaceOrientation currentOrientation = [UIApplication sharedApplication].statusBarOrientation;
-
-    // Toolbar
-    _toolbar.frame = [self frameForToolbarAtOrientation:currentOrientation];
-
-    _closeButton.frame = [self frameForDoneButtonAtOrientation:currentOrientation];
+    BOOL sizeChanged = !_hasLayout || !CGSizeEqualToSize(bounds.size, _lastLayoutBounds.size);
+    _performingLayout = YES;
+    _hasLayout = YES;
+    _lastLayoutBounds = bounds;
+    _lastLayoutSafeAreaInsets = safeArea;
+    if (sizeChanged) {
+        [self cancelPhotoDragForLayout];
+        [_pagingScrollView setContentOffset:_pagingScrollView.contentOffset animated:NO];
+        _pagingScrollView.panGestureRecognizer.enabled = NO;
+        _pagingScrollView.panGestureRecognizer.enabled = YES;
+    }
+    _toolbar.frame = [self frameForToolbar];
+    _closeButton.frame = [self frameForDoneButton];
 
     // Remember index
 	NSUInteger indexPriorToLayout = _currentPageIndex;
@@ -433,22 +475,22 @@ CGFloat const kPageViewPadding = 10.0f;
 	CGRect pagingScrollViewFrame = [self frameForPagingScrollView];
 
 	// Frame needs changing
-	_pagingScrollView.frame = pagingScrollViewFrame;
+    if (sizeChanged) _pagingScrollView.frame = pagingScrollViewFrame;
 
 	// Recalculate contentSize based on current orientation
-	_pagingScrollView.contentSize = [self contentSizeForPagingScrollView];
+    if (sizeChanged) _pagingScrollView.contentSize = [self contentSizeForPagingScrollView];
 
 	// Adjust frames and configuration of each visible page
 	for (RLZoomingScrollView *page in _visiblePages) {
         NSUInteger index = PAGE_INDEX(page);
-		page.frame = [self frameForPageAtIndex:index];
+        if (sizeChanged) [page resizeToFrame:[self frameForPageAtIndex:index]];
         page.captionView.frame = [self frameForCaptionView:page.captionView atIndex:index];
-		[page setMaxMinZoomScalesForCurrentBounds];
 	}
 
 	// Adjust contentOffset to preserve page location based on values collected prior to location
-	_pagingScrollView.contentOffset = [self contentOffsetForPageAtIndex:indexPriorToLayout];
-	[self didStartViewingPageAtIndex:_currentPageIndex]; // initial
+    if (sizeChanged) _pagingScrollView.contentOffset = [self contentOffsetForPageAtIndex:indexPriorToLayout];
+    // Retain existing pages and players. A geometry change is not a page change.
+    if (sizeChanged) [self tilePages];
 
 	// Reset
 	_currentPageIndex = indexPriorToLayout;
@@ -458,6 +500,7 @@ CGFloat const kPageViewPadding = 10.0f;
 - (void)performLayout {
     // Setup
     _performingLayout = YES;
+    _hasLayout = NO;
     
     // Setup pages
     [_visiblePages removeAllObjects];
@@ -590,6 +633,7 @@ CGFloat const kPageViewPadding = 10.0f;
 #pragma mark - Paging
 
 - (void)tilePages {
+    if ([self numberOfPhotos] == 0 || CGRectGetWidth(_pagingScrollView.bounds) <= 0) return;
 	// Calculate which pages should be visible
 	// Ignore padding as paging bounces encroach on that
 	// and lead to false page loads
@@ -747,26 +791,35 @@ CGFloat const kPageViewPadding = 10.0f;
 	return CGPointMake(newOffset, 0);
 }
 
-- (CGRect)frameForToolbarAtOrientation:(UIInterfaceOrientation)orientation {
-    CGFloat height = UIInterfaceOrientationIsLandscape(orientation) ? 32 : 44;
-    CGRect rtn = CGRectMake(0,
-                            self.view.bounds.size.height - height - RLScreenSafeAreaInsets().bottom,
-                            self.view.bounds.size.width,
+- (UIEdgeInsets)browserSafeAreaInsets {
+    if (@available(iOS 11.0, *)) return self.view.safeAreaInsets;
+    return UIEdgeInsetsZero;
+}
+
+- (CGRect)frameForToolbar {
+    CGRect bounds = self.view.bounds;
+    CGRect safeBounds = UIEdgeInsetsInsetRect(bounds, [self browserSafeAreaInsets]);
+    CGFloat height = CGRectGetWidth(bounds) > CGRectGetHeight(bounds) ? 32 : 44;
+    CGRect rtn = CGRectMake(CGRectGetMinX(safeBounds),
+                            CGRectGetMaxY(safeBounds) - height,
+                            CGRectGetWidth(safeBounds),
                             height);
     return rtn;
 }
 
-- (CGRect)frameForDoneButtonAtOrientation:(UIInterfaceOrientation)orientation {
+- (CGRect)frameForDoneButton {
+    CGRect safeBounds = UIEdgeInsetsInsetRect(self.view.bounds, [self browserSafeAreaInsets]);
     if (@available(iOS 26.0, *)) {
-        return CGRectMake(20, 10  + RLScreenSafeAreaInsets().top, 44.f, 44.f);
+        return CGRectMake(CGRectGetMinX(safeBounds) + 20, CGRectGetMinY(safeBounds) + 10, 44.f, 44.f);
     }
-    return CGRectMake(0, 10 + RLScreenSafeAreaInsets().top, 72.f, 26.f);
+    return CGRectMake(CGRectGetMinX(safeBounds), CGRectGetMinY(safeBounds) + 10, 72.f, 26.f);
 }
 
 - (CGRect)frameForCaptionView:(RLCaptionView *)captionView atIndex:(NSUInteger)index {
     CGRect pageFrame = [self frameForPageAtIndex:index];
     CGSize captionSize = [captionView sizeThatFits:CGSizeMake(pageFrame.size.width, 0)];
-    CGRect captionFrame = CGRectMake(pageFrame.origin.x, pageFrame.size.height - captionSize.height - (_toolbar.superview ? _toolbar.frame.size.height:0), pageFrame.size.width, captionSize.height);
+    CGFloat bottom = _toolbar.superview ? CGRectGetMinY(_toolbar.frame) : pageFrame.size.height - [self browserSafeAreaInsets].bottom;
+    CGRect captionFrame = CGRectMake(pageFrame.origin.x, bottom - captionSize.height, pageFrame.size.width, captionSize.height);
     return captionFrame;
 }
 
@@ -774,7 +827,7 @@ CGFloat const kPageViewPadding = 10.0f;
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView  {
     
-    if (!_viewIsActive || _performingLayout) { return; }
+    if (!_viewIsActive || _performingLayout || [self numberOfPhotos] == 0 || CGRectGetWidth(scrollView.bounds) <= 0) { return; }
 
     [self tilePages];
 
@@ -837,7 +890,7 @@ CGFloat const kPageViewPadding = 10.0f;
 	}
     [_toolbar setNeedsLayout];
     [_toolbar layoutIfNeeded];
-    RLPhoto *photo = [self photoAtIndex:self.currentPageIndex];
+    RLPhoto *photo = [self numberOfPhotos] > 0 ? [self photoAtIndex:self.currentPageIndex] : nil;
     _hideTagButton.hidden = (photo.photoTags.count == 0);
 }
 
@@ -899,9 +952,7 @@ CGFloat const kPageViewPadding = 10.0f;
 
 - (void)setInitialPageIndex:(NSUInteger)index {
     
-    if (index >= [self numberOfPhotos]) {
-        index = [self numberOfPhotos] - 1;
-    }
+    index = [self numberOfPhotos] > 0 ? MIN(index, [self numberOfPhotos] - 1) : 0;
     _initalPageIndex = index;
     _currentPageIndex = index;
 	if ([self isViewLoaded]) {
@@ -950,7 +1001,17 @@ CGFloat const kPageViewPadding = 10.0f;
     if (!_counterLabel) {
         _counterLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 95, 40)];
         _counterLabel.backgroundColor = [UIColor clearColor];
-        
+        // Newer toolbars size custom views with Auto Layout and can compress
+        // the counter even when the toolbar has plenty of flexible space.
+        _counterLabel.translatesAutoresizingMaskIntoConstraints = NO;
+        [_counterLabel setContentCompressionResistancePriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisHorizontal];
+        [_counterLabel addConstraint:[NSLayoutConstraint constraintWithItem:_counterLabel
+                                                                 attribute:NSLayoutAttributeWidth
+                                                                 relatedBy:NSLayoutRelationGreaterThanOrEqual
+                                                                    toItem:nil
+                                                                 attribute:NSLayoutAttributeNotAnAttribute
+                                                                multiplier:1
+                                                                  constant:95]];
         _counterLabel.textColor = [UIColor whiteColor];
         _counterLabel.shadowColor = [UIColor darkTextColor];
         _counterLabel.shadowOffset = CGSizeMake(0, 1);

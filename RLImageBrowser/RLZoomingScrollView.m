@@ -23,6 +23,7 @@ static NSString * const kPlayerKeyPath = @"status";
 
 @implementation RLZoomingScrollView {
     NSArray *_photoTagViews;
+    NSArray<NSNumber *> *_photoTagWidths;
 }
 
 - (instancetype)initWithPhotoBrowser:(RLImageBrowser *)browser maxPhotoTags:(NSInteger)maxPhotoTags {
@@ -66,17 +67,8 @@ static NSString * const kPlayerKeyPath = @"status";
             [_videoPlayerView addInteraction:drag];
         }
         
-        CGRect screenBound = [[UIScreen mainScreen] bounds];
-        CGFloat screenWidth = screenBound.size.width;
-        CGFloat screenHeight = screenBound.size.height;
-        
-        if ([[UIApplication sharedApplication] statusBarOrientation] == UIInterfaceOrientationLandscapeLeft || [[UIApplication sharedApplication] statusBarOrientation] == UIInterfaceOrientationLandscapeRight) {
-            screenWidth = screenBound.size.height;
-            screenHeight = screenBound.size.width;
-        }
-        
         // Progress view
-        _progressView = [[RLCircularProgressView alloc] initWithFrame:CGRectMake((screenWidth - 35.0) * 0.5f, (screenHeight - 35.0) * 0.5f, 35.0f, 35.0f)];
+        _progressView = [[RLCircularProgressView alloc] initWithFrame:CGRectMake(0, 0, 35, 35)];
         [_progressView setProgress:0.0f];
         _progressView.thicknessRatio = 0.18;
         _progressView.roundedCorners = NO;
@@ -90,7 +82,11 @@ static NSString * const kPlayerKeyPath = @"status";
         self.showsHorizontalScrollIndicator = NO;
         self.showsVerticalScrollIndicator = NO;
         self.decelerationRate = UIScrollViewDecelerationRateFast;
-        self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        // The browser resizes pages explicitly so it can capture the old zoom position first.
+        self.autoresizingMask = UIViewAutoresizingNone;
+        if (@available(iOS 11.0, *)) {
+            self.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+        }
         
         NSMutableArray *tempArray = [NSMutableArray array];
         for (int i = 0; i < maxPhotoTags; i ++) {
@@ -108,6 +104,8 @@ static NSString * const kPlayerKeyPath = @"status";
 }
 
 - (void)setPhoto:(id<RLPhoto>)photo {
+    _photoTagWidths = nil;
+    [self photoTagViewsShouldHide:YES];
     _photoImageView.image = nil;
     if (_photo != photo) {
         _photo = photo;
@@ -182,8 +180,9 @@ static NSString * const kPlayerKeyPath = @"status";
         
         //Async calculate the width of each tag, and cache the width
         __weak typeof(self) wself = self;
+        id<RLPhoto> displayedPhoto = _photo;
         [_photo loadPhotoTagsWidth:^(NSArray *widths) {
-            [wself configPhotoTagsViewWithWidths:widths];
+            if (wself.photo == displayedPhoto) [wself configPhotoTagsViewWithWidths:widths];
         }];
         
         self.contentSize = photoImageViewFrame.size;
@@ -248,31 +247,38 @@ static NSString * const kPlayerKeyPath = @"status";
 
 
 - (void)configPhotoTagsViewWithWidths:(NSArray *)widths {
+    _photoTagWidths = [widths copy];
+    [self setNeedsLayout];
+}
+
+- (void)layoutPhotoTags {
+    NSArray *widths = _photoTagWidths;
     if (widths.count > _photoTagViews.count) {
         return;
     }
-    CGSize size = _photoImageView.frame.size;
+    CGRect imageFrame = _photoImageView.frame;
+    CGSize size = imageFrame.size;
     const CGFloat tagViewHeight = 30;
-    const CGFloat zoomingViewHeight = self.bounds.size.height;
     [widths enumerateObjectsUsingBlock:^(NSNumber *width, NSUInteger idx, BOOL * _Nonnull stop) {
-        if (width.floatValue <= 0) {
+        RLPhotoTagView *view = _photoTagViews[idx];
+        if (idx >= self.photo.photoTags.count || width.floatValue <= 0 || size.width <= 20 || size.height < tagViewHeight) {
+            view.hidden = YES;
             return;
         }
         RLPhotoTag *tagModel = self.photo.photoTags[idx];
-        RLPhotoTagView *view = _photoTagViews[idx];
-        view.hidden = NO;
         view.hidden = _photo.hiddenTags;
         view.photoTag = tagModel;
         CGFloat originX = MAX(size.width * tagModel.offsetX, 0);
         CGFloat W = MIN(width.floatValue + 21, size.width - 20);
-        CGFloat Y = MAX(size.height * tagModel.offsetY - 0.5 * tagViewHeight, 0) + (zoomingViewHeight - size.height) * 0.5;
-        CGFloat originY = MIN(Y, (zoomingViewHeight + size.height) * 0.5 - tagViewHeight - 2);
+        CGFloat Y = MAX(size.height * tagModel.offsetY - 0.5 * tagViewHeight, 0);
+        CGFloat originY = MIN(Y, size.height - tagViewHeight);
         if (tagModel.direction == RLPhotoTagDirectionRight) {
             originX = MAX(0, originX - W - 16);
         } else {
             originX = MIN(originX + 8, size.width - W - 10);
         }
-        view.frame = CGRectMake(originX + 5, originY, W, tagViewHeight);
+        view.frame = CGRectMake(CGRectGetMinX(imageFrame) + originX + 5,
+                                CGRectGetMinY(imageFrame) + originY, W, tagViewHeight);
     }];
     
 }
@@ -285,64 +291,65 @@ static NSString * const kPlayerKeyPath = @"status";
 #pragma mark - Setup
 
 - (void)setMaxMinZoomScalesForCurrentBounds {
-    // Reset
     self.maximumZoomScale = 1;
     self.minimumZoomScale = 1;
     self.zoomScale = 1;
-    // Bail
-    if (_photoImageView.image == nil) return;
-    // Sizes
-    CGSize boundsSize = self.bounds.size;
-    boundsSize.width -= 0.1;
-    boundsSize.height -= 0.1;
-	
-    CGSize imageSize = _photoImageView.frame.size;
-    
-    // Calculate Min
-    CGFloat xScale = boundsSize.width / imageSize.width;    // the scale needed to perfectly fit the image width-wise
-    CGFloat yScale = boundsSize.height / imageSize.height;  // the scale needed to perfectly fit the image height-wise
-    CGFloat minScale = MIN(xScale, yScale);                 // use minimum of these to allow the image to become fully visible
-    
-    // If image is smaller than the screen then ensure we show it at
-    // min scale of 1
-    if (xScale > 1 && yScale > 1) {
-        minScale = 1.0;
-    }
-    // Calculate Max
-    CGFloat maxScale = 6.0; // Allow double scale
-    // on high resolution screens we have double the pixel density, so we will be seeing every pixel if we limit the
-    // maximum zoom scale to 0.5.
-    if ([UIScreen instancesRespondToSelector:@selector(scale)]) {
-        maxScale = maxScale / [[UIScreen mainScreen] scale];
-        if (maxScale < minScale) {
-            maxScale = minScale * 2;
-        }
-    }
-	
-    // Calculate Max Scale Of Double Tap
-	
-    CGFloat maxDoubleTapZoomScale = 6.0 * minScale; // Allow double scale
-    
-    // on high resolution screens we have double the pixel density, so we will be seeing every pixel if we limit the
-    
-    // maximum zoom scale to 0.5.
-    if ([UIScreen instancesRespondToSelector:@selector(scale)]) {
-        maxDoubleTapZoomScale = maxDoubleTapZoomScale / [[UIScreen mainScreen] scale];
-        if (maxDoubleTapZoomScale < minScale) {
-            maxDoubleTapZoomScale = minScale * 2;
-        }
-    }
-    // Make sure maxDoubleTapZoomScale isn't larger than maxScale
-    maxDoubleTapZoomScale = MIN(maxDoubleTapZoomScale, maxScale);
-    
-    // Set
+
+    CGSize imageSize = _photoImageView.image.size;
+    CGSize viewport = self.bounds.size;
+    if (imageSize.width <= 0 || imageSize.height <= 0 || viewport.width <= 0 || viewport.height <= 0) return;
+
+    // Rebuild the unscaled image geometry from the current viewport, never from
+    // a frame left over from the previous orientation or zoom transform.
+    CGSize baseSize = CGSizeMake(viewport.width, viewport.width * imageSize.height / imageSize.width);
+    _photoImageView.frame = (CGRect){CGPointZero, baseSize};
+    self.contentSize = baseSize;
+    CGFloat minScale = MIN(viewport.width / baseSize.width, viewport.height / baseSize.height);
+    CGFloat displayScale = self.window.screen.scale ?: self.traitCollection.displayScale;
+    if (displayScale <= 0) displayScale = 1;
+    CGFloat maxScale = MAX(minScale, 6.0 / displayScale);
+    self.maximumDoubleTapZoomScale = MIN(maxScale, MAX(minScale, 6.0 * minScale / displayScale));
     self.maximumZoomScale = maxScale;
     self.minimumZoomScale = minScale;
     self.zoomScale = minScale;
-    self.maximumDoubleTapZoomScale = maxDoubleTapZoomScale;
-    // Reset position
-    _photoImageView.frame = CGRectMake(0, 0, _photoImageView.frame.size.width, _photoImageView.frame.size.height);
     [self setNeedsLayout];
+}
+
+- (void)resizeToFrame:(CGRect)frame {
+    if (CGSizeEqualToSize(frame.size, self.bounds.size)) {
+        self.frame = frame;
+        return;
+    }
+
+    CGFloat relativeZoom = self.minimumZoomScale > 0 ? self.zoomScale / self.minimumZoomScale : 1;
+    BOOL preserveZoom = _photoImageView.image != nil && relativeZoom > 1.001 &&
+        _photoImageView.bounds.size.width > 0 && _photoImageView.bounds.size.height > 0;
+    CGPoint normalizedCenter = CGPointMake(0.5, 0.5);
+    if (preserveZoom) {
+        CGPoint center = [self convertPoint:CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds))
+                                    toView:_photoImageView];
+        normalizedCenter.x = MIN(1, MAX(0, center.x / _photoImageView.bounds.size.width));
+        normalizedCenter.y = MIN(1, MAX(0, center.y / _photoImageView.bounds.size.height));
+    }
+
+    self.frame = frame;
+    if (_photoImageView.image) {
+        [self setMaxMinZoomScalesForCurrentBounds];
+        if (preserveZoom) {
+            self.zoomScale = MIN(self.maximumZoomScale, self.minimumZoomScale * relativeZoom);
+        }
+        [self layoutIfNeeded];
+        CGPoint imagePoint = CGPointMake(normalizedCenter.x * _photoImageView.bounds.size.width,
+                                         normalizedCenter.y * _photoImageView.bounds.size.height);
+        CGPoint contentPoint = [_photoImageView convertPoint:imagePoint toView:self];
+        CGFloat x = contentPoint.x - CGRectGetWidth(self.bounds) * 0.5;
+        CGFloat y = contentPoint.y - CGRectGetHeight(self.bounds) * 0.5;
+        self.contentOffset = CGPointMake(MIN(MAX(0, x), MAX(0, self.contentSize.width - CGRectGetWidth(self.bounds))),
+                                         MIN(MAX(0, y), MAX(0, self.contentSize.height - CGRectGetHeight(self.bounds))));
+    }
+    // Resizing a video only changes its layer; keep the same player, time and rate.
+    [self setNeedsLayout];
+    [self layoutIfNeeded];
 }
 
 #pragma mark - Layout
@@ -352,7 +359,11 @@ static NSString * const kPlayerKeyPath = @"status";
     _tapView.frame = self.bounds;
     
     _videoPlayerView.frame = self.bounds;
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
     _videoPlayerLayer.frame = _videoPlayerView.bounds;
+    [CATransaction commit];
+    _progressView.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds));
 
     // Super
     [super layoutSubviews];
@@ -377,6 +388,7 @@ static NSString * const kPlayerKeyPath = @"status";
     if (!CGRectEqualToRect(_photoImageView.frame, frameToCenter)) {
         _photoImageView.frame = frameToCenter;
     }
+    [self layoutPhotoTags];
 }
 
 - (CGFloat)initialZoomScaleWithMinScale {

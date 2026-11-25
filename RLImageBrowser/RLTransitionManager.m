@@ -16,22 +16,7 @@
 
 @end
 
-@implementation RLTransitionManager {
-     BOOL _isEnter;
-}
-
-UIWindow *RLNormalWindow(void) {
-    UIWindow *window = [[UIApplication sharedApplication] keyWindow];
-    if (window.windowLevel != UIWindowLevelNormal) {
-        NSArray *windows = [[UIApplication sharedApplication] windows];
-        for (UIWindow *temp in windows) {
-            if (temp.windowLevel == UIWindowLevelNormal) {
-                window = temp; break;
-            }
-        }
-    }
-    return window;
-}
+@implementation RLTransitionManager
 
 #pragma mark - life cycle
 
@@ -71,19 +56,20 @@ UIWindow *RLNormalWindow(void) {
     
     /** present */
     if (toController.isBeingPresented) {
-        self->_isEnter = YES;
         self.isTransitioning = YES;
-        if ([self configAnimateImageView]) {
-            [containerView addSubview:toView];
+        toView.frame = [transitionContext finalFrameForViewController:toController];
+        [containerView addSubview:toView];
+        [toView setNeedsLayout];
+        [toView layoutIfNeeded];
+        if ([self configAnimateImageViewInContainer:containerView]) {
             [containerView addSubview:self.animateImageView];
             [UIView animateWithDuration:[self transitionDuration:transitionContext] animations:^{
-                self.animateImageView.frame = [self animationFrameForImage:self.animateImageView.image presenting:YES scrollView:nil];
+                self.animateImageView.frame = [self animationFrameForImage:self.animateImageView.image inContainer:containerView scrollView:nil];
             } completion:^(BOOL finished) {
                 [self.animateImageView removeFromSuperview];
                 [self completeTransition:transitionContext];
             }];
         } else {
-            [containerView addSubview:toView];
             [self completeTransition:transitionContext];
         }
         return;
@@ -91,10 +77,9 @@ UIWindow *RLNormalWindow(void) {
     
     /** dismiss */
     if (fromController.isBeingDismissed) {
-        self->_isEnter = NO;
         self.isTransitioning = YES;
         
-        UIView <RLTransitionProtocol> *transitionView = [self configAnimateImageView];
+        UIView <RLTransitionProtocol> *transitionView = [self configAnimateImageViewInContainer:containerView];
         RLZoomingScrollView *scrollView = [self.photoBrowser currentPageZoomingScrollView];
         
         UIImageView *transitionImageView = [transitionView transitionAnimatedImageView];
@@ -104,30 +89,32 @@ UIWindow *RLNormalWindow(void) {
             [self completeTransition:transitionContext];
             return;
         }
-        CGRect imageViewFrame = [self animationFrameForImage:animatedImage presenting:NO scrollView:scrollView];
+        CGRect imageViewFrame = [self animationFrameForImage:animatedImage inContainer:containerView scrollView:scrollView];
         
-        CGFloat fadeAlpha = 1 - fabs(scrollView.frame.origin.y) / scrollView.frame.size.height;
-        UIView *fadeView = [[UIView alloc] initWithFrame:RLNormalWindow().bounds];
+        CGFloat fadeAlpha = MAX(0, MIN(1, 1 - fabs(scrollView.frame.origin.y) / MAX(scrollView.frame.size.height, 1)));
+        UIView *fadeView = [[UIView alloc] initWithFrame:containerView.bounds];
         fadeView.backgroundColor =  [UIColor blackColor];
         fadeView.alpha = fadeAlpha;
-        [RLNormalWindow() addSubview:fadeView];
+        [containerView addSubview:fadeView];
         
         self.animateImageView.frame = imageViewFrame;
         self.animateImageView.image = animatedImage;
         self.animateImageView.layer.cornerRadius = transitionImageView ? transitionImageView.layer.cornerRadius : scrollView.photoImageView.layer.cornerRadius;
-        [RLNormalWindow() addSubview:self.animateImageView];
+        [containerView addSubview:self.animateImageView];
         
         fromView.hidden = YES;
         void (^completion)(BOOL finished) = ^(BOOL finished) {
-            transitionView.hidden = NO;
+            transitionView.hidden = transitionContext.transitionWasCancelled;
+            fromView.hidden = NO;
+            fromView.backgroundColor = UIColor.blackColor;
             [fadeView removeFromSuperview];
             [self.animateImageView removeFromSuperview];
             [self completeTransition:transitionContext];
         };
         
-        CGRect senderViewOriginalFrame = [transitionView.superview convertRect:transitionView.frame toView:nil];
-        if (!CGRectIntersectsRect(RLNormalWindow().bounds, senderViewOriginalFrame) || !transitionView) {
-            senderViewOriginalFrame = CGRectMake([UIScreen mainScreen].bounds.size.width * 0.5f, [UIScreen mainScreen].bounds.size.height * 0.5, 1, 1);
+        CGRect senderViewOriginalFrame = [transitionView convertRect:transitionView.bounds toView:containerView];
+        if (!transitionView.window || !CGRectIntersectsRect(containerView.bounds, senderViewOriginalFrame)) {
+            senderViewOriginalFrame = CGRectMake(CGRectGetMidX(containerView.bounds), CGRectGetMidY(containerView.bounds), 1, 1);
         }
         [UIView animateWithDuration:[self transitionDuration:transitionContext] animations:^{
             fadeView.alpha = 0;
@@ -143,7 +130,7 @@ UIWindow *RLNormalWindow(void) {
     _photoBrowser.pagingScrollView.hidden = NO;
 }
 
-- (UIView <RLTransitionProtocol> *)configAnimateImageView {
+- (UIView <RLTransitionProtocol> *)configAnimateImageViewInContainer:(UIView *)container {
     if (![self.photoBrowser.delegate respondsToSelector:@selector(imageBrowser:transitionViewForPhotoAtIndex:)]) {
         return nil;
     }
@@ -156,19 +143,19 @@ UIWindow *RLNormalWindow(void) {
     self.animateImageView.image = animatedImageView.image;
     self.animateImageView.contentMode = animatedImageView.contentMode;
 
-    self.animateImageView.frame = [transitionView convertRect:transitionView.layer.bounds toView:RLNormalWindow()];
+    self.animateImageView.frame = [transitionView convertRect:transitionView.bounds toView:container];
     return transitionView;
 }
 
-- (CGRect)animationFrameForImage:(UIImage *)image presenting:(BOOL)presenting scrollView:(RLZoomingScrollView *)scrollView {
-    if (!image) {
+- (CGRect)animationFrameForImage:(UIImage *)image inContainer:(UIView *)container scrollView:(RLZoomingScrollView *)scrollView {
+    if (!image || image.size.width <= 0 || image.size.height <= 0) {
         return CGRectZero;
     }
-    if (scrollView.photoImageView) {
-        return [RLNormalWindow() convertRect:scrollView.photoImageView.frame fromView:scrollView];
+    if (scrollView.photoImageView.image && !scrollView.photoImageView.hidden) {
+        return [scrollView.photoImageView convertRect:scrollView.photoImageView.bounds toView:container];
     }
     CGSize imageSize = image.size;
-    CGRect bounds = RLNormalWindow().bounds;
+    CGRect bounds = self.photoBrowser.view.bounds;
     CGFloat maxWidth = CGRectGetWidth(bounds);
     CGFloat maxHeight = CGRectGetHeight(bounds);
     
@@ -182,10 +169,7 @@ UIWindow *RLNormalWindow(void) {
     animationFrame.origin.x = roundf((maxWidth - animationFrame.size.width) / 2.0f);
     animationFrame.origin.y = roundf((maxHeight - animationFrame.size.height) / 2.0f);
     
-    if (!presenting) {
-        animationFrame.origin.y += scrollView.frame.origin.y;
-    }
-    return animationFrame;
+    return [self.photoBrowser.view convertRect:animationFrame toView:container];
 }
 
 
